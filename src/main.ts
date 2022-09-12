@@ -6,8 +6,8 @@ import {
   Setting,
 } from 'obsidian';
 
-import ExampleView, { REPEATING_NOTES_DUE_VIEW } from './repeat/view';
-import RepeatNoteSetupModal from './repeat/modal';
+import RepeatView, { REPEATING_NOTES_DUE_VIEW } from './repeat/obsidian/RepeatView';
+import RepeatNoteSetupModal from './repeat/obsidian/RepeatNoteSetupModal';
 import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
 
 export default class RepeatPlugin extends Plugin {
@@ -52,7 +52,7 @@ export default class RepeatPlugin extends Plugin {
     ));
     this.registerView(
       REPEATING_NOTES_DUE_VIEW,
-      (leaf) => new ExampleView(leaf),
+      (leaf) => new RepeatView(leaf),
     );
 
     const ribbonIconEl = this.addRibbonIcon(

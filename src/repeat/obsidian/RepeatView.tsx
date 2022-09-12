@@ -2,11 +2,11 @@ import { ItemView, WorkspaceLeaf } from 'obsidian';
 import * as React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 
-import RepeatingNotesDueRoot from './RepeatingNotesDueRoot';
+import RepeatingNotesDueRoot from '../RepeatingNotesDueRoot';
 
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 
-class ExampleView extends ItemView {
+class RepeatView extends ItemView {
   root: Root;
 
   constructor(leaf: WorkspaceLeaf) {
@@ -35,4 +35,4 @@ class ExampleView extends ItemView {
   }
 }
 
-export default ExampleView;
+export default RepeatView;
