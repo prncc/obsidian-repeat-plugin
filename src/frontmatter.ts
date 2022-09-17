@@ -43,3 +43,23 @@ export function determineFrontmatterBounds(content: string): Bounds {
 
   return [startIndex, closeResult.index];
 }
+
+/**
+ * Determines start and end indexes of a specific field in the frontmatter, excluding delimiters.
+  *
+ * @param frontmatter YAML frontmatter.
+ * @param field The name of the field to get bounds for.
+ * @returns Field bounds (including the value) or null if they can't be found.
+ */
+export function determineInlineFieldBounds(frontmatter: string, field: string): Bounds {
+  const fieldRegex = new RegExp(`${field}\\s*:\\s*.*(?=\\r?\\n)`, 'gm');
+  let fieldResult;
+  let lastMatch;  // Later occurrences overwrite previous ones.
+  while((fieldResult = fieldRegex.exec(frontmatter))) {
+    lastMatch = fieldResult;
+  }
+  if (!lastMatch) {
+    return null;
+  }
+  return [lastMatch.index, lastMatch.index + lastMatch[0].length];
+}

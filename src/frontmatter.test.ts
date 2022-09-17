@@ -1,5 +1,6 @@
 import {
   determineFrontmatterBounds,
+  determineInlineFieldBounds,
 } from './frontmatter';
 
 const validFrontmatter = `
@@ -16,37 +17,58 @@ const validContentWithDanglingKey = `---${validFrontmatter}
 key
 ---`;
 
-test.concurrent.each([
-  {
-    testName: 'no trailing chars',
-    content: validContent,
-    hi: validFrontmatter.length + 4 - 1,
-  },
-  {
-    testName: 'trailing spaces',
-    content: `${validContent}      `,
-    hi: validFrontmatter.length + 4 - 1,
-  },
-  {
-    testName: 'dangling key',
-    content: validContentWithDanglingKey,
-    hi: (validFrontmatter.length + 'key'.length + 2) + 4 - 1
-  },
-])('valid bounds - $testName', ({ content, hi }) => {
-  const bounds = determineFrontmatterBounds(content);
-  expect(bounds).toStrictEqual([4, hi]);
+describe('determineFrontmatterBounds', () => {
+  test.concurrent.each([
+    {
+      testName: 'no trailing chars',
+      content: validContent,
+      hi: validFrontmatter.length + 4 - 1,
+    },
+    {
+      testName: 'trailing spaces',
+      content: `${validContent}      `,
+      hi: validFrontmatter.length + 4 - 1,
+    },
+    {
+      testName: 'dangling key',
+      content: validContentWithDanglingKey,
+      hi: (validFrontmatter.length + 'key'.length + 2) + 4 - 1
+    },
+  ])('valid bounds - $testName', ({ content, hi }) => {
+    const bounds = determineFrontmatterBounds(content);
+    expect(bounds).toStrictEqual([4, hi]);
+  });
+
+  test.concurrent.each([
+    {
+      testName: 'unterminated yaml',
+      content: `---${validFrontmatter}`,
+    },
+    {
+      testName: 'incorrectly terminated yaml',
+      content: `---${validFrontmatter}--`,
+    },
+  ])('null bounds - $testName', ({ content }) => {
+    const bounds = determineFrontmatterBounds(content);
+    expect(bounds).toBeNull();
+  });
 });
 
-test.concurrent.each([
-  {
-    testName: 'unterminated yaml',
-    content: `---${validFrontmatter}`,
-  },
-  {
-    testName: 'incorrectly terminated yaml',
-    content: `---${validFrontmatter}--`,
-  },
-])('null bounds - $testName', ({ content }) => {
-  const bounds = determineFrontmatterBounds(content);
-  expect(bounds).toBeNull();
+describe('determineInlineFieldBounds', () => {
+  test.concurrent.each([
+    'one:two',
+    'one: two',
+    'one :two',
+    'one : two',
+    'one    :    two',
+  ])('simple field bounds %s', (inlineField) => {
+    const bounds = determineInlineFieldBounds(`${inlineField}\n`, 'one');
+    expect(bounds).toStrictEqual([0, inlineField.length]);
+  });
+
+  test('repeated field', () => {
+    const frontmatter = ['one: 1', 'one: 2\n'].join('\n');
+    const bounds = determineInlineFieldBounds(frontmatter, 'one');
+    expect(frontmatter.slice(...(bounds || []))).toBe('one: 2');
+  })
 });
