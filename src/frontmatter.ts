@@ -10,6 +10,15 @@ export type Bounds = [number, number] | null;
  * when loaded into metadataCache. What Obsidian actually captures into
  * metadataCache can differ from what the editor highlights as the frontmatter.
  *
+ * Example demonstrating newline behavior:
+ * `---
+ * one: 1
+ * two: 2
+ * ---`
+ * ->
+ * `one: 1
+ * two: 2
+ * `
  * @param content A note's full markdown content.
  * @returns Frontmatter bounds or null if they can't be found.
  */
@@ -46,8 +55,8 @@ export function determineFrontmatterBounds(content: string): Bounds {
 
 /**
  * Determines start and end indexes of a specific field in the frontmatter, excluding delimiters.
-  *
- * @param frontmatter YAML frontmatter.
+ *
+ * @param frontmatter YAML frontmatter (starting newline: no; ending newline: yes).
  * @param field The name of the field to get bounds for.
  * @returns Field bounds (including the value) or null if they can't be found.
  */
@@ -62,4 +71,26 @@ export function determineInlineFieldBounds(frontmatter: string, field: string): 
     return null;
   }
   return [lastMatch.index, lastMatch.index + lastMatch[0].length];
+}
+
+/**
+ * Adds or replaces a specific field: value.
+ *
+ * @param frontmatter YAML frontmatter (starting newline: no; ending newline: yes).
+ * @param field The name of the field to replace or insert.
+ * @param value The value to replace or insert.
+ * @returns New YAML frontmatter with the required modification.
+ */
+export function replaceOrInsertField(frontmatter: string, field: string, value: string): string {
+  let bounds = determineInlineFieldBounds(frontmatter, field);
+  if (!bounds) {
+    bounds = [frontmatter.length, frontmatter.length];
+  }
+  const prefix = frontmatter.slice(0, bounds[0]);
+  const suffix = frontmatter.slice(bounds[1]);
+  return [
+    prefix, // Prefix contains newlines from previous field.
+    `${field}: ${value}`,
+    suffix || '\n', // Add newline only if this is the last field.
+  ].join('')
 }

@@ -1,6 +1,7 @@
 import {
   determineFrontmatterBounds,
   determineInlineFieldBounds,
+  replaceOrInsertField,
 } from './frontmatter';
 
 const validFrontmatter = `
@@ -70,5 +71,49 @@ describe('determineInlineFieldBounds', () => {
     const frontmatter = ['one: 1', 'one: 2\n'].join('\n');
     const bounds = determineInlineFieldBounds(frontmatter, 'one');
     expect(frontmatter.slice(...(bounds || []))).toBe('one: 2');
+  })
+});
+
+describe('replaceOrInsertField', () => {
+  test.concurrent.each([
+    {
+      testName: 'last',
+      frontmatter: [
+        'one: 1',
+        'field :  value\n',
+      ].join('\n'),
+      expectedFrontmatter: [
+        'one: 1',
+        'field: new value\n',
+      ].join('\n'),
+    }, {
+      testName: 'repeated',
+      frontmatter: [
+        'one: 1',
+        'field: value',
+        'field: second value',
+        'two: 2\n',
+      ].join('\n'),
+      expectedFrontmatter: [
+        'one: 1',
+        'field: value',
+        'field: new value',
+        'two: 2\n',
+      ].join('\n'),
+    }, {
+      testName: 'repeated',
+      frontmatter: [
+        'one: 1',
+        'two: 2\n',
+      ].join('\n'),
+      expectedFrontmatter: [
+        'one: 1',
+        'two: 2',
+        'field: new value\n',
+      ].join('\n'),
+    },
+  ])('replace $testName', ({ frontmatter, expectedFrontmatter }) => {
+    const newFrontmatter = replaceOrInsertField(frontmatter, 'field', 'new value');
+    expect(newFrontmatter).toEqual(expectedFrontmatter);
   })
 });
