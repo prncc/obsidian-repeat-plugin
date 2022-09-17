@@ -16,12 +16,13 @@ export type Bounds = [number, number] | null;
 export function determineFrontmatterBounds(content: string): Bounds {
   // metadataCache's frontmatter only gets populated if *document* starts
   // with ---<newline>, even though the editor allows newlines before ---.
-  let open = /---\r?\n/gm;
+  let openRegex = /---\r?\n/gm;
   // The editor sometimes highlights past the first close, but any fields
   // there are not saved into metadataCache, so we ignore them.
-  let close = /---(\s|$)/gm;
+  // It also looks like more than three dashes close the frontmatter, too.
+  let closeRegex = /-{3,}(\s|$)/gm;
 
-  const openResult = open.exec(content);
+  const openResult = openRegex.exec(content);
   // Opening must be at the start of the file.
   if (openResult?.index !== 0) {
     return null;
@@ -34,8 +35,8 @@ export function determineFrontmatterBounds(content: string): Bounds {
   }
 
   // Find the closing delimiter after the frontmatter starts.
-  close.lastIndex = startIndex;
-  const closeResult = close.exec(content);
+  closeRegex.lastIndex = startIndex;
+  const closeResult = closeRegex.exec(content);
   if (!closeResult) {
     return null;
   }
