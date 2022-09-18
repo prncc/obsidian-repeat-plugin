@@ -51,6 +51,7 @@ class RepeatView extends ItemView {
     }
 
     this.registerEvent(
+      // @ts-ignore: event is added by DataView.
       app?.metadataCache.on('dataview:index-ready', async () => {
         setPage();
       })
