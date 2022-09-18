@@ -1,17 +1,22 @@
+import { DateTime } from 'luxon';
 import { ItemView, WorkspaceLeaf } from 'obsidian';
-import * as React from 'react';
-import { createRoot, Root } from 'react-dom/client';
-
-import RepeatingNotesDueRoot from '../RepeatingNotesDueRoot';
+import { getAPI, Literal } from 'obsidian-dataview';
 
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 
+function isNoteDue(repeatDueAt: Literal | string | undefined): boolean {
+  if (!repeatDueAt) {
+    return false;
+  }
+  return repeatDueAt <= DateTime.now();
+}
+
 class RepeatView extends ItemView {
-  root: Root;
+  root: Element;
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
-    this.root = createRoot(this.containerEl.children[1]);
+    this.root = this.containerEl.children[1];
   }
 
   getViewType() {
@@ -19,19 +24,33 @@ class RepeatView extends ItemView {
   }
 
   getDisplayText() {
-    return 'Repeating Notes Due';
+    return 'Repeat';
   }
 
   async onOpen() {
-    this.root.render(
-      <React.StrictMode>
-        <RepeatingNotesDueRoot />
-      </React.StrictMode>
-    );
-  }
+    const dv = getAPI(this.app);
+    let processed = false;
+    const setPage = async () => {
+      const pages = await dv?.pages()
+          .where(({ repeat_due_at }) => isNoteDue(repeat_due_at))
+          .sort(({ repeat_due_at }) => repeat_due_at, 'asc')
+          .file.name;
+        let container = this.root.createEl('div');
+        container.setText(
+          `file: ${pages ? pages[0] : ''}`);
+        console.log(pages ? pages[0] : '');
+        processed = true;
+    }
 
-  async onClose() {
-    this.root.unmount();
+    this.registerEvent(
+      app?.metadataCache.on('dataview:index-ready', async () => {
+        setPage();
+      })
+    );
+
+    if (dv?.index.initialized && !processed) {
+      setPage();
+    }
   }
 }
 
