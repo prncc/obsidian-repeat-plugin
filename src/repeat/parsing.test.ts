@@ -106,6 +106,13 @@ describe('parseRepetitionFields', () => {
     ...makeUnitCases('week'),
     ...makeUnitCases('month'),
     ...makeUnitCases('year'),
+    ...makeUnitCases('hour').map((testCase) => ({
+      repeat: `spaced ${testCase.repeat}`,
+      overrides: {
+        ...testCase.overrides,
+        repeatStrategy: 'SPACED',
+      },
+    })),
   ])(
     'parses $repeat', ({ repeat, overrides = {} }: RepeatTestInputs) => {
     const repetition = parseRepetitionFields(repeat, referenceRepeatDueAt);
@@ -113,5 +120,16 @@ describe('parseRepetitionFields', () => {
       ...expectedRepetition,
       ...overrides
     });
+  });
+});
+
+test('spaced without period specified', () => {
+  let repetition = parseRepetitionFields('spaced', referenceRepeatDueAt);
+  delete repetition.repeatDueAt;
+  expect(repetition).toEqual({
+    repeatStrategy: 'SPACED',
+    repeatPeriod: 1,
+    repeatPeriodUnit: 'DAY',
+    repeatTimeOfDay: 'AM',
   });
 });

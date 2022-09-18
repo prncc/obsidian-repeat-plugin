@@ -9,14 +9,16 @@ type Repetition = {
   repeatDueAt: string,
 }
 
-const joinedUnits = 'day|week|month|year';
+const joinedUnits = 'hour|day|week|month|year';
 
-export const DEFAULT_REPETITION: Repetition = {
-  repeatStrategy: 'PERIODIC',
-  repeatPeriod: 1,
-  repeatPeriodUnit: 'DAY',
-  repeatTimeOfDay: 'AM', // TODO: read from settings.
-  repeatDueAt: DateTime.now().plus({ day: 1 }), // TODO: Do this in the repeat logic module.
+export function makeDefaultRepetition(repeatStrategy: string, repeatDueAt?: DateTime): Repetition {
+  return {
+    repeatStrategy: repeatStrategy,
+    repeatPeriod: 1,
+    repeatPeriodUnit: 'DAY',
+    repeatTimeOfDay: 'AM',
+    repeatDueAt: repeatDueAt || DateTime.now().plus({ day: 1 }),
+  };
 }
 
 function parseRepeatPeriodUnit(unitDescription: string): string {
@@ -40,6 +42,8 @@ function parseRepeatPeriodUnit(unitDescription: string): string {
   let result;
   if (( result = unitRegex.exec(processedUnitDescription) )) {
     switch ((result?.groups?.unit || '').trim()) {
+      case 'hour':
+        return 'HOUR';
       case 'day':
         return 'DAY';
       case 'week':
@@ -55,9 +59,9 @@ function parseRepeatPeriodUnit(unitDescription: string): string {
   return 'DAY';
 }
 
-function parseRepeatTimeOfDay(timeOfDayDescription: string): string {
-  const processedTimeOfDaySuffix = timeOfDayDescription.trim();
-  if (timeOfDayDescription === 'in the evening' || timeOfDayDescription === 'pm') {
+function parseRepeatTimeOfDay(timeOfDaySuffix: string): string {
+  const processedTimeOfDaySuffix = timeOfDaySuffix.trim();
+  if (processedTimeOfDaySuffix === 'in the evening' || processedTimeOfDaySuffix === 'pm') {
     return 'PM';
   }
   return 'AM';
@@ -66,19 +70,26 @@ function parseRepeatTimeOfDay(timeOfDayDescription: string): string {
 export function parseRepetitionFields(repeat: string, repeatDueAt: string) {
   let processedRepeat = repeat.toLowerCase();
   let repetitionRegex = new RegExp(
-    '(?<unitAndPeriod>daily|weekly|monthly|yearly|annually' +
-    `|every (${joinedUnits})|every (?<period>\\d+) (${joinedUnits})s?)` +
-    '\\s?(?<timeOfDaySuffix>.*)'
+    '(?<description>' +
+      'daily|weekly|monthly|yearly|annually' +
+      '|(' +
+        '(?<spaced>spaced ?)?' +
+        `(every (${joinedUnits})|every (?<period>\\d+) (${joinedUnits})s?)` +
+      ')' +
+    ')' +
+    '(?<timeOfDaySuffix>.*)'
   );
   let result;
   if (( result = repetitionRegex.exec(processedRepeat) )) {
     return {
-      repeatStrategy: 'PERIODIC',
+      repeatStrategy: (result?.groups?.spaced || '').trim() === 'spaced'
+                      ? 'SPACED' : 'PERIODIC',
       repeatPeriod: parseInt(result?.groups?.period || '1'),
-      repeatPeriodUnit: parseRepeatPeriodUnit(result?.groups?.unitAndPeriod || 'day'),
+      repeatPeriodUnit: parseRepeatPeriodUnit(result?.groups?.description || 'day'),
       repeatTimeOfDay: parseRepeatTimeOfDay(result?.groups?.timeOfDaySuffix || 'am'),
-      repeatDueAt: DateTime.fromISO(repeatDueAt), // TODO recover if broken or missing
+      repeatDueAt: DateTime.fromISO(repeatDueAt), // TODO recover if broken
     }
   }
-  return DEFAULT_REPETITION;
+  // If here, repeat is not in a recognized format so we default to spaced.
+  return makeDefaultRepetition('SPACED', DateTime.fromISO(repeatDueAt)); // TODO recover if date broken
 }
