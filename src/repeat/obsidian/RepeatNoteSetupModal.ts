@@ -11,7 +11,6 @@ class RepeatNoteSetupModal extends Modal {
 
   onOpen() {
     const { contentEl } = this;
-    contentEl.createEl('h1', { text: 'Set Up Repetition for This Note' });
 
     // TODO: Implement repeat choice menu.
     new Setting(contentEl)
@@ -24,7 +23,7 @@ class RepeatNoteSetupModal extends Modal {
     new Setting(contentEl)
       .addButton((btn) =>
         btn
-          .setButtonText('Submit')
+          .setButtonText('Set Up Repetition')
           .setCta()
           .onClick(() => {
             this.close();
