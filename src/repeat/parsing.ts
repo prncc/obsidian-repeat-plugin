@@ -6,7 +6,7 @@ type Repetition = {
   repeatPeriod: number,
   repeatPeriodUnit: string,
   repeatTimeOfDay: string,
-  repeatDueAt: string,
+  repeatDueAt: DateTime,
 }
 
 const joinedUnits = 'hour|day|week|month|year';

@@ -124,7 +124,7 @@ describe('parseRepetitionFields', () => {
 });
 
 test('spaced without period specified', () => {
-  let repetition = parseRepetitionFields('spaced', referenceRepeatDueAt);
+  let repetition = parseRepetitionFields('spaced', referenceRepeatDueAt) as any;
   delete repetition.repeatDueAt;
   expect(repetition).toEqual({
     repeatStrategy: 'SPACED',
