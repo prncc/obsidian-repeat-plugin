@@ -13,3 +13,11 @@ export type Repetition = {
   repeatTimeOfDay: TimeOfDay,
   repeatDueAt: DateTime,
 }
+
+export type RepeatChoice = {
+  id: string,
+  text: string,
+  repeatDueAt: DateTime | null,
+  repeatPeriod?: number,
+  repeatPeriodUnit?: PeriodUnit,
+}
