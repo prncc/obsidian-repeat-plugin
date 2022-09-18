@@ -1,27 +1,23 @@
 import { DateTime } from 'luxon';
 
-// TODO: Make this type stricter.
-type Repetition = {
-  repeatStrategy: string,
-  repeatPeriod: number,
-  repeatPeriodUnit: string,
-  repeatTimeOfDay: string,
-  repeatDueAt: DateTime,
-}
+import { Repetition, Strategy, TimeOfDay, PeriodUnit } from './repeatTypes';
 
 const joinedUnits = 'hour|day|week|month|year';
 
-export function makeDefaultRepetition(repeatStrategy: string, repeatDueAt?: DateTime): Repetition {
+export function makeDefaultRepetition(
+  repeatStrategy: string,
+  repeatDueAt?: DateTime,
+): Repetition {
   return {
-    repeatStrategy: repeatStrategy,
+    repeatStrategy: repeatStrategy as Strategy,
     repeatPeriod: 1,
-    repeatPeriodUnit: 'DAY',
-    repeatTimeOfDay: 'AM',
+    repeatPeriodUnit: 'DAY' as PeriodUnit,
+    repeatTimeOfDay: 'AM' as TimeOfDay,
     repeatDueAt: repeatDueAt || DateTime.now().plus({ day: 1 }),
   };
 }
 
-function parseRepeatPeriodUnit(unitDescription: string): string {
+function parseRepeatPeriodUnit(unitDescription: string): PeriodUnit {
   const processedUnitDescription = unitDescription.trim();
   switch (processedUnitDescription) {
     case 'daily':
@@ -59,7 +55,7 @@ function parseRepeatPeriodUnit(unitDescription: string): string {
   return 'DAY';
 }
 
-function parseRepeatTimeOfDay(timeOfDaySuffix: string): string {
+function parseRepeatTimeOfDay(timeOfDaySuffix: string): TimeOfDay {
   const processedTimeOfDaySuffix = timeOfDaySuffix.trim();
   if (processedTimeOfDaySuffix === 'in the evening' || processedTimeOfDaySuffix === 'pm') {
     return 'PM';
@@ -67,7 +63,10 @@ function parseRepeatTimeOfDay(timeOfDaySuffix: string): string {
   return 'AM';
 }
 
-export function parseRepetitionFields(repeat: string, repeatDueAt: string) {
+export function parseRepetitionFields(
+  repeat: string,
+  repeatDueAt: string,
+): Repetition {
   let processedRepeat = repeat.toLowerCase();
   let repetitionRegex = new RegExp(
     '(?<description>' +
