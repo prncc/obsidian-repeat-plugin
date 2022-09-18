@@ -29,6 +29,14 @@ class RepeatView extends ItemView {
 
   async onOpen() {
     const dv = getAPI(this.app);
+    if (!dv) {
+      let container = this.root.createEl('div')
+      container.setText(
+        'Repeat Plugin requires DataView Plugin to work. ' +
+        'Make sure it is installed and enabled.'
+      )
+      return;
+    }
     let processed = false;
     const setPage = async () => {
       const pages = await dv?.pages()
