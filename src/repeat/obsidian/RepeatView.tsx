@@ -106,8 +106,10 @@ class RepeatView extends ItemView {
     const file = matchingMarkdowns[0];
     choices.forEach(choice => this.addRepeatButton(choice, file));
     const markdown = await this.app.vault.cachedRead(file);
+    const delimitedFrontmatterBounds = determineFrontmatterBounds(markdown, true);
     await MarkdownPreviewView.renderMarkdown(
-      markdown,
+      markdown.slice(delimitedFrontmatterBounds ?
+                     delimitedFrontmatterBounds[1] : 0),
       this.previewContainer,
       file.path,
       this.component,
