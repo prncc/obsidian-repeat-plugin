@@ -165,8 +165,6 @@ class RepeatView extends ItemView {
             this.setPage();
             this.app.metadataCache.off('dataview:metadata-change', resolver);
           });
-          // TODO: refactor this (sketch) into a method shared with the commands in main...
-
         }
       });
     return button;
