@@ -53,6 +53,12 @@ describe('determineFrontmatterBounds', () => {
     const bounds = determineFrontmatterBounds(content);
     expect(bounds).toBeNull();
   });
+
+  test('with delimiters included', () => {
+    const content = `---${validFrontmatter}---`;
+    const bounds = determineFrontmatterBounds(content, true);
+    expect(bounds).toStrictEqual([0, content.length]);
+  });
 });
 
 describe('determineInlineFieldBounds', () => {

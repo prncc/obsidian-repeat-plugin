@@ -2,7 +2,7 @@ export type Bounds = [number, number] | null;
 
 
 /**
- * Determines start and end indexes of the frontmatter, excluding delimiters.
+ * Determines start and end indexes of the frontmatter.
  *
  * The content between these bounds is the frontmatter _candidate_: the
  * captured content might be invalid and unparsable. This function tries
@@ -19,10 +19,20 @@ export type Bounds = [number, number] | null;
  * `one: 1
  * two: 2
  * `
+ * when includeDelimiters === false, and
+ * `---
+ * one: 1
+ * two: 2
+ * ---`
+ * when includeDelimiters === true.
+ *
  * @param content A note's full markdown content.
  * @returns Frontmatter bounds or null if they can't be found.
  */
-export function determineFrontmatterBounds(content: string): Bounds {
+export function determineFrontmatterBounds(
+  content: string,
+  includeDelimiters: boolean = false,
+): Bounds {
   // metadataCache's frontmatter only gets populated if *document* starts
   // with ---<newline>, even though the editor allows newlines before ---.
   let openRegex = /---\r?\n/gm;
@@ -38,19 +48,21 @@ export function determineFrontmatterBounds(content: string): Bounds {
   }
 
   // Figure out the start point of the YAML in content.
-  let startIndex = 4;
+  let frontmatterStartIndex = 4;
   if (openResult[0].includes('\r')) {
-    startIndex = 5;
+    frontmatterStartIndex = 5;
   }
 
   // Find the closing delimiter after the frontmatter starts.
-  closeRegex.lastIndex = startIndex;
+  closeRegex.lastIndex = frontmatterStartIndex;
   const closeResult = closeRegex.exec(content);
   if (!closeResult) {
     return null;
   }
 
-  return [startIndex, closeResult.index];
+  const startIndex = includeDelimiters ? 0 : frontmatterStartIndex;
+  const closeIndex = includeDelimiters ? closeRegex.lastIndex : closeResult.index;
+  return [startIndex, closeIndex];
 }
 
 /**
