@@ -148,21 +148,24 @@ class RepeatView extends ItemView {
             frontmatter,
             originalMarkdown.slice(bounds[1])
           ].join('');
+          let resolver;
           new Promise((resolve) => {
+            // Keep a reference so that we can properly unsubscribe from the event.
+            resolver = (_, eventFile, __) => {
+              if (eventFile?.path === file.path) {
+                resolve(null);
+              }
+            };
+            this.registerEvent(
+              // @ts-ignore: event is added by DataView.
+              this.app.metadataCache.on('dataview:metadata-change', resolver));
             this.app.vault.modify(file, newContent);
-            // @ts-ignore: event is added by DataView.
-            this.app.metadataCache.on('dataview:metadata-change',
-              (_, eventFile, __) => {
-                if (eventFile?.path === file.path) {
-                  resolve(null);
-                }
-              });
             // Resolve no matter what to avoid getting stuck.
             setTimeout(resolve, 100);
           }).then(() => {
             this.setPage();
+            this.app.metadataCache.off('dataview:metadata-change', resolver);
           });
-          // TODO: Make sure the current page doesn't get reloaded - the dv index has to update
           // TODO: refactor this (sketch) into a method shared with the commands in main...
 
         }
