@@ -7,6 +7,11 @@ import { uniqByField } from '../utils';
 export const AM_REVIEW_TIME = 6;
 export const PM_REVIEW_TIME = 18;
 
+const DISMISS_BUTTON_TEXT = 'dismiss';
+
+const SKIP_PERIOD_MINUTES = 5;
+const SKIP_BUTTON_TEXT = '5 minutes (skip)';
+
 /**
  * Determines when next repeat is due for an already due periodic note.
  * @param repetition A note Repetition object.
@@ -47,7 +52,7 @@ function incrementPeriodicToNextDueAt({
 
 const getSkipDateTime = (now: DateTime) => (
   now.plus({
-    minutes: 5,
+    minutes: SKIP_PERIOD_MINUTES,
   })
 );
 
@@ -61,14 +66,14 @@ function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): Repeat
   const { repeatDueAt } = repetition;
   if ((repeatDueAt > now) || !repeatDueAt) {
     return [{
-      text: 'Dismiss',
+      text: DISMISS_BUTTON_TEXT,
       repeatDueAt: null,
       id: 'dismiss',
     }];
   }
   const nextRepeatDueAt = incrementPeriodicToNextDueAt({ ...repetition });
   return [{
-    text: 'Skip 5 minutes',
+    text: SKIP_BUTTON_TEXT,
     repeatDueAt: getSkipDateTime(now),
     id: 'skip',
 
@@ -90,7 +95,7 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
   const { repeatDueAt } = repetition;
   if ((repeatDueAt > now) || !repeatDueAt) {
     return [{
-      text: 'Dismiss',
+      text: DISMISS_BUTTON_TEXT,
       repeatDueAt: null,
       id: 'dismiss',
     }];
@@ -116,7 +121,7 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
   });
   return uniqByField([
     {
-      text: 'Skip 5 minutes',
+      text: SKIP_BUTTON_TEXT,
       repeatDueAt: getSkipDateTime(now),
       repeatPeriod,
       repeatPeriodUnit: 'HOUR',
@@ -144,7 +149,7 @@ export function getRepeatChoices(repetition: Repetition): RepeatChoice[] {
     return getSpacedRepeatChoices(repetition, now);
   }
   return [{
-    text: 'Dismiss',
+    text: DISMISS_BUTTON_TEXT,
     repeatDueAt: null,
     id: 'dismiss',
   }];
