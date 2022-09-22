@@ -82,7 +82,6 @@ class RepeatView extends ItemView {
   }
 
   async setPage() {
-    this.messageContainer.setText('hello');
     const page = getNextDueNote(this.dv);
     if (!page) {
       this.messageContainer.setText('All done for now!');
