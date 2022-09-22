@@ -162,8 +162,8 @@ class RepeatView extends ItemView {
             // Resolve no matter what to avoid getting stuck.
             setTimeout(resolve, 100);
           }).then(() => {
-            this.setPage();
             this.app.metadataCache.off('dataview:metadata-change', resolver);
+            this.setPage();
           });
         }
       });
