@@ -32,7 +32,7 @@ class RepeatView extends ItemView {
   messageContainer: HTMLElement;
   buttonsContainer: HTMLElement;
   previewContainer: HTMLElement;
-  loaded: boolean;
+  indexPromise: Promise<null> | undefined;
   dv: DataviewApi | undefined;
 
   constructor(leaf: WorkspaceLeaf) {
@@ -45,7 +45,18 @@ class RepeatView extends ItemView {
     this.messageContainer = this.root.createDiv();
     this.buttonsContainer = this.root.createDiv();
     this.previewContainer = this.root.createEl('div', { cls: 'repeat-embedded_note' });
-    this.loaded = false;
+    this.indexPromise = new Promise((resolve, reject) => {
+      if (!this.dv) {
+        return reject(null);
+      }
+      // @ts-ignore: event is added by DataView.
+      this.app.metadataCache.on('dataview:index-ready', async () => {
+        resolve(null);
+      });
+      if (this.dv.index.initialized) {
+        resolve(null);
+      }
+    });
 
     this.addRepeatButton = this.addRepeatButton.bind(this);
     this.setPage = this.setPage.bind(this);
@@ -68,24 +79,14 @@ class RepeatView extends ItemView {
       )
       return;
     }
-    this.registerEvent(
-      // @ts-ignore: event is added by DataView.
-      app?.metadataCache.on('dataview:index-ready', async () => {
-        if (!this.loaded) {
-          this.setPage();
-        }
-      })
-    );
-    if (this.dv?.index.initialized && !this.loaded) {
-      this.setPage();
-    }
+    this.setPage();
   }
 
   async setPage() {
+    await this.indexPromise;
     const page = getNextDueNote(this.dv);
     if (!page) {
       this.messageContainer.setText('All done for now!');
-      this.loaded = true;
       return;
     }
     const dueFilePath = (page?.file as any).path;
@@ -99,7 +100,6 @@ class RepeatView extends ItemView {
       this.messageContainer.setText(
         `Error: Could not find due note ${dueFilePath}. ` +
         'Reopen this view to retry and please report any bugs.');
-      this.loaded = true;
       return;
     }
     const file = matchingMarkdowns[0];
@@ -113,7 +113,6 @@ class RepeatView extends ItemView {
       file.path,
       this.component,
     );
-    this.loaded = true;
   }
 
   resetContainers() {
