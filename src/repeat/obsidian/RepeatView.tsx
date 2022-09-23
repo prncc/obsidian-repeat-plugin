@@ -129,7 +129,7 @@ class RepeatView extends ItemView {
         text: choice.text,
       },
       (buttonElement) => {
-        buttonElement.onclick = async (event) => {
+        buttonElement.onclick = async () => {
           this.resetContainers();
           const originalMarkdown = await this.app.vault.read(file);
           const bounds = determineFrontmatterBounds(originalMarkdown);
