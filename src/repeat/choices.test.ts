@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { Repetition } from './repeatTypes';
+import { RepeatChoice, Repetition } from './repeatTypes';
 import {
   getRepeatChoices,
   AM_REVIEW_TIME,
@@ -49,20 +49,19 @@ test.concurrent.each([
   if (repetition.repeatDueAt === null) {
     expect(choices).toHaveLength(1);
     expect(choices[0]).toStrictEqual({
-      id: 'dismiss',
       text: DISMISS_BUTTON_TEXT,
-      repeatDueAt: null,
-    });
+      nextRepetition: null,
+    } as RepeatChoice);
     return;
   }
   expect(choices).toHaveLength(2);
   choices.forEach((choice) => {
-    expect(choice.repeatDueAt).not.toBeNull();
+    expect(choice.nextRepetition?.repeatDueAt).not.toBeNull();
     // @ts-ignore
-    expect(choice.repeatDueAt > now).toBe(true);
+    expect(choice.nextRepetition?.repeatDueAt > now).toBe(true);
     if (choice.text !== SKIP_BUTTON_TEXT) {
       // @ts-ignore
-      expect(choice.repeatDueAt.hour).toBe(
+      expect(choice.nextRepetition?.repeatDueAt.hour).toBe(
         (repetition.repeatTimeOfDay === 'AM') ? AM_REVIEW_TIME : PM_REVIEW_TIME,
       );
     }
@@ -84,18 +83,17 @@ test.concurrent.each([
   if (repetition.repeatDueAt === null) {
     expect(choices).toHaveLength(1);
     expect(choices[0]).toStrictEqual({
-      id: 'dismiss',
       text: DISMISS_BUTTON_TEXT,
-      repeatDueAt: null,
+      nextRepetition: null,
     });
     return;
   }
   expect(choices).toHaveLength(5);
   choices.forEach((choice) => {
-    expect(choice.repeatDueAt).not.toBeNull();
+    expect(choice.nextRepetition).not.toBeNull();
     // @ts-ignore
-    expect(choice.repeatDueAt > now).toBe(true);
-    expect(choice.repeatPeriodUnit).toBe('HOUR');
+    expect(choice.nextRepetition?.repeatDueAt > now).toBe(true);
+    expect(choice.nextRepetition?.repeatPeriodUnit).toBe('HOUR');
   });
 });
 
@@ -103,8 +101,7 @@ test('a note with invalid repetition gets only a skip choice', () => {
   const choices = getRepeatChoices(invalidRepetition as Repetition);
   expect(choices).toHaveLength(1);
   expect(choices[0]).toStrictEqual({
-    id: 'dismiss',
     text: DISMISS_BUTTON_TEXT,
-    repeatDueAt: null,
+    nextRepetition: null,
   });
 });

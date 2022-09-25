@@ -67,20 +67,22 @@ function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): Repeat
   if ((repeatDueAt > now) || !repeatDueAt) {
     return [{
       text: DISMISS_BUTTON_TEXT,
-      repeatDueAt: null,
-      id: 'dismiss',
+      nextRepetition: null,
     }];
   }
   const nextRepeatDueAt = incrementPeriodicToNextDueAt({ ...repetition });
   return [{
     text: SKIP_BUTTON_TEXT,
-    repeatDueAt: getSkipDateTime(now),
-    id: 'skip',
-
+    nextRepetition: {
+      ...repetition,
+      repeatDueAt: getSkipDateTime(now),
+    }
   }, {
     text: `Repeat in ${summarizeDueAt(nextRepeatDueAt, now)}`,
-    repeatDueAt: nextRepeatDueAt,
-    id: 'period',
+    nextRepetition: {
+      ...repetition,
+      repeatDueAt: nextRepeatDueAt,
+    },
   }];
 };
 
@@ -96,8 +98,7 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
   if ((repeatDueAt > now) || !repeatDueAt) {
     return [{
       text: DISMISS_BUTTON_TEXT,
-      repeatDueAt: null,
-      id: 'dismiss',
+      nextRepetition: null,
     }];
   }
   if (repetition.repeatPeriodUnit !== 'HOUR') {
@@ -113,19 +114,23 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
     });
     return {
       text: `${summarizeDueAt(nextRepeatDueAt, now)} (x${multiplier})`,
-      repeatDueAt: nextRepeatDueAt,
-      repeatPeriod: hours,
-      repeatPeriodUnit: 'HOUR',
-      id: multiplier,
+      nextRepetition: {
+        ...repetition,
+        repeatDueAt: nextRepeatDueAt,
+        repeatPeriod: hours,
+        repeatPeriodUnit: 'HOUR',
+      }
     };
   });
   return uniqByField([
     {
       text: SKIP_BUTTON_TEXT,
-      repeatDueAt: getSkipDateTime(now),
-      repeatPeriod,
-      repeatPeriodUnit: 'HOUR',
-      id: 'skip',
+      nextRepetition: {
+        ...repetition,
+        repeatDueAt: getSkipDateTime(now),
+        repeatPeriod,
+        repeatPeriodUnit: 'HOUR',
+      },
     },
     ...multiplierChoices,
   ], 'text');
@@ -150,7 +155,6 @@ export function getRepeatChoices(repetition: Repetition): RepeatChoice[] {
   }
   return [{
     text: DISMISS_BUTTON_TEXT,
-    repeatDueAt: null,
-    id: 'dismiss',
+    nextRepetition: null,
   }];
 };

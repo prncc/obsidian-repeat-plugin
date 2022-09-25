@@ -18,9 +18,6 @@ export interface Repetition extends Repeat {
 }
 
 export type RepeatChoice = {
-  id: string,
   text: string,
-  repeatDueAt: DateTime | null,
-  repeatPeriod?: number,
-  repeatPeriodUnit?: PeriodUnit,
+  nextRepetition: Repetition | null,
 }
