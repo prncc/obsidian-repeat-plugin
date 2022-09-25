@@ -43,7 +43,7 @@ class RepeatView extends ItemView {
 
     this.root = this.containerEl.children[1];
     this.messageContainer = this.root.createEl('div', { cls: 'repeat-message' });
-    this.buttonsContainer = this.root.createDiv();
+    this.buttonsContainer = this.root.createEl('div', { cls: 'repeat-buttons' });
     this.previewContainer = this.root.createEl('div', { cls: 'repeat-embedded_note' });
     this.indexPromise = new Promise((resolve, reject) => {
       if (!this.dv) {

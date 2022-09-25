@@ -2,6 +2,21 @@
   text-align: center;
 }
 
+.repeat-buttons {
+  text-align: center;
+}
+
+.repeat-buttons > button {
+  margin-top: 15px;
+}
+
+/* Make buttons legible on mobile. */
+@media (max-width: 450px) {
+  .repeat-buttons > button {
+    width: 100%;
+  }
+}
+
 .repeat-embedded_note {
   padding: 15px 30px;
 }
