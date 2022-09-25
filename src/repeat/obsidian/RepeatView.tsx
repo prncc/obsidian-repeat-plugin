@@ -42,7 +42,7 @@ class RepeatView extends ItemView {
     this.dv = getAPI(this.app);
 
     this.root = this.containerEl.children[1];
-    this.messageContainer = this.root.createDiv();
+    this.messageContainer = this.root.createEl('div', { cls: 'repeat-message' });
     this.buttonsContainer = this.root.createDiv();
     this.previewContainer = this.root.createEl('div', { cls: 'repeat-embedded_note' });
     this.indexPromise = new Promise((resolve, reject) => {
@@ -75,7 +75,7 @@ class RepeatView extends ItemView {
     if (!this.dv) {
       this.messageContainer.setText(
         'Repeat Plugin requires DataView Plugin to work. ' +
-        'Make sure it is installed and enabled.'
+        'Make sure that the DataView Plugin is installed and enabled.'
       )
       return;
     }
@@ -99,7 +99,7 @@ class RepeatView extends ItemView {
     if (!matchingMarkdowns) {
       this.messageContainer.setText(
         `Error: Could not find due note ${dueFilePath}. ` +
-        'Reopen this view to retry and please report any bugs.');
+        'Reopen this view to retry.');
       return;
     }
     const file = matchingMarkdowns[0];
