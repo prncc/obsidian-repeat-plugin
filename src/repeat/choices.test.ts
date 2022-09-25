@@ -4,6 +4,8 @@ import {
   getRepeatChoices,
   AM_REVIEW_TIME,
   PM_REVIEW_TIME,
+  DISMISS_BUTTON_TEXT,
+  SKIP_BUTTON_TEXT,
 } from './choices';
 
 const dueAt = DateTime.fromObject({
@@ -48,7 +50,7 @@ test.concurrent.each([
     expect(choices).toHaveLength(1);
     expect(choices[0]).toStrictEqual({
       id: 'dismiss',
-      text: 'Dismiss',
+      text: DISMISS_BUTTON_TEXT,
       repeatDueAt: null,
     });
     return;
@@ -58,7 +60,7 @@ test.concurrent.each([
     expect(choice.repeatDueAt).not.toBeNull();
     // @ts-ignore
     expect(choice.repeatDueAt > now).toBe(true);
-    if (!choice.text.includes('Skip')) {
+    if (choice.text !== SKIP_BUTTON_TEXT) {
       // @ts-ignore
       expect(choice.repeatDueAt.hour).toBe(
         (repetition.repeatTimeOfDay === 'AM') ? AM_REVIEW_TIME : PM_REVIEW_TIME,
@@ -83,7 +85,7 @@ test.concurrent.each([
     expect(choices).toHaveLength(1);
     expect(choices[0]).toStrictEqual({
       id: 'dismiss',
-      text: 'Dismiss',
+      text: DISMISS_BUTTON_TEXT,
       repeatDueAt: null,
     });
     return;
@@ -102,7 +104,7 @@ test('a note with invalid repetition gets only a skip choice', () => {
   expect(choices).toHaveLength(1);
   expect(choices[0]).toStrictEqual({
     id: 'dismiss',
-    text: 'Dismiss',
+    text: DISMISS_BUTTON_TEXT,
     repeatDueAt: null,
   });
 });

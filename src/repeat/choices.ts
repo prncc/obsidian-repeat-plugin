@@ -7,10 +7,10 @@ import { uniqByField } from '../utils';
 export const AM_REVIEW_TIME = 6;
 export const PM_REVIEW_TIME = 18;
 
-const DISMISS_BUTTON_TEXT = 'dismiss';
+export const DISMISS_BUTTON_TEXT = 'dismiss';
 
-const SKIP_PERIOD_MINUTES = 5;
-const SKIP_BUTTON_TEXT = '5 minutes (skip)';
+export const SKIP_PERIOD_MINUTES = 5;
+export const SKIP_BUTTON_TEXT = '5 minutes (skip)';
 
 /**
  * Determines when next repeat is due for an already due periodic note.
