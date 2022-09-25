@@ -1,47 +1,13 @@
 import { DateTime } from 'luxon';
 import { Component, ItemView, WorkspaceLeaf, MarkdownPreviewView, TFile } from 'obsidian';
-import { getAPI, Literal, DataviewApi, DataArray } from 'obsidian-dataview';
-import { determineFrontmatterBounds, replaceOrInsertFields } from 'src/frontmatter';
+import { getAPI, DataviewApi } from 'obsidian-dataview';
+
+import { determineFrontmatterBounds, replaceOrInsertFields } from '../../frontmatter';
 import { getRepeatChoices } from '../choices';
-import { parseRepetitionFields } from '../parsers';
-import { RepeatChoice, Repetition } from '../repeatTypes';
+import { RepeatChoice } from '../repeatTypes';
+import { getNextDueNote } from '../queries';
 
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
-
-function getNotesDue(
-  dv: DataviewApi | undefined,
-): DataArray<Record<string, Literal>> | undefined {
-  const now = DateTime.now();
-  return dv?.pages()
-    .mutate((page: any) => {
-      const { repeat, repeat_due_at } = page.file.frontmatter || {};
-      if (!repeat) {
-        page.repetition = undefined;
-        return page;
-      }
-      page.repetition = parseRepetitionFields(
-        repeat,
-        repeat_due_at,
-        page.file.ctime);
-      return page;
-    })
-    .where((page: any) => {
-      const { repetition } = page;
-      if (!repetition) {
-        return false;
-      }
-      return repetition.repeatDueAt <= now;
-    })
-    .sort(({ repeatDueAt }) => repeatDueAt, 'asc')
-}
-
-function getNextDueNote(
-  dv: DataviewApi | undefined,
-): Record<string, Literal> | undefined {
-  const page = getNotesDue(dv)?.first();
-  if (!page) { return; }
-  return page;
-}
 
 class RepeatView extends ItemView {
   root: Element;
