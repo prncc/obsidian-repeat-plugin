@@ -6,11 +6,14 @@ export type PeriodUnit = 'HOUR' | 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
 
 export type TimeOfDay = 'AM' | 'PM';
 
-export type Repetition = {
+export type Repeat = {
   repeatStrategy: Strategy,
   repeatPeriod: number,
   repeatPeriodUnit: PeriodUnit,
   repeatTimeOfDay: TimeOfDay,
+}
+
+export interface Repetition extends Repeat {
   repeatDueAt: DateTime,
 }
 

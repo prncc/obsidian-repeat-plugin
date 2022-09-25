@@ -1,6 +1,12 @@
 import { DateTime } from 'luxon';
 
-import { Repetition, Strategy, TimeOfDay, PeriodUnit } from './repeatTypes';
+import {
+  PeriodUnit,
+  Repeat,
+  Repetition,
+  Strategy,
+  TimeOfDay,
+} from './repeatTypes';
 
 const joinedUnits = 'hour|day|week|month|year';
 
@@ -63,10 +69,7 @@ function parseRepeatTimeOfDay(timeOfDaySuffix: string): TimeOfDay {
   return 'AM';
 }
 
-export function parseRepetitionFields(
-  repeat: string,
-  repeatDueAt: string,
-): Repetition {
+export function parseRepeat(repeat: string): Repeat {
   let processedRepeat = repeat.toLowerCase();
   let repetitionRegex = new RegExp(
     '(?<description>' +
@@ -86,9 +89,49 @@ export function parseRepetitionFields(
       repeatPeriod: parseInt(result?.groups?.period || '1'),
       repeatPeriodUnit: parseRepeatPeriodUnit(result?.groups?.description || 'day'),
       repeatTimeOfDay: parseRepeatTimeOfDay(result?.groups?.timeOfDaySuffix || 'am'),
-      repeatDueAt: DateTime.fromISO(repeatDueAt), // TODO recover if broken
     }
   }
-  // If here, repeat is not in a recognized format so we default to spaced.
-  return makeDefaultRepetition('SPACED', DateTime.fromISO(repeatDueAt)); // TODO recover if date broken
+  return {
+    repeatStrategy: 'SPACED',
+    repeatPeriod: 24,
+    repeatPeriodUnit: 'HOUR',
+    repeatTimeOfDay: 'AM',
+  }
+}
+
+export function parseRepeatDueAt(
+  repeatDueAt: string | undefined,
+  repeat: Repeat | undefined,
+  referenceDateTime: DateTime,
+) {
+  if (repeatDueAt) {
+    const parsedDueAtMaybe = DateTime.fromISO(repeatDueAt);
+    // @ts-ignore: luxon adds .invalid if the timestamp is not parsable.
+    if (!parsedDueAtMaybe.invalid) {
+      return parsedDueAtMaybe;
+    }
+  }
+  // We can't parse the timestamp, or it isn't set.
+  if (repeat) {
+    return referenceDateTime.plus({
+      [repeat.repeatPeriodUnit]: repeat.repeatPeriod,
+    });
+  }
+  return referenceDateTime;
+}
+
+export function parseRepetitionFields(
+  repeat: string,
+  repeatDueAt: string | undefined,
+  referenceDateTime?: DateTime | undefined,
+): Repetition {
+  const parsedRepeat = parseRepeat(repeat);
+  return {
+    ...parsedRepeat,
+    repeatDueAt: parseRepeatDueAt(
+      repeatDueAt,
+      parsedRepeat,
+      referenceDateTime || DateTime.now(),
+    ),
+  }
 }

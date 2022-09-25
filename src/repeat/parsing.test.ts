@@ -128,8 +128,8 @@ test('spaced without period specified', () => {
   delete repetition.repeatDueAt;
   expect(repetition).toEqual({
     repeatStrategy: 'SPACED',
-    repeatPeriod: 1,
-    repeatPeriodUnit: 'DAY',
+    repeatPeriod: 24,
+    repeatPeriodUnit: 'HOUR',
     repeatTimeOfDay: 'AM',
   });
 });
