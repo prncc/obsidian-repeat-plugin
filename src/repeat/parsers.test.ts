@@ -1,5 +1,5 @@
 import { DateTime } from 'luxon';
-import { parseRepetitionFields } from './parsing';
+import { parseRepetitionFields } from './parsers';
 
 type RepeatTestInputs = {
   repeat: string,

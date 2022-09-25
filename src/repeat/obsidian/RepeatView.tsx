@@ -3,7 +3,7 @@ import { Component, ItemView, WorkspaceLeaf, MarkdownPreviewView, TFile } from '
 import { getAPI, Literal, DataviewApi, DataArray } from 'obsidian-dataview';
 import { determineFrontmatterBounds, replaceOrInsertFields } from 'src/frontmatter';
 import { getRepeatChoices } from '../choices';
-import { parseRepetitionFields } from '../parsing';
+import { parseRepetitionFields } from '../parsers';
 import { RepeatChoice, Repetition } from '../repeatTypes';
 
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
@@ -108,7 +108,6 @@ class RepeatView extends ItemView {
     }
     const dueFilePath = (page?.file as any).path;
     const choices = getRepeatChoices(page.repetition as any);
-
     const matchingMarkdowns = this.app.vault.getMarkdownFiles()
       .filter((file) => file?.path === dueFilePath);
     if (!matchingMarkdowns) {
