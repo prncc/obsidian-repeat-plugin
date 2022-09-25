@@ -143,6 +143,7 @@ class RepeatView extends ItemView {
                 resolve(null);
               }
             };
+            // Subscribe to metadata change and resolve when this file updates.
             this.registerEvent(
               // @ts-ignore: event is added by DataView.
               this.app.metadataCache.on('dataview:metadata-change', resolver));
@@ -151,6 +152,7 @@ class RepeatView extends ItemView {
             setTimeout(resolve, 100);
           }).then(() => {
             this.app.metadataCache.off('dataview:metadata-change', resolver);
+            // Metadata should be updated, so we can query for next due note.
             this.setPage();
           });
         }
