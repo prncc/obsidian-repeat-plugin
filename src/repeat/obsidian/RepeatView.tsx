@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { Component, ItemView, WorkspaceLeaf, MarkdownPreviewView, TFile } from 'obsidian';
 import { getAPI, Literal, DataviewApi } from 'obsidian-dataview';
-import { determineFrontmatterBounds, replaceOrInsertField } from 'src/frontmatter';
+import { determineFrontmatterBounds, replaceOrInsertField, replaceOrInsertFields } from 'src/frontmatter';
 import { getRepeatChoices } from '../choices';
 import { parseRepetitionFields } from '../parsing';
 import { RepeatChoice } from '../repeatTypes';
@@ -131,22 +131,11 @@ class RepeatView extends ItemView {
       (buttonElement) => {
         buttonElement.onclick = async () => {
           this.resetContainers();
-          const originalMarkdown = await this.app.vault.read(file);
-          const bounds = determineFrontmatterBounds(originalMarkdown);
-          if (!bounds) {
-            throw Error('Could not find frontmatter in note.')
-          }
-          let frontmatter = originalMarkdown.slice(...bounds);
-          frontmatter = replaceOrInsertField(
-            frontmatter, 'repeat_due_at',
-            DateTime.now().plus({ year: 1 }).toISO()
-          );
-          const newContent = [
-            originalMarkdown.slice(0, bounds[0]),
-            frontmatter,
-            originalMarkdown.slice(bounds[1])
-          ].join('');
-          let resolver;
+          const markdown = await this.app.vault.read(file);
+          const newMarkdown = replaceOrInsertFields(markdown, {
+            'repeat_due_at': DateTime.now().plus({ year: 1 }).toISO(),
+          });
+          let resolver: (...data: any) => any;
           new Promise((resolve) => {
             // Keep a reference so that we can properly unsubscribe from the event.
             resolver = (_, eventFile, __) => {
@@ -157,7 +146,7 @@ class RepeatView extends ItemView {
             this.registerEvent(
               // @ts-ignore: event is added by DataView.
               this.app.metadataCache.on('dataview:metadata-change', resolver));
-            this.app.vault.modify(file, newContent);
+            this.app.vault.modify(file, newMarkdown);
             // Resolve no matter what to avoid getting stuck.
             setTimeout(resolve, 100);
           }).then(() => {

@@ -106,3 +106,39 @@ export function replaceOrInsertField(frontmatter: string, field: string, value: 
     suffix || '\n', // Add newline only if this is the last field.
   ].join('')
 }
+
+
+/**
+ * Inserts given fields into content's frontmatter.
+ * @param content Content whose frontend to update.
+ * @param fieldToValue Object mapping field names to values.
+ * @returns Content with updated frontmatter.
+ */
+export function replaceOrInsertFields(
+  content: string,
+  fieldToValue: object,
+): string {
+  let newContent = content;
+  let bounds = determineFrontmatterBounds(newContent);
+  if (!bounds) {
+    // Add new frontmatter and update bounds.
+    const newFrontmatter = '---\n---\n';
+    newContent = [
+      newFrontmatter,
+      content,
+    ].join('');
+    bounds = determineFrontmatterBounds(newContent);
+    if (!bounds) {
+      throw Error('Failed to create frontmatter in note.');
+    }
+  }
+  let frontmatter = content.slice(...bounds);
+  for (let field in fieldToValue) {
+    frontmatter = replaceOrInsertField(frontmatter, field, fieldToValue[field]);
+  }
+  return [
+    newContent.slice(0, bounds[0]),
+    frontmatter,
+    newContent.slice(bounds[1]),
+  ].join('');
+}
