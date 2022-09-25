@@ -1,27 +1,44 @@
 import { DateTime } from 'luxon';
 import { Component, ItemView, WorkspaceLeaf, MarkdownPreviewView, TFile } from 'obsidian';
-import { getAPI, Literal, DataviewApi } from 'obsidian-dataview';
-import { determineFrontmatterBounds, replaceOrInsertField, replaceOrInsertFields } from 'src/frontmatter';
+import { getAPI, Literal, DataviewApi, DataArray } from 'obsidian-dataview';
+import { determineFrontmatterBounds, replaceOrInsertFields } from 'src/frontmatter';
 import { getRepeatChoices } from '../choices';
 import { parseRepetitionFields } from '../parsing';
-import { RepeatChoice } from '../repeatTypes';
+import { RepeatChoice, Repetition } from '../repeatTypes';
 
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 
-function isNoteDue(repeatDueAt: Literal | string | undefined): boolean {
-  if (!repeatDueAt) {
-    return false;
-  }
-  return repeatDueAt <= DateTime.now();
+function getNotesDue(
+  dv: DataviewApi | undefined,
+): DataArray<Record<string, Literal>> | undefined {
+  const now = DateTime.now();
+  return dv?.pages()
+    .mutate((page: any) => {
+      const { repeat, repeat_due_at } = page.file.frontmatter || {};
+      if (!repeat) {
+        page.repetition = undefined;
+        return page;
+      }
+      page.repetition = parseRepetitionFields(
+        repeat,
+        repeat_due_at,
+        page.file.ctime);
+      return page;
+    })
+    .where((page: any) => {
+      const { repetition } = page;
+      if (!repetition) {
+        return false;
+      }
+      return repetition.repeatDueAt <= now;
+    })
+    .sort(({ repeatDueAt }) => repeatDueAt, 'asc')
 }
 
 function getNextDueNote(
   dv: DataviewApi | undefined,
 ): Record<string, Literal> | undefined {
-  const page = dv?.pages()
-    .where(({ repeat_due_at }) => isNoteDue(repeat_due_at))
-    .sort(({ repeat_due_at }) => repeat_due_at, 'asc')
-    .first();
+  const page = getNotesDue(dv)?.first();
   if (!page) { return; }
   return page;
 }
@@ -90,9 +107,7 @@ class RepeatView extends ItemView {
       return;
     }
     const dueFilePath = (page?.file as any).path;
-    const repetition = parseRepetitionFields(
-      (page.repeat || '') as string, page.repeat_due_at as string);
-    const choices = getRepeatChoices(repetition);
+    const choices = getRepeatChoices(page.repetition as any);
 
     const matchingMarkdowns = this.app.vault.getMarkdownFiles()
       .filter((file) => file?.path === dueFilePath);
