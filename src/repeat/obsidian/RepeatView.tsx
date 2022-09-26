@@ -1,4 +1,3 @@
-import { DateTime } from 'luxon';
 import { Component, ItemView, WorkspaceLeaf, MarkdownPreviewView, TFile } from 'obsidian';
 import { getAPI, DataviewApi } from 'obsidian-dataview';
 
@@ -6,6 +5,7 @@ import { determineFrontmatterBounds, replaceOrInsertFields } from '../../frontma
 import { getRepeatChoices } from '../choices';
 import { RepeatChoice } from '../repeatTypes';
 import { getNextDueNote } from '../queries';
+import { serializeRepetition } from '../serializers';
 
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 
@@ -111,10 +111,14 @@ class RepeatView extends ItemView {
       (buttonElement) => {
         buttonElement.onclick = async () => {
           this.resetContainers();
+          if (!choice.nextRepetition) {
+            // TODO: Handle case of null nextRepetition properly.
+            this.setPage();
+            return;
+          }
           const markdown = await this.app.vault.read(file);
-          const newMarkdown = replaceOrInsertFields(markdown, {
-            'repeat_due_at': DateTime.now().plus({ year: 1 }).toISO(),
-          });
+          const newMarkdown = replaceOrInsertFields(
+            markdown, serializeRepetition(choice.nextRepetition));
           let resolver: (...data: any) => any;
           new Promise((resolve) => {
             // Keep a reference so that we can properly unsubscribe from the event.
