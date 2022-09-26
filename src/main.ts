@@ -2,6 +2,7 @@ import {
   App,
   MarkdownView,
   Plugin,
+  PluginManifest,
   PluginSettingTab,
   Setting,
 } from 'obsidian';
@@ -10,9 +11,19 @@ import { DateTime } from 'luxon';
 import RepeatView, { REPEATING_NOTES_DUE_VIEW } from './repeat/obsidian/RepeatView';
 import RepeatNoteSetupModal from './repeat/obsidian/RepeatNoteSetupModal';
 import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
-import { determineFrontmatterBounds, replaceOrInsertField, replaceOrInsertFields } from './frontmatter';
+import { replaceOrInsertFields } from './frontmatter';
+import { getAPI } from 'obsidian-dataview';
+import { getNotesDue } from './repeat/queries';
+
 export default class RepeatPlugin extends Plugin {
   settings: RepeatPluginSettings;
+  statusBarItem: HTMLElement | undefined;
+
+  constructor(app: App, manifest: PluginManifest) {
+    super(app, manifest);
+    this.updateNotesDueCount = this.updateNotesDueCount.bind(this);
+    this.manageStatusBarItem = this.manageStatusBarItem.bind(this);
+  }
 
   async activateRepeatNotesDueView() {
     // Allow only one repeat view.
@@ -34,23 +45,47 @@ export default class RepeatPlugin extends Plugin {
 
   async saveSettings() {
     await this.saveData(this.settings);
+    if (!this.settings.showDueCountInStatusBar && this.statusBarItem) {
+      this.statusBarItem.remove();
+    }
+    if (this.settings.showDueCountInStatusBar) {
+      this.statusBarItem = this.addStatusBarItem();
+      this.updateNotesDueCount();
+    }
+  }
+
+  updateNotesDueCount() {
+    if (this.settings.showDueCountInStatusBar) {
+      const dueNoteCount = getNotesDue(getAPI(this.app))?.length;
+      if (dueNoteCount != undefined && this.statusBarItem) {
+        this.statusBarItem.setText(
+          `${dueNoteCount} repeat notes due`);
+      }
+    }
+  }
+
+  manageStatusBarItem() {
+    if (!this.statusBarItem) {
+      this.statusBarItem = this.addStatusBarItem();
+    }
+    this.registerEvent(
+      this.app.metadataCache.on(
+        // @ts-ignore: event is added by DataView.
+        'dataview:metadata-change',
+        this.updateNotesDueCount)
+    );
+    this.registerEvent(
+      this.app.metadataCache.on(
+        // @ts-ignore: event is added by DataView.
+        'dataview:index-ready',
+        this.updateNotesDueCount)
+    );
   }
 
   async onload() {
     await this.loadSettings();
+    this.manageStatusBarItem();
 
-    if (this.settings.showDueCountInStatusBar) {
-      const statusBarItemEl = this.addStatusBarItem();
-      statusBarItemEl.setText('Repeat notes due: X');
-    }
-
-    // TODO: Update note due count periodically.
-    this.registerInterval(window.setInterval(
-      () => {
-        console.log('setInterval');
-      },
-      5 * 60 * 1000,
-    ));
     this.registerView(
       REPEATING_NOTES_DUE_VIEW,
       (leaf) => new RepeatView(leaf),
