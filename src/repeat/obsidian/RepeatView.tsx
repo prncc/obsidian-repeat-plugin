@@ -32,10 +32,12 @@ class RepeatView extends ItemView {
       if (!this.dv) {
         return reject(null);
       }
-      // @ts-ignore: event is added by DataView.
-      this.app.metadataCache.on('dataview:index-ready', async () => {
-        resolve(null);
-      });
+      this.registerEvent(
+        // @ts-ignore: event is added by DataView.
+          this.app.metadataCache.on('dataview:index-ready', async () => {
+          resolve(null);
+        })
+      );
       if (this.dv.index.initialized) {
         resolve(null);
       }
