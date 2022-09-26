@@ -17,7 +17,7 @@ export const SKIP_BUTTON_TEXT = '5 minutes (skip)';
  * @param repetition A note Repetition object.
  * @returns When the note is next due.
  */
-function incrementPeriodicToNextDueAt({
+export function incrementPeriodicToNextDueAt({
   repeatDueAt,
   repeatPeriodUnit,
   repeatPeriod,

@@ -14,6 +14,9 @@ import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
 import { replaceOrInsertFields } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
+import { serializeRepetition } from './repeat/serializers';
+import { incrementPeriodicToNextDueAt } from './repeat/choices';
+import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
 
 export default class RepeatPlugin extends Plugin {
   settings: RepeatPluginSettings;
@@ -112,11 +115,20 @@ export default class RepeatPlugin extends Plugin {
             if (!checking) {
               const { editor } = markdownView;
               let content = editor.getValue();
-              const repeat = unit === 'day' ? 'daily' : `${unit}ly`;
-              const newContent = replaceOrInsertFields(content, {
-                repeat,
-                repeat_due_at: DateTime.now().plus({ [unit]: 1 }).toISO(),
-              });
+              const repeat = {
+                repeatStrategy: 'PERIODIC' as Strategy,
+                repeatPeriod: 1,
+                repeatPeriodUnit: unit.toUpperCase() as PeriodUnit,
+                repeatTimeOfDay: 'AM' as TimeOfDay,
+              };
+              const repeatDueAt = incrementPeriodicToNextDueAt({
+                ...repeat,
+                repeatDueAt: undefined,
+              } as any);
+              const newContent = replaceOrInsertFields(content, serializeRepetition({
+                ...repeat,
+                repeatDueAt,
+              } as Repetition));
               editor.setValue(newContent);
             }
             return true;
