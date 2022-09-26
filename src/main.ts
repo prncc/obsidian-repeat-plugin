@@ -6,7 +6,6 @@ import {
   PluginSettingTab,
   Setting,
 } from 'obsidian';
-import { DateTime } from 'luxon';
 
 import RepeatView, { REPEATING_NOTES_DUE_VIEW } from './repeat/obsidian/RepeatView';
 import RepeatNoteSetupModal from './repeat/obsidian/RepeatNoteSetupModal';
@@ -21,12 +20,14 @@ import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatType
 export default class RepeatPlugin extends Plugin {
   settings: RepeatPluginSettings;
   statusBarItem: HTMLElement | undefined;
+  ribbonIcon: HTMLElement | undefined;
 
   constructor(app: App, manifest: PluginManifest) {
     super(app, manifest);
     this.updateNotesDueCount = this.updateNotesDueCount.bind(this);
     this.manageStatusBarItem = this.manageStatusBarItem.bind(this);
     this.registerCommands = this.registerCommands.bind(this);
+    this.manageRibbonIcon = this.manageRibbonIcon.bind(this);
   }
 
   async activateRepeatNotesDueView() {
@@ -86,8 +87,17 @@ export default class RepeatPlugin extends Plugin {
     );
   }
 
+  manageRibbonIcon() {
+    this.ribbonIcon = this.addRibbonIcon(
+      'clock', 'Review notes due', () => {
+        this.activateRepeatNotesDueView();
+      });
+  }
+
+
   registerCommands() {
-    // TODO: Implement commands and refactor into own method.
+    // TODO: Add command to view repeat page and setting to disable ribbon icon.
+    // TODO: Implement setup-repeat-note command and refactor into own method.
     this.addCommand({
       id: 'setup-repeat-note',
       name: 'Repeat this note...',
@@ -146,17 +156,8 @@ export default class RepeatPlugin extends Plugin {
     this.registerView(
       REPEATING_NOTES_DUE_VIEW,
       (leaf) => new RepeatView(leaf),
-    );
-
-    const ribbonIconEl = this.addRibbonIcon(
-      'clock', 'Review repeating notes that are due', (evt: MouseEvent) => {
-        this.activateRepeatNotesDueView();
-      });
-    ribbonIconEl.addClass('repeat-plugin-ribbon-icon');
-
+      );
     this.addSettingTab(new RepeatPluginSettingTab(this.app, this));
-
-
   }
 
   onunload() {
