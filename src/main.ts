@@ -23,6 +23,7 @@ export default class RepeatPlugin extends Plugin {
     super(app, manifest);
     this.updateNotesDueCount = this.updateNotesDueCount.bind(this);
     this.manageStatusBarItem = this.manageStatusBarItem.bind(this);
+    this.registerCommands = this.registerCommands.bind(this);
   }
 
   async activateRepeatNotesDueView() {
@@ -82,23 +83,7 @@ export default class RepeatPlugin extends Plugin {
     );
   }
 
-  async onload() {
-    await this.loadSettings();
-    this.manageStatusBarItem();
-
-    this.registerView(
-      REPEATING_NOTES_DUE_VIEW,
-      (leaf) => new RepeatView(leaf),
-    );
-
-    const ribbonIconEl = this.addRibbonIcon(
-      'clock', 'Review repeating notes that are due', (evt: MouseEvent) => {
-        this.activateRepeatNotesDueView();
-      });
-    ribbonIconEl.addClass('repeat-plugin-ribbon-icon');
-
-    this.addSettingTab(new RepeatPluginSettingTab(this.app, this));
-
+  registerCommands() {
     // TODO: Implement commands and refactor into own method.
     this.addCommand({
       id: 'setup-repeat-note',
@@ -140,6 +125,26 @@ export default class RepeatPlugin extends Plugin {
         }
       });
     });
+  }
+
+  async onload() {
+    await this.loadSettings();
+    this.manageStatusBarItem();
+    this.registerCommands();
+    this.registerView(
+      REPEATING_NOTES_DUE_VIEW,
+      (leaf) => new RepeatView(leaf),
+    );
+
+    const ribbonIconEl = this.addRibbonIcon(
+      'clock', 'Review repeating notes that are due', (evt: MouseEvent) => {
+        this.activateRepeatNotesDueView();
+      });
+    ribbonIconEl.addClass('repeat-plugin-ribbon-icon');
+
+    this.addSettingTab(new RepeatPluginSettingTab(this.app, this));
+
+
   }
 
   onunload() {
