@@ -22,14 +22,15 @@ class RepeatView extends ItemView {
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
+    this.addRepeatButton = this.addRepeatButton.bind(this);
+    this.setPage = this.setPage.bind(this);
+    this.resetContainers = this.resetContainers.bind(this);
+
     this.component = new Component();
 
     this.dv = getAPI(this.app);
 
     this.root = this.containerEl.children[1];
-    this.messageContainer = this.root.createEl('div', { cls: 'repeat-message' });
-    this.buttonsContainer = this.root.createEl('div', { cls: 'repeat-buttons' });
-    this.previewContainer = this.root.createEl('div', { cls: 'repeat-embedded_note' });
     this.indexPromise = new Promise((resolve, reject) => {
       if (!this.dv) {
         return reject(null);
@@ -45,9 +46,7 @@ class RepeatView extends ItemView {
       }
     });
 
-    this.addRepeatButton = this.addRepeatButton.bind(this);
-    this.setPage = this.setPage.bind(this);
-    this.resetContainers = this.resetContainers.bind(this);
+    this.resetContainers();
   }
 
   getViewType() {
@@ -100,9 +99,12 @@ class RepeatView extends ItemView {
   }
 
   resetContainers() {
-    this.buttonsContainer.setText('');
-    this.buttonsContainer.innerHTML = '';
-    this.previewContainer.innerHTML = '';
+    this.messageContainer && this.messageContainer.remove();
+    this.buttonsContainer && this.buttonsContainer.remove();
+    this.previewContainer && this.previewContainer.remove();
+    this.messageContainer = this.root.createEl('div', { cls: 'repeat-message' });
+    this.buttonsContainer = this.root.createEl('div', { cls: 'repeat-buttons' });
+    this.previewContainer = this.root.createEl('div', { cls: 'repeat-embedded_note' });
   }
 
   async addRepeatButton(
