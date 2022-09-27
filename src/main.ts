@@ -60,6 +60,9 @@ export default class RepeatPlugin extends Plugin {
   }
 
   updateNotesDueCount() {
+    if (!this.statusBarItem) {
+      this.statusBarItem = this.addStatusBarItem();
+    }
     if (this.settings.showDueCountInStatusBar) {
       const dueNoteCount = getNotesDue(getAPI(this.app))?.length;
       if (dueNoteCount != undefined && this.statusBarItem) {
@@ -70,21 +73,25 @@ export default class RepeatPlugin extends Plugin {
   }
 
   manageStatusBarItem() {
-    if (!this.statusBarItem) {
-      this.statusBarItem = this.addStatusBarItem();
-    }
-    this.registerEvent(
-      this.app.metadataCache.on(
-        // @ts-ignore: event is added by DataView.
-        'dataview:metadata-change',
-        this.updateNotesDueCount)
-    );
+    // Update due note count when the DataView index populates.
     this.registerEvent(
       this.app.metadataCache.on(
         // @ts-ignore: event is added by DataView.
         'dataview:index-ready',
         this.updateNotesDueCount)
     );
+    // Update due note count whenever metadata changes.
+    this.registerEvent(
+      this.app.metadataCache.on(
+        // @ts-ignore: event is added by DataView.
+        'dataview:metadata-change',
+        this.updateNotesDueCount)
+    );
+    // Periodically update due note count as notes become due.
+    const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
+    this.registerInterval(
+      window.setInterval(this.updateNotesDueCount, FIVE_MINUTES_IN_MS)
+    )
   }
 
   manageRibbonIcon() {
@@ -93,7 +100,6 @@ export default class RepeatPlugin extends Plugin {
         this.activateRepeatNotesDueView();
       });
   }
-
 
   registerCommands() {
     // TODO: Add command to view repeat page and setting to disable ribbon icon.
