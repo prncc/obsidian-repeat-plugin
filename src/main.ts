@@ -27,7 +27,7 @@ export default class RepeatPlugin extends Plugin {
     this.updateNotesDueCount = this.updateNotesDueCount.bind(this);
     this.manageStatusBarItem = this.manageStatusBarItem.bind(this);
     this.registerCommands = this.registerCommands.bind(this);
-    this.manageRibbonIcon = this.manageRibbonIcon.bind(this);
+    this.makeRepeatRibbonIcon = this.makeRepeatRibbonIcon.bind(this);
   }
 
   async activateRepeatNotesDueView() {
@@ -56,6 +56,12 @@ export default class RepeatPlugin extends Plugin {
     if (this.settings.showDueCountInStatusBar) {
       this.statusBarItem = this.addStatusBarItem();
       this.updateNotesDueCount();
+    }
+    if (!this.settings.showRibbonIcon && this.ribbonIcon) {
+      this.ribbonIcon.remove();
+    }
+    if (this.settings.showRibbonIcon) {
+      this.makeRepeatRibbonIcon();
     }
   }
 
@@ -94,11 +100,14 @@ export default class RepeatPlugin extends Plugin {
     )
   }
 
-  manageRibbonIcon() {
-    this.ribbonIcon = this.addRibbonIcon(
-      'clock', 'Review notes due', () => {
-        this.activateRepeatNotesDueView();
-      });
+  makeRepeatRibbonIcon() {
+    if (this.settings.showRibbonIcon) {
+      this.ribbonIcon = this.addRibbonIcon(
+        'clock', 'Repeat due notes', () => {
+          this.activateRepeatNotesDueView();
+        }
+      );
+    }
   }
 
   registerCommands() {
@@ -119,6 +128,14 @@ export default class RepeatPlugin extends Plugin {
         }
         return false;
       }
+    });
+
+    this.addCommand({
+      id: 'open-repeat-view',
+      name: 'Review due notes',
+      callback: () => {
+        this.activateRepeatNotesDueView();
+      },
     });
 
     ['day', 'week', 'month', 'year'].map((unit) => {
@@ -157,6 +174,7 @@ export default class RepeatPlugin extends Plugin {
 
   async onload() {
     await this.loadSettings();
+    this.makeRepeatRibbonIcon();
     this.manageStatusBarItem();
     this.registerCommands();
     this.registerView(
@@ -183,7 +201,6 @@ class RepeatPluginSettingTab extends PluginSettingTab {
     const { containerEl } = this;
 
     containerEl.empty();
-
     containerEl.createEl('h2', { text: 'Repeat Plugin Settings' });
 
     new Setting(containerEl)
@@ -195,5 +212,15 @@ class RepeatPluginSettingTab extends PluginSettingTab {
           this.plugin.settings.showDueCountInStatusBar = value;
           await this.plugin.saveSettings();
         }));
+
+    new Setting(containerEl)
+        .setName('Show ribbon icon')
+        .setDesc('Whether to display the ribbon icon that opens the Repeat pane.')
+        .addToggle(component => component
+          .setValue(this.plugin.settings.showRibbonIcon)
+          .onChange(async (value) => {
+            this.plugin.settings.showRibbonIcon = value;
+            await this.plugin.saveSettings();
+          }));
   }
 }
