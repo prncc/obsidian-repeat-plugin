@@ -18,6 +18,8 @@ class RepeatView extends ItemView {
   indexPromise: Promise<null> | undefined;
   dv: DataviewApi | undefined;
 
+  icon: string = 'clock';
+
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
     this.component = new Component();
