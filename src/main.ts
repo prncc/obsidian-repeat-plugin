@@ -118,8 +118,16 @@ export default class RepeatPlugin extends Plugin {
       name: 'Repeat this note...',
       checkCallback: (checking: boolean) => {
         const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-        // TODO: Save repeat state on submit.
-        const onSubmit = (result: string) => { console.log(result) };
+        const onSubmit = (result: Repetition) => {
+          if (!markdownView) {
+            return;
+          }
+          const { editor } = markdownView;
+          let content = editor.getValue();
+          const newContent = replaceOrInsertFields(
+            content, serializeRepetition(result));
+          editor.setValue(newContent);
+        };
         if (markdownView) {
           if (!checking) {
             new RepeatNoteSetupModal(this.app, onSubmit).open();
