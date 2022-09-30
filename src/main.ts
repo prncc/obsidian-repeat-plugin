@@ -111,8 +111,6 @@ export default class RepeatPlugin extends Plugin {
   }
 
   registerCommands() {
-    // TODO: Add command to view repeat page and setting to disable ribbon icon.
-    // TODO: Implement setup-repeat-note command and refactor into own method.
     this.addCommand({
       id: 'setup-repeat-note',
       name: 'Repeat this note...',
