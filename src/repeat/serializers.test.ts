@@ -48,8 +48,8 @@ describe('serializeRepeat round trip', () => {
   )(
     'retains $repeatStrategy, $repeatPeriod, $repeatPeriodUnit, $repeatTimeOfDay',
     (repetition) => {
-      const { repeat, repeat_due_at } = serializeRepetition(repetition as any);
-      const serializedUnserializedRepetition = parseRepetitionFields(repeat, repeat_due_at, undefined);
+      const { repeat, due_at } = serializeRepetition(repetition as any);
+      const serializedUnserializedRepetition = parseRepetitionFields(repeat, due_at, undefined);
       expect(serializedUnserializedRepetition).toEqual(repetition);
     });
 });

@@ -9,14 +9,14 @@ export function getNotesDue(
   const now = DateTime.now();
   return dv?.pages()
     .mutate((page: any) => {
-      const { repeat, repeat_due_at } = page.file.frontmatter || {};
+      const { repeat, due_at } = page.file.frontmatter || {};
       if (!repeat) {
         page.repetition = undefined;
         return page;
       }
       page.repetition = parseRepetitionFields(
         repeat,
-        repeat_due_at,
+        due_at,
         page.file.ctime);
       return page;
     })

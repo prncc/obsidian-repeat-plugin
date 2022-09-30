@@ -57,6 +57,6 @@ function serializeRepeat({
 export function serializeRepetition(repetition: Repetition) {
   return {
     repeat: serializeRepeat(repetition),
-    repeat_due_at: repetition.repeatDueAt.toISO(),
+    due_at: repetition.repeatDueAt.toISO(),
   }
 }
