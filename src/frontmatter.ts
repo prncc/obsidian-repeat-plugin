@@ -73,7 +73,7 @@ export function determineFrontmatterBounds(
  * @returns Field bounds (including the value) or null if they can't be found.
  */
 export function determineInlineFieldBounds(frontmatter: string, field: string): Bounds {
-  const fieldRegex = new RegExp(`${field}\\s*:\\s*.*(?=\\r?\\n)`, 'gm');
+  const fieldRegex = new RegExp(`^${field}\\s*:\\s*.*(?=\\r?\\n)`, 'gm');
   let fieldResult;
   let lastMatch;  // Later occurrences overwrite previous ones.
   while((fieldResult = fieldRegex.exec(frontmatter))) {

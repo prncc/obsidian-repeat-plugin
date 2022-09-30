@@ -77,7 +77,13 @@ describe('determineInlineFieldBounds', () => {
     const frontmatter = ['one: 1', 'one: 2\n'].join('\n');
     const bounds = determineInlineFieldBounds(frontmatter, 'one');
     expect(frontmatter.slice(...(bounds || []))).toBe('one: 2');
-  })
+  });
+
+  test('suffix field is not picked up', () => {
+    const frontmatter = ['prefixone: 1', 'prefixone: 2\n'].join('\n');
+    const bounds = determineInlineFieldBounds(frontmatter, 'one');
+    expect(bounds).toBe(null);
+  });
 });
 
 describe('replaceOrInsertField', () => {
