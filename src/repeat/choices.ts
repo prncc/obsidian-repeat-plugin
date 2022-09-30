@@ -10,7 +10,7 @@ export const PM_REVIEW_TIME = 18;
 export const DISMISS_BUTTON_TEXT = 'dismiss';
 
 export const SKIP_PERIOD_MINUTES = 5;
-export const SKIP_BUTTON_TEXT = '5 minutes (skip)';
+export const SKIP_BUTTON_TEXT = `${SKIP_PERIOD_MINUTES} minutes (skip)`;
 
 /**
  * Determines next repetition date.
@@ -78,7 +78,7 @@ function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): Repeat
       repeatDueAt: getSkipDateTime(now),
     }
   }, {
-    text: `Repeat in ${summarizeDueAt(nextRepeatDueAt, now)}`,
+    text: summarizeDueAt(nextRepeatDueAt, now),
     nextRepetition: {
       ...repetition,
       repeatDueAt: nextRepeatDueAt,
