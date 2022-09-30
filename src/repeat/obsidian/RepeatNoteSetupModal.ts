@@ -68,6 +68,11 @@ class RepeatNoteSetupModal extends Modal {
     const frequencyEl = new Setting(contentEl)
       .setName('Repeat in')
       .addText((text) => {
+        // Make text input fit better next to the dropdown.
+        text.inputEl.type = 'number';
+        text.inputEl.style.width = '150px';
+        text.inputEl.style.marginRight = '5px';
+
         text.setValue(`${this.result.repeatPeriod}`);
         text.onChange((value) => {
           // TODO: invalidate negative periods
@@ -86,14 +91,11 @@ class RepeatNoteSetupModal extends Modal {
         });
       });
 
-    // TODO: Set when adding element.
+    // Force text input's height to match adjacent dropdown's height.
     try {
-      frequencyEl.components[0].inputEl.type = 'number';
-      frequencyEl.components[0].inputEl.style.height = `${frequencyEl.components[1].selectEl.clientHeight}px`;
-      frequencyEl.components[0].inputEl.style.width = '150px';
-      frequencyEl.components[0].inputEl.style.marginRight = '5px';
+      frequencyEl.components[0].inputEl.style.height =
+        `${frequencyEl.components[1].selectEl.clientHeight}px`;
     } catch (e) {
-      console.error('Could not set repeat period HTML element styles.');
       console.error(e);
     }
 
@@ -107,7 +109,8 @@ class RepeatNoteSetupModal extends Modal {
         });
       });
 
-    // TODO: Set when adding element.
+    // Disable top border and padding of the setting container so that
+    // time of day dropdown looks connected to the frequency inputs.
     try {
       timeOfDayEl.settingEl.style.borderTop = '0px';
       timeOfDayEl.settingEl.style.paddingTop = '0px';
