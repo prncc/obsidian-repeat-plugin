@@ -13,28 +13,28 @@ export const SKIP_PERIOD_MINUTES = 5;
 export const SKIP_BUTTON_TEXT = '5 minutes (skip)';
 
 /**
- * Determines when next repeat is due for an already due periodic note.
+ * Determines next repetition date.
  * @param repetition A note Repetition object.
  * @returns When the note is next due.
  */
-export function incrementPeriodicToNextDueAt({
+export function incrementRepeatDueAt({
   repeatDueAt,
   repeatPeriodUnit,
   repeatPeriod,
   repeatTimeOfDay,
 }: Repetition): DateTime {
   const now = DateTime.now();
-  const dueAt = repeatDueAt ?? now;
-  if (dueAt > DateTime.now()) {
-    return dueAt;
+  const dueAt = repeatDueAt ?? now.minus({ second: 1 });
+  let repetitions = 1;
+  if (dueAt <= now) {
+    const overdueBy = now.diff(dueAt);
+    const repeatPeriodDuration = Duration.fromObject({
+      [repeatPeriodUnit.toLowerCase()]: repeatPeriod,
+    });
+    repetitions = Math.ceil((overdueBy as any) / (repeatPeriodDuration as any));
   }
-  const overdueBy = now.diff(dueAt);
-  const repeatPeriodDuration = Duration.fromObject({
-    [repeatPeriodUnit.toLowerCase()]: repeatPeriod,
-  });
-  const repetitions = Math.ceil((overdueBy as any)/(repeatPeriodDuration as any));
   const nextRepeatDueAt = dueAt.plus({
-    [repeatPeriodUnit.toLowerCase()]: repetitions,
+    [repeatPeriodUnit.toLowerCase()]: repetitions * repeatPeriod,
   }).set({
     hour: (repeatTimeOfDay === 'AM') ? AM_REVIEW_TIME : PM_REVIEW_TIME,
     minute: 0,
@@ -70,7 +70,7 @@ function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): Repeat
       nextRepetition: null,
     }];
   }
-  const nextRepeatDueAt = incrementPeriodicToNextDueAt({ ...repetition });
+  const nextRepeatDueAt = incrementRepeatDueAt({ ...repetition });
   return [{
     text: SKIP_BUTTON_TEXT,
     nextRepetition: {

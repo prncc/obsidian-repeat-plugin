@@ -14,7 +14,7 @@ import { replaceOrInsertFields } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
 import { serializeRepetition } from './repeat/serializers';
-import { incrementPeriodicToNextDueAt } from './repeat/choices';
+import { incrementRepeatDueAt } from './repeat/choices';
 import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
 
 export default class RepeatPlugin extends Plugin {
@@ -162,7 +162,7 @@ export default class RepeatPlugin extends Plugin {
                 repeatPeriodUnit: unit.toUpperCase() as PeriodUnit,
                 repeatTimeOfDay: 'AM' as TimeOfDay,
               };
-              const repeatDueAt = incrementPeriodicToNextDueAt({
+              const repeatDueAt = incrementRepeatDueAt({
                 ...repeat,
                 repeatDueAt: undefined,
               } as any);
