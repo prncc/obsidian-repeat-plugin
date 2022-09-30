@@ -14,7 +14,7 @@ const formatDateTimeForPicker = (dt: DateTime) => (
 
 class RepeatNoteSetupModal extends Modal {
   result: any;
-  datetimePickerEl: HTMLElement | undefined;
+  datetimePickerEl: HTMLInputElement | undefined;
   onSubmit: (result: any) => void;
 
   constructor(
@@ -93,8 +93,8 @@ class RepeatNoteSetupModal extends Modal {
 
     // Force text input's height to match adjacent dropdown's height.
     try {
-      frequencyEl.components[0].inputEl.style.height =
-        `${frequencyEl.components[1].selectEl.clientHeight}px`;
+      (frequencyEl.components[0] as any).inputEl.style.height =
+        `${(frequencyEl.components[1] as any).selectEl.clientHeight}px`;
     } catch (e) {
       console.error(e);
     }
