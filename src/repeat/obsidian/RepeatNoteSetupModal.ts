@@ -1,30 +1,52 @@
+import { DateTime } from 'luxon';
 import { App, Modal, Setting } from 'obsidian';
-import { AM_REVIEW_TIME, incrementPeriodicToNextDueAt, PM_REVIEW_TIME } from '../choices';
-import { fullySummarizeDueAt } from '../utils';
+import { AM_REVIEW_TIME, incrementRepeatDueAt, PM_REVIEW_TIME } from '../choices';
+import { Repetition } from '../repeatTypes';
+import { summarizeDueAt } from '../utils';
+
+const formatDateTimeForPicker = (dt: DateTime) => (
+  [
+    dt.toFormat('yyyy-MM-dd'),
+    'T',
+    dt.toFormat('HH:mm')
+  ].join('')
+);
 
 class RepeatNoteSetupModal extends Modal {
   result: any;
+  datetimePickerEl: HTMLElement | undefined;
   onSubmit: (result: any) => void;
 
-  constructor(app: App, onSubmit: (result: any) => void) {
+  constructor(
+    app: App,
+    onSubmit: (result: any) => void,
+    initialValue?: Repetition,
+  ) {
     super(app);
-    // TODO: read initial values in from note.
-    this.result = {
+    this.onSubmit = onSubmit;
+    this.updateResult = this.updateResult.bind(this)
+
+    this.result = initialValue ?? {
       repeatStrategy: 'PERIODIC',
       repeatPeriod: 1,
       repeatPeriodUnit: 'DAY',
       repeatTimeOfDay: 'AM',
+      repeatDueAt: undefined,
     };
-    this.onSubmit = onSubmit;
-    this.updateResult = this.updateResult.bind(this)
+    // TODO: Refactor method to avoid this hack.
+    // Hack to populate initial repeatDueAt.
+    this.updateResult('repeatPeriod', 1);
+    this.datetimePickerEl;
   }
 
   updateResult(key: string, value: any) {
     this.result[key] = value;
-    this.result.repeatDueAt = incrementPeriodicToNextDueAt({
-      ...this.result,
-      repeatDueAt: undefined,
-    });
+    // Recalculate repeatDueAt and update picker's value.
+    this.result.repeatDueAt = incrementRepeatDueAt(this.result);
+    if (this.datetimePickerEl) {
+      this.datetimePickerEl.value = formatDateTimeForPicker(
+        this.result.repeatDueAt);
+    }
   }
 
   onOpen() {
@@ -94,7 +116,27 @@ class RepeatNoteSetupModal extends Modal {
       console.error(e);
     }
 
-    // TODO: Add date picker and summary to select the first repeat.
+    new Setting(contentEl)
+      .setName('Next repeat')
+      .setDesc(`in ${summarizeDueAt(this.result.repeatDueAt)}`)
+      .addText((datetimePicker) => {
+        // Hack to convert text input to datetime-local
+        // (which degrades to text and should be similar enough).
+        datetimePicker.inputEl.type = 'datetime-local';
+        datetimePicker.inputEl.addClass('repeat-date_picker');
+        const pickerValue = formatDateTimeForPicker(this.result.repeatDueAt);
+        datetimePicker.inputEl.value = pickerValue;
+        this.datetimePickerEl = datetimePicker.inputEl;
+        datetimePicker.onChange((value) => {
+          const parsedValue = DateTime.fromISO(value);
+          // @ts-ignore: .invalid is added by luxon.
+          if (parsedValue.invalid) {
+            console.error('Could not parse datetime from picker.');
+            return;
+          }
+          this.result.repeatDueAt = parsedValue;
+        });
+      });
 
     new Setting(contentEl)
       .addButton((btn) =>
