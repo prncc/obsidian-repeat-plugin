@@ -1,9 +1,12 @@
 .repeat-message {
   text-align: center;
+  margin-top: 20px;
 }
 
 .repeat-buttons {
   text-align: center;
+  // Space buttons same distance from top as the content is from the buttons.
+  margin-top: 10px;
 }
 
 .repeat-buttons > button {

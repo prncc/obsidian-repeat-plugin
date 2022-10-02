@@ -6,6 +6,7 @@ import { getRepeatChoices } from '../choices';
 import { RepeatChoice } from '../repeatTypes';
 import { getNextDueNote } from '../queries';
 import { serializeRepetition } from '../serializers';
+import { renderMarkdown, renderTitleElement } from 'src/markdown';
 
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 
@@ -86,16 +87,26 @@ class RepeatView extends ItemView {
       return;
     }
     const file = matchingMarkdowns[0];
+
+    // Render the repeat control buttons.
     choices.forEach(choice => this.addRepeatButton(choice, file));
+
+    // Render the title and link that opens note being reviewed.
+    renderTitleElement(
+      this.previewContainer,
+      file,
+      this.app.vault);
+
+    // Render the note contents.
     const markdown = await this.app.vault.cachedRead(file);
     const delimitedFrontmatterBounds = determineFrontmatterBounds(markdown, true);
-    await MarkdownPreviewView.renderMarkdown(
-      markdown.slice(delimitedFrontmatterBounds ?
-                     delimitedFrontmatterBounds[1] : 0),
+    await renderMarkdown(
+      markdown.slice(
+        delimitedFrontmatterBounds ? delimitedFrontmatterBounds[1] : 0),
       this.previewContainer,
       file.path,
       this.component,
-    );
+      this.app.vault);
   }
 
   resetContainers() {
