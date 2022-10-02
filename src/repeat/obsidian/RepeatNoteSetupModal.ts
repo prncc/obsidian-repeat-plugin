@@ -115,7 +115,7 @@ class RepeatNoteSetupModal extends Modal {
       timeOfDayEl.settingEl.style.borderTop = '0px';
       timeOfDayEl.settingEl.style.paddingTop = '0px';
     } catch (e) {
-      console.error('Could not set time of day HTML element styles.');
+      console.error('Repeat Plugin: Could not set time of day HTML element styles:');
       console.error(e);
     }
 
@@ -134,7 +134,7 @@ class RepeatNoteSetupModal extends Modal {
           const parsedValue = DateTime.fromISO(value);
           // @ts-ignore: .invalid is added by luxon.
           if (parsedValue.invalid) {
-            console.error('Could not parse datetime from picker.');
+            console.error('Repeat Plugin: Could not parse datetime from picker.');
             return;
           }
           this.result.repeatDueAt = parsedValue;
