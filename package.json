@@ -1,7 +1,7 @@
 {
   "name": "obsidian-repeat-plugin",
   "version": "1.0.0",
-  "description": "An Obsidian plugin to repeat notes.",
+  "description": "An Obsidian plugin that allows you to periodically review \"repeating\" notes.",
   "main": "main.js",
   "scripts": {
     "dev": "node esbuild.config.mjs",
@@ -10,7 +10,19 @@
     "lint": "eslint ./src",
     "test": "NODE_ENV=test jest"
   },
-  "keywords": [],
+  "keywords": [
+    "spaced repetition",
+    "periodic",
+    "repeating",
+    "repeat",
+    "surface",
+    "resurface",
+    "flashcards",
+    "daily",
+    "weekly",
+    "monthly",
+    "yearly"
+  ],
   "author": "Andre Perunicic",
   "license": "MIT",
   "devDependencies": {
