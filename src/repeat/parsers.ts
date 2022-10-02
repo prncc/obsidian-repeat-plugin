@@ -70,8 +70,8 @@ function parseRepeatTimeOfDay(timeOfDaySuffix: string): TimeOfDay {
 }
 
 export function parseRepeat(repeat: string): Repeat {
-  let processedRepeat = repeat.toLowerCase();
-  let repetitionRegex = new RegExp(
+  const processedRepeat = repeat.toLowerCase();
+  const repetitionRegex = new RegExp(
     '(?<description>' +
       'daily|weekly|monthly|yearly|annually' +
       '|(' +

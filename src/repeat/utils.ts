@@ -9,7 +9,7 @@ function diffSymmetrically(
     return now.diff(then, resolution).toObject();
   }
   return then.diff(now, resolution).toObject();
-};
+}
 
 /**
  * Makes a succinct, human-readable summary of the diff between dueAt and now.
@@ -77,7 +77,7 @@ export function summarizeDueAt(
     return 'a moment';
   }
   return diffSequence[0].summary;
-};
+}
 
 /**
  * Makes a detailed summary of the diff between dueAt and now.
@@ -94,4 +94,4 @@ export function fullySummarizeDueAt(
     return ['Due in', diffSummary].join(' ');
   }
   return ['Overdue by', diffSummary].join(' ');
-};
+}

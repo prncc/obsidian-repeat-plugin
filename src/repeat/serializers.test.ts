@@ -5,7 +5,7 @@ import { DateTime } from "luxon";
 const referenceRepeatDueAt = DateTime.fromISO('2022-03-04T06:00:00.000-05:00');
 
 const makeTestRepetitions = () => {
-  let basicRepetitions = [
+  const basicRepetitions = [
     'DAY',
     'WEEK',
     'MONTH',

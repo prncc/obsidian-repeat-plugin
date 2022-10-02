@@ -121,7 +121,7 @@ export default class RepeatPlugin extends Plugin {
             return;
           }
           const { editor } = markdownView;
-          let content = editor.getValue();
+          const content = editor.getValue();
           const newContent = replaceOrInsertFields(
             content, serializeRepetition(result));
           editor.setValue(newContent);
@@ -153,7 +153,7 @@ export default class RepeatPlugin extends Plugin {
           if (markdownView) {
             if (!checking) {
               const { editor } = markdownView;
-              let content = editor.getValue();
+              const content = editor.getValue();
               const repeat = {
                 repeatStrategy: 'PERIODIC' as Strategy,
                 repeatPeriod: 1,

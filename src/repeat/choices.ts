@@ -48,7 +48,7 @@ export function incrementRepeatDueAt({
     });
   }
   return nextRepeatDueAt;
-};
+}
 
 const getSkipDateTime = (now: DateTime) => (
   now.plus({
@@ -84,7 +84,7 @@ function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): Repeat
       repeatDueAt: nextRepeatDueAt,
     },
   }];
-};
+}
 
 /**
  * Gets all repeat button choices for a spaced note.
@@ -134,7 +134,7 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
     },
     ...multiplierChoices,
   ], 'text');
-};
+}
 
 /**
  * Get all repetition choices for a note.
@@ -157,4 +157,4 @@ export function getRepeatChoices(repetition: Repetition): RepeatChoice[] {
     text: DISMISS_BUTTON_TEXT,
     nextRepetition: null,
   }];
-};
+}

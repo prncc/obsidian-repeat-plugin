@@ -31,15 +31,15 @@ export type Bounds = [number, number] | null;
  */
 export function determineFrontmatterBounds(
   content: string,
-  includeDelimiters: boolean = false,
+  includeDelimiters = false,
 ): Bounds {
   // metadataCache's frontmatter only gets populated if *document* starts
   // with ---<newline>, even though the editor allows newlines before ---.
-  let openRegex = /---\r?\n/gm;
+  const openRegex = /---\r?\n/gm;
   // The editor sometimes highlights past the first close, but any fields
   // there are not saved into metadataCache, so we ignore them.
   // It also looks like more than three dashes close the frontmatter, too.
-  let closeRegex = /-{3,}(\s|$)/gm;
+  const closeRegex = /-{3,}(\s|$)/gm;
 
   const openResult = openRegex.exec(content);
   // Opening must be at the start of the file.
@@ -133,7 +133,7 @@ export function replaceOrInsertFields(
     }
   }
   let frontmatter = content.slice(...bounds);
-  for (let field in fieldToValue) {
+  for (const field in fieldToValue) {
     frontmatter = replaceOrInsertField(frontmatter, field, fieldToValue[field]);
   }
   return [

@@ -94,7 +94,7 @@ export async function renderMarkdown(
     sourcePath,
     lifecycleComponent,
   );
-  let nodes = containerEl.querySelectorAll('span.internal-embed');
+  const nodes = containerEl.querySelectorAll('span.internal-embed');
   nodes.forEach((node) => {
     const embedType = determineEmbedType(node);
     if (embedType === EmbedType.Image) {
@@ -134,7 +134,7 @@ export async function renderMarkdown(
     }
   });
 
-  let links = containerEl.querySelectorAll('a.internal-link');
+  const links = containerEl.querySelectorAll('a.internal-link');
   links.forEach((node: HTMLLinkElement) => {
     if (!node.getAttribute('href')) {
       return;

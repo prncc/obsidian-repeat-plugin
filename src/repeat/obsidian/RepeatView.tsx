@@ -1,4 +1,4 @@
-import { Component, ItemView, WorkspaceLeaf, MarkdownPreviewView, TFile } from 'obsidian';
+import { Component, ItemView, WorkspaceLeaf, TFile } from 'obsidian';
 import { getAPI, DataviewApi } from 'obsidian-dataview';
 
 import { determineFrontmatterBounds, replaceOrInsertFields } from '../../frontmatter';
@@ -19,7 +19,7 @@ class RepeatView extends ItemView {
   indexPromise: Promise<null> | undefined;
   dv: DataviewApi | undefined;
 
-  icon: string = 'clock';
+  icon = 'clock';
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
@@ -122,7 +122,7 @@ class RepeatView extends ItemView {
     choice: RepeatChoice,
     file: TFile,
   ) {
-    let button = this.buttonsContainer.createEl('button', {
+    return this.buttonsContainer.createEl('button', {
         text: choice.text,
       },
       (buttonElement) => {
@@ -158,7 +158,6 @@ class RepeatView extends ItemView {
           });
         }
       });
-    return button;
   }
 }
 
