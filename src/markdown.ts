@@ -179,21 +179,18 @@ export async function renderTitleElement(
   file: TFile,
   vault: Vault,
 ) {
-  const embed = createEl('div', { cls: 'markdown-embed' });
-  // The top border is therefore a separator from the control buttons.
-  embed.style.borderBottom = 'none';
-
   const embedTitle = createEl('div', { cls: 'markdown-embed-title' });
   embedTitle.setText(file.basename);
+  // Avoid hiding long titles - they provide important context.
+  embedTitle.style.textOverflow = 'inherit';
+  embedTitle.style.whiteSpace = 'normal';
 
   // This element is a div in Obsidian's own embed, but that makes clicking
   // to open the note more complicated. So, we use a simple link.
   const embedLink = createEl('a', { cls: 'markdown-embed-link' });
   embedLink.href = getNoteUri(vault, file.path);
   setIcon(embedLink, 'link', 20);
-  embedLink.style.marginTop = '10px';
 
-  embed.appendChild(embedTitle);
-  embed.appendChild(embedLink);
-  container.appendChild(embed);
+  container.appendChild(embedTitle);
+  container.appendChild(embedLink);
 }

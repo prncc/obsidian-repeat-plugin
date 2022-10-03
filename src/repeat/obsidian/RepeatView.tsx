@@ -92,6 +92,10 @@ class RepeatView extends ItemView {
     // Render the repeat control buttons.
     choices.forEach(choice => this.addRepeatButton(choice, file));
 
+    // .markdown-embed adds borders that shouldn't be while loading,
+    // so we only add the class when the note is about to be rendered.
+    this.previewContainer.addClass('markdown-embed');
+
     // Render the title and link that opens note being reviewed.
     renderTitleElement(
       this.previewContainer,
