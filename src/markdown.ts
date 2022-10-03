@@ -28,6 +28,25 @@ Object.keys(embedTypeToAcceptedExtensions).forEach((key) => {
 });
 
 /**
+ * Resolved path suitable for constructing a canonical file URI.
+ *
+ * Obsidian does some path inference in case links don't specify a full path.
+ * @param vault Vault which contains the file.
+ * @param pathSuffix Path suffix of file, something like its name or all or part
+ *   of the containing subdir + its name.
+ * @returns Full path of file, or just pathSuffix if no file matched.
+ */
+function getFirstMatchingFilePath(vault: Vault, pathSuffix: string) {
+  for (const file of vault.getFiles()) {
+    if (file.path.endsWith(pathSuffix)) {
+      return file.path;
+    }
+  }
+  // for (const [filePath, file] of Object.entries(vault.file))
+  return pathSuffix;
+}
+
+/**
  * Gets resource URI Obsidian can render.
  * @param vault Vault which contains the note.
  * @param mediaSrc src in containing span, something like a filename or path.
@@ -99,27 +118,36 @@ export async function renderMarkdown(
     const embedType = determineEmbedType(node);
     if (embedType === EmbedType.Image) {
       const img = createEl('img');
-      img.src = getMediaUri(vault, node.getAttribute('src') as string);
+      img.src = getMediaUri(
+        vault,
+        getFirstMatchingFilePath(vault, node.getAttribute('src') as string),
+      );
       node.empty();
       node.appendChild(img);
     }
     else if (embedType === EmbedType.Audio) {
       const audio = createEl('audio');
       audio.controls = true;
-      audio.src = getMediaUri(vault, node.getAttribute('src') as string);
+      audio.src = getMediaUri(
+        vault,
+        getFirstMatchingFilePath(vault, node.getAttribute('src') as string));
       node.empty();
       node.appendChild(audio);
     }
     else if (embedType === EmbedType.Video) {
       const video = createEl('video');
       video.controls = true;
-      video.src = getMediaUri(vault, node.getAttribute('src') as string);
+      video.src = getMediaUri(
+        vault,
+        getFirstMatchingFilePath(vault, node.getAttribute('src') as string));
       node.empty();
       node.appendChild(video);
     }
     else if (embedType === EmbedType.PDF) {
       const iframe = createEl('iframe');
-      iframe.src = getMediaUri(vault, node.getAttribute('src') as string);
+      iframe.src = getMediaUri(
+        vault,
+        getFirstMatchingFilePath(vault, node.getAttribute('src') as string));
       iframe.width = '100%';
       iframe.height = '800px';
       node.empty();
