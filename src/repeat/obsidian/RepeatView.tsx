@@ -48,6 +48,7 @@ class RepeatView extends ItemView {
     });
 
     this.resetContainers();
+    this.setMessage('Loading...');
   }
 
   getViewType() {
@@ -71,6 +72,9 @@ class RepeatView extends ItemView {
 
   async setPage() {
     await this.indexPromise;
+    // Reset the message container so that loading message is hidden.
+    this.setMessage('');
+    this.messageContainer.style.display = 'none';
     const page = getNextDueNote(this.dv);
     if (!page) {
       this.setMessage('All done for now!');
