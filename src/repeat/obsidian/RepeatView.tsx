@@ -11,15 +11,14 @@ import { renderMarkdown, renderTitleElement } from 'src/markdown';
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 
 class RepeatView extends ItemView {
-  root: Element;
-  component: Component;
-  messageContainer: HTMLElement;
   buttonsContainer: HTMLElement;
-  previewContainer: HTMLElement;
-  indexPromise: Promise<null> | undefined;
+  component: Component;
   dv: DataviewApi | undefined;
-
   icon = 'clock';
+  indexPromise: Promise<null> | undefined;
+  messageContainer: HTMLElement;
+  previewContainer: HTMLElement;
+  root: Element;
 
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
