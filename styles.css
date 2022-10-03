@@ -5,7 +5,7 @@
 
 .repeat-buttons {
   text-align: center;
-  // Space buttons same distance from top as the content is from the buttons.
+  /* Space buttons same distance from top as the content is from the buttons. */
   margin-top: 24px;
 }
 
@@ -43,7 +43,7 @@
   font-size: 16px;
   border-radius: 4px;
   outline: none;
-  height: 39px;  // Deduced experimentally.
+  height: 39px;  /* Deduced experimentally. */
 }
 .repeat-date_picker:hover {
   background-color: var(--background-modifier-form-field-highlighted);
