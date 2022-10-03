@@ -24,6 +24,7 @@ class RepeatView extends ItemView {
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
     this.addRepeatButton = this.addRepeatButton.bind(this);
+    this.setMessage = this.setMessage.bind(this);
     this.setPage = this.setPage.bind(this);
     this.resetContainers = this.resetContainers.bind(this);
 
@@ -60,10 +61,10 @@ class RepeatView extends ItemView {
 
   async onOpen() {
     if (!this.dv) {
-      this.messageContainer.setText(
+      this.setMessage(
         'Repeat Plugin requires DataView Plugin to work. ' +
         'Make sure that the DataView Plugin is installed and enabled.'
-      )
+      );
       return;
     }
     this.setPage();
@@ -73,7 +74,7 @@ class RepeatView extends ItemView {
     await this.indexPromise;
     const page = getNextDueNote(this.dv);
     if (!page) {
-      this.messageContainer.setText('All done for now!');
+      this.setMessage('All done for now!');
       return;
     }
     const dueFilePath = (page?.file as any).path;
@@ -81,7 +82,7 @@ class RepeatView extends ItemView {
     const matchingMarkdowns = this.app.vault.getMarkdownFiles()
       .filter((file) => file?.path === dueFilePath);
     if (!matchingMarkdowns) {
-      this.messageContainer.setText(
+      this.setMessage(
         `Error: Could not find due note ${dueFilePath}. ` +
         'Reopen this view to retry.');
       return;
@@ -114,8 +115,15 @@ class RepeatView extends ItemView {
     this.buttonsContainer && this.buttonsContainer.remove();
     this.previewContainer && this.previewContainer.remove();
     this.messageContainer = this.root.createEl('div', { cls: 'repeat-message' });
+    // Hide until there's a message to manage spacing.
+    this.messageContainer.style.display = 'none';
     this.buttonsContainer = this.root.createEl('div', { cls: 'repeat-buttons' });
     this.previewContainer = this.root.createEl('div', { cls: 'repeat-embedded_note' });
+  }
+
+  setMessage(message: string) {
+    this.messageContainer.style.display = 'block';
+    this.messageContainer.setText(message);
   }
 
   async addRepeatButton(
