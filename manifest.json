@@ -1,9 +1,9 @@
 {
 	"id": "obsidian-repeat-plugin",
-	"name": "Repeat Plugin",
+	"name": "Repeat",
 	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
-	"description": "Repeat notes periodically or using exponential spaced repetition.",
+	"description": "Review \"repeating\" notes using periodic or spaced repetition.",
 	"author": "Andre Perunicic",
 	"authorUrl": "https://github.com/prncc/obsidian-repeat-plugin/",
 	"isDesktopOnly": false
