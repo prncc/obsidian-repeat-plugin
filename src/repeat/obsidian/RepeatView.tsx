@@ -33,16 +33,16 @@ class RepeatView extends ItemView {
 
     this.root = this.containerEl.children[1];
     this.indexPromise = new Promise((resolve, reject) => {
+      const resolver = () => resolve(null);
       if (!this.dv) {
         return reject(null);
       }
       this.registerEvent(
         // @ts-ignore: event is added by DataView.
-          this.app.metadataCache.on('dataview:index-ready', async () => {
-            resolve(null);
-          })
-      );
+        this.app.metadataCache.on('dataview:index-ready', resolver));
       if (this.dv.index.initialized) {
+        // Not invoked on initial open if the index is loading.
+        this.app.metadataCache.off('dataview:index-ready', resolver);
         resolve(null);
       }
     });
