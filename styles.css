@@ -24,6 +24,11 @@
   padding: 15px 30px;
 }
 
+.repeat-markdown_embed_title {
+  text-overflow: inherit;
+  white-space: normal;
+}
+
 /* Transferred from Obsidian's input[] styles. */
 .repeat-date_picker {
   background: var(--background-modifier-form-field);
