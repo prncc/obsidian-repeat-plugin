@@ -53,6 +53,7 @@ class RepeatNoteSetupModal extends Modal {
     const { contentEl } = this;
 
     contentEl.empty();
+    contentEl.addClass('repeat-setup_modal');
 
     new Setting(contentEl)
       .setName('Repeat type')

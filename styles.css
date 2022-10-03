@@ -29,6 +29,10 @@
   white-space: normal;
 }
 
+.repeat-setup_modal {
+  margin-top: 24px;
+}
+
 /* Transferred from Obsidian's input[] styles. */
 .repeat-date_picker {
   background: var(--background-modifier-form-field);
