@@ -1,7 +1,7 @@
 {
-	"id": "obsidian-repeat-plugin",
+	"id": "repeat-plugin",
 	"name": "Repeat",
-	"version": "1.0.1",
+	"version": "1.0.2",
 	"minAppVersion": "1.0.0",
 	"description": "Review notes using periodic or spaced repetition.",
 	"author": "Andre Perunicic",
