@@ -42,7 +42,6 @@ function getFirstMatchingFilePath(vault: Vault, pathSuffix: string) {
       return file.path;
     }
   }
-  // for (const [filePath, file] of Object.entries(vault.file))
   return pathSuffix;
 }
 
