@@ -27,7 +27,7 @@ class RepeatNoteSetupModal extends Modal {
     this.updateResult = this.updateResult.bind(this)
 
     this.result = initialValue ?? {
-      repeatStrategy: 'PERIODIC',
+      repeatStrategy: 'SPACED',
       repeatPeriod: 1,
       repeatPeriodUnit: 'DAY',
       repeatTimeOfDay: 'AM',
@@ -58,9 +58,9 @@ class RepeatNoteSetupModal extends Modal {
     new Setting(contentEl)
       .setName('Repeat type')
       .addDropdown((dropdown) => {
-        dropdown.setValue(this.result.repeatStrategy);
         dropdown.addOption('PERIODIC', 'Periodic');
         dropdown.addOption('SPACED', 'Spaced');
+        dropdown.setValue(this.result.repeatStrategy);
         dropdown.onChange((value) =>	{
           this.updateResult('repeatStrategy', value);
         });
