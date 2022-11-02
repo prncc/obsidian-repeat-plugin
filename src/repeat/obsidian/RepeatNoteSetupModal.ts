@@ -82,11 +82,11 @@ class RepeatNoteSetupModal extends Modal {
         });
       })
       .addDropdown((dropdown) => {
-        dropdown.setValue(this.result.repeatPeriodUnit);
         dropdown.addOption('DAY', 'day(s)');
         dropdown.addOption('WEEK', 'week(s)');
         dropdown.addOption('MONTH', 'month(s)');
         dropdown.addOption('YEAR', 'year(s)');
+        dropdown.setValue(this.result.repeatPeriodUnit);
         dropdown.onChange((value) =>	{
           this.updateResult('repeatPeriodUnit', value);
         });
@@ -102,9 +102,9 @@ class RepeatNoteSetupModal extends Modal {
 
     const timeOfDayEl = new Setting(contentEl)
       .addDropdown((dropdown) => {
-        dropdown.setValue(this.result.repeatTimeOfDay);
         dropdown.addOption('AM', `at ${AM_REVIEW_TIME} AM in the morning`);
         dropdown.addOption('PM', `at ${PM_REVIEW_TIME % 12} PM in the evening`);
+        dropdown.setValue(this.result.repeatTimeOfDay);
         dropdown.onChange((value) =>	{
           this.updateResult('repeatTimeOfDay', value);
         });
