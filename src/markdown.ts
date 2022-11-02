@@ -1,4 +1,4 @@
-import { Component, MarkdownPreviewView, Vault, setIcon, TFile } from 'obsidian';
+import { Component, MarkdownPreviewView, Vault, setIcon, TFile, Platform } from 'obsidian';
 
 enum EmbedType {
   Image = 'Image',
@@ -191,6 +191,11 @@ export async function renderMarkdown(
       node.appendChild(video);
     }
     else if (embedType === EmbedType.PDF) {
+      if (!Platform.isDesktop) {
+        console.error(
+          'Repeat Plugin: Embedded PDFs are only supported on the desktop.')
+        return;
+      }
       const iframe = createEl('iframe');
       iframe.src = getMediaUri(
         vault,
