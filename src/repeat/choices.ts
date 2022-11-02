@@ -96,6 +96,7 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
   const {
     repeatPeriod,
     repeatPeriodUnit,
+    repeatTimeOfDay,
   } = repetition;
   const { repeatDueAt } = repetition;
   if ((repeatDueAt > now) || !repeatDueAt) {
@@ -105,9 +106,18 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
     }];
   }
   const multiplierChoices = [0.5, 1.0, 1.5, 2.0].map((multiplier) => {
-    const nextRepeatDueAt = now.plus({
+    let nextRepeatDueAt = now.plus({
       [repeatPeriodUnit]: multiplier * repeatPeriod,
     });
+    // Spaced notes due in at least a week should respect time of day choice.
+    if (nextRepeatDueAt.minus({ days: 7 }) >= now) {
+      nextRepeatDueAt = nextRepeatDueAt.set({
+        hour: (repeatTimeOfDay === 'AM') ? AM_REVIEW_TIME : PM_REVIEW_TIME,
+        minute: 0,
+        second: 0,
+        millisecond: 0,
+      });
+    }
     // Find the repeat interval summarization.
     // @ts-ignore: .values *does* exist on Duration.
     let { hours } = nextRepeatDueAt.diff(now, 'hours').values || {};

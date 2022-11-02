@@ -1,16 +1,4 @@
-import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeatTypes';
-
-function getRepeatTimeOfDayParts(
-  repeatTimeOfDay: TimeOfDay,
-  repeatStrategy: Strategy,
-): Array<string> {
-  // Spaced repetition time of day is set dynamically,
-  // and the default time of day is in the morning.
-  if ((repeatTimeOfDay === 'AM') || (repeatStrategy === 'SPACED')) {
-    return [];
-  }
-  return ['in the evening'];
-}
+import { PeriodUnit, Repetition } from './repeatTypes';
 
 function serializeRepeatPeriodUnit(
   repeatPeriodUnit: PeriodUnit,
@@ -50,7 +38,7 @@ function serializeRepeat({
     'every',
     ...(repeatPeriod === 1 ? [] : [`${repeatPeriod}`]),
     serializeRepeatPeriodUnit(repeatPeriodUnit, repeatPeriod),
-    ...getRepeatTimeOfDayParts(repeatTimeOfDay, repeatStrategy),
+    ...(repeatTimeOfDay === 'AM' ? [] : ['in the evening']),
   ].join(' ');
 }
 
