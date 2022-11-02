@@ -33,8 +33,7 @@ class RepeatNoteSetupModal extends Modal {
       repeatTimeOfDay: 'AM',
       repeatDueAt: undefined,
     };
-    // TODO: Refactor method to avoid this hack.
-    // Hack to populate initial repeatDueAt.
+    // Populate initial repeatDueAt.
     if (!this.result.repeatDueAt) {
       this.updateResult('repeatPeriod', this.result.repeatPeriod);
     }
