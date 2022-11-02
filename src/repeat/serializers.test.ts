@@ -1,7 +1,7 @@
 jest.mock('obsidian', () => {}, { virtual: true });
-import { parseRepetitionFields } from "./parsers";
-import { serializeRepetition } from "./serializers";
-import { DateTime } from "luxon";
+import { parseRepetitionFields } from './parsers';
+import { serializeRepetition } from './serializers';
+import { DateTime } from 'luxon';
 
 const referenceRepeatDueAt = DateTime.fromISO('2022-03-04T06:00:00.000-05:00');
 
