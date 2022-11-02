@@ -93,7 +93,10 @@ function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): Repeat
  * @returns Collection of repeat choices.
  */
 function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatChoice[] {
-  let { repeatPeriod } = repetition;
+  const {
+    repeatPeriod,
+    repeatPeriodUnit,
+  } = repetition;
   const { repeatDueAt } = repetition;
   if ((repeatDueAt > now) || !repeatDueAt) {
     return [{
@@ -101,17 +104,17 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
       nextRepetition: null,
     }];
   }
-  if (repetition.repeatPeriodUnit !== 'HOUR') {
-    repeatPeriod = 1;
-  }
-  const getNewSpacedPeriod = (multiplier: number) => (
-    Math.max(Math.round(multiplier * repeatPeriod), 1)
-  );
   const multiplierChoices = [0.5, 1.0, 1.5, 2.0].map((multiplier) => {
-    const hours = getNewSpacedPeriod(multiplier);
     const nextRepeatDueAt = now.plus({
-      hours,
+      [repeatPeriodUnit]: multiplier * repeatPeriod,
     });
+    // Find the repeat interval summarization.
+    // @ts-ignore: .values *does* exist on Duration.
+    let { hours } = nextRepeatDueAt.diff(now, 'hours').values || {};
+    if (!hours || hours < 1) {
+      hours = 1;
+    }
+    hours = Math.round(hours);
     return {
       text: `${summarizeDueAt(nextRepeatDueAt, now)} (x${multiplier})`,
       nextRepetition: {
