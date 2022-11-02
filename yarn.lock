@@ -2505,10 +2505,10 @@ obsidian-dataview@^0.5.46:
     parsimmon "^1.18.0"
     preact "^10.6.5"
 
-obsidian@latest:
-  version "0.15.9"
-  resolved "https://registry.yarnpkg.com/obsidian/-/obsidian-0.15.9.tgz#b6e0b566952643db6b55f7e74fbba6d7140fe4a2"
-  integrity sha512-w3JL/IM3/U61rjFSFIFDSv+pcHn3mH1EIRN40kBkC/lGYqjFSPbr6daQe08QkskBz/GAYIeBoaKQIcgU9vV3LQ==
+obsidian@^0.16.3:
+  version "0.16.3"
+  resolved "https://registry.yarnpkg.com/obsidian/-/obsidian-0.16.3.tgz#137b7e91f949517a1bc817b1d7ef9b8aefb219bc"
+  integrity sha512-hal9qk1A0GMhHSeLr2/+o3OpLmImiP+Y+sx2ewP13ds76KXsziG96n+IPFT0mSkup1zSwhEu+DeRhmbcyCCXWw==
   dependencies:
     "@types/codemirror" "0.0.108"
     moment "2.29.4"
