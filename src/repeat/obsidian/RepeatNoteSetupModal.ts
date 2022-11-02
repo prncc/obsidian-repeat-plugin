@@ -35,7 +35,9 @@ class RepeatNoteSetupModal extends Modal {
     };
     // TODO: Refactor method to avoid this hack.
     // Hack to populate initial repeatDueAt.
-    this.updateResult('repeatPeriod', 1);
+    if (!this.result.repeatDueAt) {
+      this.updateResult('repeatPeriod', this.result.repeatPeriod);
+    }
     this.datetimePickerEl;
   }
 
@@ -82,6 +84,7 @@ class RepeatNoteSetupModal extends Modal {
         });
       })
       .addDropdown((dropdown) => {
+        dropdown.addOption('HOUR', 'hour(s)');
         dropdown.addOption('DAY', 'day(s)');
         dropdown.addOption('WEEK', 'week(s)');
         dropdown.addOption('MONTH', 'month(s)');

@@ -13,6 +13,7 @@ import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
 import { replaceOrInsertFields } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
+import { parseRepetitionFromMarkdown } from './repeat/parsers';
 import { serializeRepetition } from './repeat/serializers';
 import { incrementRepeatDueAt } from './repeat/choices';
 import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
@@ -128,7 +129,13 @@ export default class RepeatPlugin extends Plugin {
         };
         if (markdownView) {
           if (!checking) {
-            new RepeatNoteSetupModal(this.app, onSubmit).open();
+            let repetition;
+            if (markdownView) {
+              const { editor } = markdownView;
+              const content = editor.getValue();
+              repetition = parseRepetitionFromMarkdown(content);
+            }
+            new RepeatNoteSetupModal(this.app, onSubmit, repetition).open();
           }
           return true;
         }

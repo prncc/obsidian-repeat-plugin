@@ -1,4 +1,7 @@
 import { DateTime } from 'luxon';
+import { parseYaml } from 'obsidian';
+
+import { determineFrontmatterBounds } from '../frontmatter';
 
 import {
   PeriodUnit,
@@ -134,4 +137,17 @@ export function parseRepetitionFields(
       referenceDateTime || DateTime.now(),
     ),
   }
+}
+
+export function parseRepetitionFromMarkdown(
+  markdown: string,
+): Repetition | undefined {
+  const bounds = determineFrontmatterBounds(markdown);
+  if (bounds) {
+    const { repeat, due_at } = parseYaml(markdown.slice(...bounds)) || {};
+    if (repeat) {
+      return parseRepetitionFields(repeat, due_at || undefined);
+    }
+  }
+  return undefined;
 }
