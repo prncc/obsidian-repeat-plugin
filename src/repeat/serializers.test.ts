@@ -1,3 +1,4 @@
+jest.mock('obsidian', () => {}, { virtual: true });
 import { parseRepetitionFields } from "./parsers";
 import { serializeRepetition } from "./serializers";
 import { DateTime } from "luxon";
