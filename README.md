@@ -65,6 +65,26 @@ You can always use the _Repeat this note..._ command to fix or set up the repeat
 *   `spaced every K hours`, `spaced every K days`, `spaced every K weeks`, `spaced every K months`, `spaced every K years` for `K = 1, 2, 3, ...`
 *   On first review, notes using spaced repetition will have their repeat field modified to `spaced every K hours`
 
+#### Morning or Evening Repetition
+
+All periodic notes and spaced notes with a repetition interval of at least
+a week become due at 6AM in the morning. You can make them become due at 6PM
+in the evening by adding `in the evening` to the end of the note's repeat field.
+For example, you would turn
+
+```
+repeat: spaced every 14 days
+```
+
+to
+
+```
+repeat: spaced every 14 days in the evening
+```
+
+You can also use the _Repeat this note..._ modal to adjust the repetition time.
+
+
 ## Similar Software
 
 * [msipos/mind-palace: Mind palace: mnemonic note taking system.](https://github.com/msipos/mind-palace)
