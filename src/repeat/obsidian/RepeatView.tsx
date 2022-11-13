@@ -13,6 +13,7 @@ export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 class RepeatView extends ItemView {
   buttonsContainer: HTMLElement;
   component: Component;
+  currentDueFilePath: string | undefined;
   dv: DataviewApi | undefined;
   icon = 'clock';
   indexPromise: Promise<null> | undefined;
@@ -23,6 +24,13 @@ class RepeatView extends ItemView {
   constructor(leaf: WorkspaceLeaf) {
     super(leaf);
     this.addRepeatButton = this.addRepeatButton.bind(this);
+    this.disableExternalHandlers = this.disableExternalHandlers.bind(this);
+    this.enableExternalHandlers = this.enableExternalHandlers.bind(this);
+    this.handleExternalModifyOrDelete = (
+      this.handleExternalModifyOrDelete.bind(this));
+    this.handleExternalRename = this.handleExternalRename.bind(this);
+    this.promiseMetadataChangeOrTimeOut = (
+      this.promiseMetadataChangeOrTimeOut.bind(this));
     this.setMessage = this.setMessage.bind(this);
     this.setPage = this.setPage.bind(this);
     this.resetContainers = this.resetContainers.bind(this);
@@ -67,7 +75,60 @@ class RepeatView extends ItemView {
       );
       return;
     }
+    this.enableExternalHandlers();
     this.setPage();
+  }
+
+  async onClose() {
+    this.disableExternalHandlers();
+  }
+
+  enableExternalHandlers() {
+    this.registerEvent(
+      this.app.vault.on('modify', this.handleExternalModifyOrDelete));
+    this.registerEvent(
+      this.app.vault.on('delete', this.handleExternalModifyOrDelete));
+    this.registerEvent(
+      this.app.vault.on('rename', this.handleExternalRename));
+  }
+
+  disableExternalHandlers () {
+    this.app.vault.off('modify', this.handleExternalModifyOrDelete);
+    this.app.vault.off('delete', this.handleExternalModifyOrDelete);
+    this.app.vault.off('rename', this.handleExternalRename);
+  }
+
+  async promiseMetadataChangeOrTimeOut() {
+    let resolveRef: (...data: any) => any;
+    return new Promise((resolve) => {
+      resolveRef = resolve;
+      this.registerEvent(
+        // @ts-ignore: event is added by DataView.
+        this.app.metadataCache.on('dataview:metadata-change', resolveRef));
+      setTimeout(resolveRef, 100);
+    }).then(() => {
+      this.app.metadataCache.off('dataview:metadata-change', resolveRef);
+    });
+  }
+
+  async handleExternalModifyOrDelete(file: TFile) {
+    // Current note might be swapped if user edits it to be due later.
+    // However, this shouldn't happen when *other* notes are edited.
+    if (file.path === this.currentDueFilePath) {
+      await this.promiseMetadataChangeOrTimeOut();
+      this.resetContainers();
+      this.setPage();
+    }
+  }
+
+  async handleExternalRename(file: TFile, oldFilePath: string) {
+    // This only has to handle renames of this file because automatically
+    // updated embedded links emit their own modify event.
+    if (oldFilePath === this.currentDueFilePath) {
+      await this.promiseMetadataChangeOrTimeOut();
+      this.resetContainers();
+      this.setPage();
+    }
   }
 
   async setPage() {
@@ -81,6 +142,7 @@ class RepeatView extends ItemView {
       return;
     }
     const dueFilePath = (page?.file as any).path;
+    this.currentDueFilePath = dueFilePath;
     const choices = getRepeatChoices(page.repetition as any);
     const matchingMarkdowns = this.app.vault.getMarkdownFiles()
       .filter((file) => file?.path === dueFilePath);
@@ -126,6 +188,7 @@ class RepeatView extends ItemView {
     this.messageContainer.style.display = 'none';
     this.buttonsContainer = this.root.createEl('div', { cls: 'repeat-buttons' });
     this.previewContainer = this.root.createEl('div', { cls: 'repeat-embedded_note' });
+    this.currentDueFilePath = undefined;
   }
 
   setMessage(message: string) {
