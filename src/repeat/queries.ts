@@ -27,7 +27,9 @@ export function getNotesDue(
       }
       return repetition.repeatDueAt <= now;
     })
-    .sort(({ repeatDueAt }) => repeatDueAt, 'asc')
+    .sort((page: any) => {
+      return page.repetition.repeatDueAt;
+    }, 'asc')
 }
 
 export function getNextDueNote(
