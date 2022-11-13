@@ -33,7 +33,7 @@ class RepeatView extends ItemView {
       this.promiseMetadataChangeOrTimeOut.bind(this));
     this.setMessage = this.setMessage.bind(this);
     this.setPage = this.setPage.bind(this);
-    this.resetContainers = this.resetContainers.bind(this);
+    this.resetView = this.resetView.bind(this);
 
     this.component = new Component();
 
@@ -55,7 +55,7 @@ class RepeatView extends ItemView {
       }
     });
 
-    this.resetContainers();
+    this.resetView();
     this.setMessage('Loading...');
   }
 
@@ -121,7 +121,7 @@ class RepeatView extends ItemView {
     // However, this shouldn't happen when *other* notes are edited.
     if (file.path === this.currentDueFilePath) {
       await this.promiseMetadataChangeOrTimeOut();
-      this.resetContainers();
+      this.resetView();
       this.setPage();
     }
   }
@@ -131,7 +131,7 @@ class RepeatView extends ItemView {
     // updated embedded links emit their own modify event.
     if (oldFilePath === this.currentDueFilePath) {
       await this.promiseMetadataChangeOrTimeOut();
-      this.resetContainers();
+      this.resetView();
       this.setPage();
     }
   }
@@ -149,7 +149,7 @@ class RepeatView extends ItemView {
       },
       (buttonElement) => {
         buttonElement.onclick = () => {
-          this.resetContainers();
+          this.resetView();
           this.setPage();
         }
       });
@@ -193,7 +193,7 @@ class RepeatView extends ItemView {
       this.app.vault);
   }
 
-  resetContainers() {
+  resetView() {
     this.messageContainer && this.messageContainer.remove();
     this.buttonsContainer && this.buttonsContainer.remove();
     this.previewContainer && this.previewContainer.remove();
@@ -219,7 +219,7 @@ class RepeatView extends ItemView {
       },
       (buttonElement) => {
         buttonElement.onclick = async () => {
-          this.resetContainers();
+          this.resetView();
           if (!choice.nextRepetition) {
             // TODO: Handle case of null nextRepetition properly.
             this.setPage();
