@@ -99,15 +99,20 @@ class RepeatView extends ItemView {
   }
 
   async promiseMetadataChangeOrTimeOut() {
-    let resolveRef: (...data: any) => any;
+    let resolver: (...data: any) => any;
     return new Promise((resolve) => {
-      resolveRef = resolve;
+      resolver = (_, eventFile, previousPath) => {
+        if (eventFile?.path === this.currentDueFilePath
+            || previousPath === this.currentDueFilePath) {
+          resolve(null);
+        }
+      };
       this.registerEvent(
         // @ts-ignore: event is added by DataView.
-        this.app.metadataCache.on('dataview:metadata-change', resolveRef));
-      setTimeout(resolveRef, 100);
+        this.app.metadataCache.on('dataview:metadata-change', resolver));
+      setTimeout(resolve, 100);
     }).then(() => {
-      this.app.metadataCache.off('dataview:metadata-change', resolveRef);
+      this.app.metadataCache.off('dataview:metadata-change', resolver);
     });
   }
 
