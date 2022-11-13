@@ -13,6 +13,10 @@
   margin-left: 16px;
 }
 
+.repeat-buttons > button:first-child {
+  margin-left: 0;
+}
+
 /* Make buttons legible on mobile. */
 @media (max-width: 450px) {
   .repeat-buttons > button {

@@ -139,6 +139,15 @@ class RepeatView extends ItemView {
     const page = getNextDueNote(this.dv);
     if (!page) {
       this.setMessage('All done for now!');
+      this.buttonsContainer.createEl('button', {
+        text: 'Refresh',
+      },
+      (buttonElement) => {
+        buttonElement.onclick = () => {
+          this.resetContainers();
+          this.setPage();
+        }
+      });
       return;
     }
     const dueFilePath = (page?.file as any).path;
