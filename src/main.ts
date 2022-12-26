@@ -53,15 +53,17 @@ export default class RepeatPlugin extends Plugin {
     await this.saveData(this.settings);
     if (!this.settings.showDueCountInStatusBar && this.statusBarItem) {
       this.statusBarItem.remove();
+      this.statusBarItem = undefined;
     }
-    if (this.settings.showDueCountInStatusBar) {
+    if (this.settings.showDueCountInStatusBar && !this.statusBarItem) {
       this.statusBarItem = this.addStatusBarItem();
       this.updateNotesDueCount();
     }
     if (!this.settings.showRibbonIcon && this.ribbonIcon) {
       this.ribbonIcon.remove();
+      this.ribbonIcon = undefined;
     }
-    if (this.settings.showRibbonIcon) {
+    if (this.settings.showRibbonIcon && !this.ribbonIcon) {
       this.makeRepeatRibbonIcon();
     }
   }
@@ -71,7 +73,7 @@ export default class RepeatPlugin extends Plugin {
       this.statusBarItem = this.addStatusBarItem();
     }
     if (this.settings.showDueCountInStatusBar) {
-      const dueNoteCount = getNotesDue(getAPI(this.app))?.length;
+      const dueNoteCount = getNotesDue(getAPI(this.app), this.settings.ignoreFolderPath)?.length;
       if (dueNoteCount != undefined && this.statusBarItem) {
         this.statusBarItem.setText(
           `${dueNoteCount} repeat notes due`);
@@ -192,7 +194,7 @@ export default class RepeatPlugin extends Plugin {
     this.registerCommands();
     this.registerView(
       REPEATING_NOTES_DUE_VIEW,
-      (leaf) => new RepeatView(leaf),
+      (leaf) => new RepeatView(leaf, this.settings.ignoreFolderPath),
       );
     this.addSettingTab(new RepeatPluginSettingTab(this.app, this));
   }
@@ -233,6 +235,16 @@ class RepeatPluginSettingTab extends PluginSettingTab {
           .setValue(this.plugin.settings.showRibbonIcon)
           .onChange(async (value) => {
             this.plugin.settings.showRibbonIcon = value;
+            await this.plugin.saveSettings();
+          }));
+
+    new Setting(containerEl)
+        .setName('Ignore folder path')
+        .setDesc('Files in this folder will be ignored. Useful for templates.')
+        .addText((component) => component
+          .setValue(this.plugin.settings.ignoreFolderPath)
+          .onChange(async (value) => {
+            this.plugin.settings.ignoreFolderPath = value;
             await this.plugin.saveSettings();
           }));
   }
