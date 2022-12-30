@@ -240,7 +240,7 @@ class RepeatPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
         .setName('Ignore folder path')
-        .setDesc('Files in this folder will be ignored. Useful for templates.')
+        .setDesc('Notes in this folder and its subfolders will not become due. Useful for templates.')
         .addText((component) => component
           .setValue(this.plugin.settings.ignoreFolderPath)
           .onChange(async (value) => {
