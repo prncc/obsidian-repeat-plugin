@@ -7,5 +7,5 @@ export interface RepeatPluginSettings {
 export const DEFAULT_SETTINGS: RepeatPluginSettings = {
   showDueCountInStatusBar: true,
   showRibbonIcon: true,
-  ignoreFolderPath: "",
+  ignoreFolderPath: '',
 };
