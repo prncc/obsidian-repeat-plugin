@@ -72,7 +72,8 @@ export default class RepeatPlugin extends Plugin {
       this.statusBarItem = this.addStatusBarItem();
     }
     if (this.settings.showDueCountInStatusBar) {
-      const dueNoteCount = getNotesDue(getAPI(this.app), this.settings.ignoreFolderPath)?.length;
+      const dueNoteCount = getNotesDue(
+        getAPI(this.app), this.settings.ignoreFolderPath)?.length;
       if (dueNoteCount != undefined && this.statusBarItem) {
         this.statusBarItem.setText(
           `${dueNoteCount} repeat notes due`);
