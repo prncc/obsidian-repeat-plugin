@@ -55,8 +55,7 @@ export default class RepeatPlugin extends Plugin {
       this.statusBarItem.remove();
       this.statusBarItem = undefined;
     }
-    if (this.settings.showDueCountInStatusBar && !this.statusBarItem) {
-      this.statusBarItem = this.addStatusBarItem();
+    if (this.settings.showDueCountInStatusBar) {
       this.updateNotesDueCount();
     }
     if (!this.settings.showRibbonIcon && this.ribbonIcon) {
