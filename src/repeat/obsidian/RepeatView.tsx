@@ -16,12 +16,13 @@ class RepeatView extends ItemView {
   currentDueFilePath: string | undefined;
   dv: DataviewApi | undefined;
   icon = 'clock';
+  ignoreFolderPath: string;
   indexPromise: Promise<null> | undefined;
   messageContainer: HTMLElement;
   previewContainer: HTMLElement;
   root: Element;
 
-  constructor(leaf: WorkspaceLeaf) {
+  constructor(leaf: WorkspaceLeaf, ignoreFolderPath: string) {
     super(leaf);
     this.addRepeatButton = this.addRepeatButton.bind(this);
     this.disableExternalHandlers = this.disableExternalHandlers.bind(this);
@@ -38,6 +39,7 @@ class RepeatView extends ItemView {
     this.component = new Component();
 
     this.dv = getAPI(this.app);
+    this.ignoreFolderPath = ignoreFolderPath;
 
     this.root = this.containerEl.children[1];
     this.indexPromise = new Promise((resolve, reject) => {
@@ -141,7 +143,7 @@ class RepeatView extends ItemView {
     // Reset the message container so that loading message is hidden.
     this.setMessage('');
     this.messageContainer.style.display = 'none';
-    const page = getNextDueNote(this.dv);
+    const page = getNextDueNote(this.dv, this.ignoreFolderPath);
     if (!page) {
       this.setMessage('All done for now!');
       this.buttonsContainer.createEl('button', {

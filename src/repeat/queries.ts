@@ -5,6 +5,7 @@ import { parseRepetitionFields } from './parsers';
 
 export function getNotesDue(
   dv: DataviewApi | undefined,
+  ignoreFolderPath: string,
 ): DataArray<Record<string, Literal>> | undefined {
   const now = DateTime.now();
   return dv?.pages()
@@ -25,6 +26,9 @@ export function getNotesDue(
       if (!repetition) {
         return false;
       }
+      if (page.file.folder.startsWith(ignoreFolderPath)) {
+        return false;
+      }
       return repetition.repeatDueAt <= now;
     })
     .sort((page: any) => {
@@ -34,8 +38,9 @@ export function getNotesDue(
 
 export function getNextDueNote(
   dv: DataviewApi | undefined,
+  ignoreFolderPath: string,
 ): Record<string, Literal> | undefined {
-  const page = getNotesDue(dv)?.first();
+  const page = getNotesDue(dv, ignoreFolderPath)?.first();
   if (!page) { return; }
   return page;
 }
