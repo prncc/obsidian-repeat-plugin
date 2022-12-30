@@ -23,7 +23,10 @@ export function getNotesDue(
     })
     .where((page: any) => {
       const { repetition } = page;
-      if (!repetition || page.file.folder === ignoreFolderPath) {
+      if (!repetition) {
+        return false;
+      }
+      if (page.file.folder.startsWith(ignoreFolderPath)) {
         return false;
       }
       return repetition.repeatDueAt <= now;
