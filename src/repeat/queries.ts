@@ -26,7 +26,7 @@ export function getNotesDue(
       if (!repetition) {
         return false;
       }
-      if (page.file.folder.startsWith(ignoreFolderPath)) {
+      if (ignoreFolderPath && page.file.folder.startsWith(ignoreFolderPath)) {
         return false;
       }
       return repetition.repeatDueAt <= now;
