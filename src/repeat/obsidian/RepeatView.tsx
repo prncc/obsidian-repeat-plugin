@@ -138,12 +138,12 @@ class RepeatView extends ItemView {
     }
   }
 
-  async setPage() {
+  async setPage(ignoreFilePath?: string | undefined) {
     await this.indexPromise;
     // Reset the message container so that loading message is hidden.
     this.setMessage('');
     this.messageContainer.style.display = 'none';
-    const page = getNextDueNote(this.dv, this.ignoreFolderPath);
+    const page = getNextDueNote(this.dv, this.ignoreFolderPath, ignoreFilePath);
     if (!page) {
       this.setMessage('All done for now!');
       this.buttonsContainer.createEl('button', {
@@ -230,26 +230,8 @@ class RepeatView extends ItemView {
           const markdown = await this.app.vault.read(file);
           const newMarkdown = replaceOrInsertFields(
             markdown, serializeRepetition(choice.nextRepetition));
-          let resolver: (...data: any) => any;
-          new Promise((resolve) => {
-            // Keep a reference so that we can properly unsubscribe from the event.
-            resolver = (_, eventFile, __) => {
-              if (eventFile?.path === file.path) {
-                resolve(null);
-              }
-            };
-            // Subscribe to metadata change and resolve when this file updates.
-            this.registerEvent(
-              // @ts-ignore: event is added by DataView.
-              this.app.metadataCache.on('dataview:metadata-change', resolver));
-            this.app.vault.modify(file, newMarkdown);
-            // Resolve no matter what to avoid getting stuck.
-            setTimeout(resolve, 100);
-          }).then(() => {
-            this.app.metadataCache.off('dataview:metadata-change', resolver);
-            // Metadata should be updated, so we can query for next due note.
-            this.setPage();
-          });
+          this.app.vault.modify(file, newMarkdown);
+          this.setPage(file.path);
         }
       });
   }
