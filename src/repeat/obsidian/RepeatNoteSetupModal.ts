@@ -43,7 +43,11 @@ class RepeatNoteSetupModal extends Modal {
   updateResult(key: string, value: any) {
     this.result[key] = value;
     // Recalculate repeatDueAt and update picker's value.
-    this.result.repeatDueAt = incrementRepeatDueAt(this.result);
+    this.result.repeatDueAt = incrementRepeatDueAt({
+      ...this.result,
+      // Always recompute relative to now.
+      repeatDueAt: undefined,
+    });
     if (this.datetimePickerEl) {
       this.datetimePickerEl.value = formatDateTimeForPicker(
         this.result.repeatDueAt);
