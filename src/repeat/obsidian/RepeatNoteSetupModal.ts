@@ -2,7 +2,7 @@ import { DateTime } from 'luxon';
 import { App, Modal, Setting } from 'obsidian';
 import { AM_REVIEW_TIME, incrementRepeatDueAt, PM_REVIEW_TIME } from '../choices';
 import { Repetition } from '../repeatTypes';
-import { summarizeDueAt } from '../utils';
+import { summarizeDueAtWithPrefix } from '../utils';
 
 const formatDateTimeForPicker = (dt: DateTime) => (
   [
@@ -15,6 +15,7 @@ const formatDateTimeForPicker = (dt: DateTime) => (
 class RepeatNoteSetupModal extends Modal {
   result: any;
   datetimePickerEl: HTMLInputElement | undefined;
+  dueAtSummaryEl: HTMLElement | undefined;
   onSubmit: (result: any) => void;
 
   constructor(
@@ -26,7 +27,7 @@ class RepeatNoteSetupModal extends Modal {
     this.onSubmit = onSubmit;
     this.updateResult = this.updateResult.bind(this)
 
-    this.result = initialValue ?? {
+    this.result = initialValue ? { ...initialValue } : {
       repeatStrategy: 'SPACED',
       repeatPeriod: 1,
       repeatPeriodUnit: 'DAY',
@@ -37,6 +38,8 @@ class RepeatNoteSetupModal extends Modal {
     if (!this.result.repeatDueAt) {
       this.updateResult('repeatPeriod', this.result.repeatPeriod);
     }
+    // Populate initial summary.
+    this.result.summary = summarizeDueAtWithPrefix(this.result.repeatDueAt);
     this.datetimePickerEl;
   }
 
@@ -48,10 +51,13 @@ class RepeatNoteSetupModal extends Modal {
       // Always recompute relative to now.
       repeatDueAt: undefined,
     });
+    this.result.summary = summarizeDueAtWithPrefix(this.result.repeatDueAt);
+    // Ensure UI consistency.
     if (this.datetimePickerEl) {
       this.datetimePickerEl.value = formatDateTimeForPicker(
         this.result.repeatDueAt);
     }
+    this.dueAtSummaryEl?.setText(this.result.summary);
   }
 
   onOpen() {
@@ -126,9 +132,9 @@ class RepeatNoteSetupModal extends Modal {
       console.error(e);
     }
 
-    new Setting(contentEl)
+    const nextRepeatEl = new Setting(contentEl)
       .setName('Next repeat')
-      .setDesc(`in ${summarizeDueAt(this.result.repeatDueAt)}`)
+      .setDesc(this.result.summary)
       .addText((datetimePicker) => {
         // Hack to convert text input to datetime-local
         // (which degrades to text and should be similar enough).
@@ -145,8 +151,11 @@ class RepeatNoteSetupModal extends Modal {
             return;
           }
           this.result.repeatDueAt = parsedValue;
+          this.result.summary = summarizeDueAtWithPrefix(this.result.repeatDueAt);
+          this.dueAtSummaryEl?.setText(this.result.summary);
         });
       });
+    this.dueAtSummaryEl = nextRepeatEl?.descEl;
 
     new Setting(contentEl)
       .addButton((btn) =>
@@ -154,6 +163,9 @@ class RepeatNoteSetupModal extends Modal {
           .setButtonText('Set Up Repetition')
           .setCta()
           .onClick(() => {
+            // Remove local summary field that's not needed outside the component.
+            const final = { ...this.result };
+            delete final.summary;
             this.close();
             this.onSubmit(this.result);
           }));
