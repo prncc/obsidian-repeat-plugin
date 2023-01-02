@@ -125,11 +125,11 @@ export default class RepeatPlugin extends Plugin {
           if (!markdownView) {
             return;
           }
-          const { editor } = markdownView;
+          const { editor, file } = markdownView;
           const content = editor.getValue();
           const newContent = replaceOrInsertFields(
             content, serializeRepetition(result));
-          editor.setValue(newContent);
+          this.app.vault.modify(file, newContent);
         };
         if (markdownView) {
           if (!checking) {
@@ -163,7 +163,7 @@ export default class RepeatPlugin extends Plugin {
           const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
           if (markdownView) {
             if (!checking) {
-              const { editor } = markdownView;
+              const { editor, file } = markdownView;
               const content = editor.getValue();
               const repeat = {
                 repeatStrategy: 'PERIODIC' as Strategy,
@@ -179,7 +179,7 @@ export default class RepeatPlugin extends Plugin {
                 ...repeat,
                 repeatDueAt,
               } as Repetition));
-              editor.setValue(newContent);
+              this.app.vault.modify(file, newContent);
             }
             return true;
           }
