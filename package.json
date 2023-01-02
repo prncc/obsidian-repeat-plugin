@@ -1,6 +1,6 @@
 {
   "name": "obsidian-repeat-plugin",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "An Obsidian plugin to review notes using periodic or spaced repetition.",
   "main": "./src/main.ts",
   "scripts": {
