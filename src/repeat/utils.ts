@@ -85,13 +85,13 @@ export function summarizeDueAt(
  * @param now A reference time.
  * @returns A detailed summary of the time diff between dueAt and now.
  */
-export function fullySummarizeDueAt(
+export function summarizeDueAtWithPrefix(
   dueAt: DateTime,
   now: DateTime = DateTime.now(),
 ): string {
   const diffSummary = summarizeDueAt(dueAt, now);
   if (dueAt > now) {
-    return ['Due in', diffSummary].join(' ');
+    return ['in', diffSummary].join(' ');
   }
-  return ['Overdue by', diffSummary].join(' ');
+  return ['overdue by', diffSummary].join(' ');
 }
