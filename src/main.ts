@@ -19,7 +19,7 @@ import { serializeRepetition } from './repeat/serializers';
 import { incrementRepeatDueAt } from './repeat/choices';
 import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
 
-const COUNT_DEBOUNCE_MS = 2 * 1000;
+const COUNT_DEBOUNCE_MS = 5 * 1000;
 
 export default class RepeatPlugin extends Plugin {
   settings: RepeatPluginSettings;
