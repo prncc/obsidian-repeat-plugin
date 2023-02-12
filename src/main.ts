@@ -94,12 +94,15 @@ export default class RepeatPlugin extends Plugin {
         () => {
           this.updateNotesDueCount();
           // Update due note count whenever metadata changes.
-          this.registerEvent(
-            this.app.metadataCache.on(
-              // @ts-ignore: event is added by DataView.
-              'dataview:metadata-change',
-              this.updateNotesDueCount)
-          );
+          setTimeout(() => {
+            this.registerEvent(
+              this.app.metadataCache.on(
+                // @ts-ignore: event is added by DataView.
+                'dataview:metadata-change',
+                this.updateNotesDueCount
+              )
+            );
+          }, COUNT_DEBOUNCE_MS);
         })
     );
     // Periodically update due note count as notes become due.
