@@ -1,4 +1,10 @@
-import { Component, ItemView, WorkspaceLeaf, TFile } from 'obsidian';
+import {
+  Component,
+  debounce,
+  ItemView,
+  WorkspaceLeaf,
+  TFile,
+} from 'obsidian';
 import { getAPI, DataviewApi } from 'obsidian-dataview';
 
 import { determineFrontmatterBounds, replaceOrInsertFields } from '../../frontmatter';
@@ -8,6 +14,7 @@ import { getNextDueNote } from '../queries';
 import { serializeRepetition } from '../serializers';
 import { renderMarkdown, renderTitleElement } from 'src/markdown';
 
+const MODIFY_DEBOUNCE_MS = 1 * 1000;
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 
 class RepeatView extends ItemView {
@@ -27,9 +34,12 @@ class RepeatView extends ItemView {
     this.addRepeatButton = this.addRepeatButton.bind(this);
     this.disableExternalHandlers = this.disableExternalHandlers.bind(this);
     this.enableExternalHandlers = this.enableExternalHandlers.bind(this);
-    this.handleExternalModifyOrDelete = (
-      this.handleExternalModifyOrDelete.bind(this));
-    this.handleExternalRename = this.handleExternalRename.bind(this);
+    this.handleExternalModifyOrDelete = debounce(
+      this.handleExternalModifyOrDelete,
+      MODIFY_DEBOUNCE_MS).bind(this);
+    this.handleExternalRename = debounce(
+      this.handleExternalRename,
+      MODIFY_DEBOUNCE_MS).bind(this);
     this.promiseMetadataChangeOrTimeOut = (
       this.promiseMetadataChangeOrTimeOut.bind(this));
     this.setMessage = this.setMessage.bind(this);
