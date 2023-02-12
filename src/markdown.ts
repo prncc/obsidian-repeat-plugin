@@ -234,6 +234,7 @@ export async function renderTitleElement(
 ) {
   const embedTitle = createEl('div', { cls: [
     'markdown-embed-title',
+    'embed-title',
     'repeat-markdown_embed_title',
   ]});
   embedTitle.setText(file.basename);
