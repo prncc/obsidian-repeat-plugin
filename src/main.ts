@@ -1,5 +1,6 @@
 import {
   App,
+  debounce,
   MarkdownView,
   Plugin,
   PluginManifest,
@@ -18,6 +19,8 @@ import { serializeRepetition } from './repeat/serializers';
 import { incrementRepeatDueAt } from './repeat/choices';
 import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
 
+const COUNT_DEBOUNCE_MS = 5 * 1000;
+
 export default class RepeatPlugin extends Plugin {
   settings: RepeatPluginSettings;
   statusBarItem: HTMLElement | undefined;
@@ -25,7 +28,8 @@ export default class RepeatPlugin extends Plugin {
 
   constructor(app: App, manifest: PluginManifest) {
     super(app, manifest);
-    this.updateNotesDueCount = this.updateNotesDueCount.bind(this);
+    this.updateNotesDueCount = debounce(
+      this.updateNotesDueCount, COUNT_DEBOUNCE_MS).bind(this);
     this.manageStatusBarItem = this.manageStatusBarItem.bind(this);
     this.registerCommands = this.registerCommands.bind(this);
     this.makeRepeatRibbonIcon = this.makeRepeatRibbonIcon.bind(this);
@@ -68,10 +72,10 @@ export default class RepeatPlugin extends Plugin {
   }
 
   updateNotesDueCount() {
-    if (!this.statusBarItem) {
-      this.statusBarItem = this.addStatusBarItem();
-    }
     if (this.settings.showDueCountInStatusBar) {
+      if (!this.statusBarItem) {
+        this.statusBarItem = this.addStatusBarItem();
+      }
       const dueNoteCount = getNotesDue(
         getAPI(this.app), this.settings.ignoreFolderPath)?.length;
       if (dueNoteCount != undefined && this.statusBarItem) {
@@ -90,12 +94,15 @@ export default class RepeatPlugin extends Plugin {
         () => {
           this.updateNotesDueCount();
           // Update due note count whenever metadata changes.
-          this.registerEvent(
-            this.app.metadataCache.on(
-              // @ts-ignore: event is added by DataView.
-              'dataview:metadata-change',
-              this.updateNotesDueCount)
-          );
+          setTimeout(() => {
+            this.registerEvent(
+              this.app.metadataCache.on(
+                // @ts-ignore: event is added by DataView.
+                'dataview:metadata-change',
+                this.updateNotesDueCount
+              )
+            );
+          }, COUNT_DEBOUNCE_MS);
         })
     );
     // Periodically update due note count as notes become due.
