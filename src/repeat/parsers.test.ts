@@ -16,6 +16,7 @@ describe('parseRepetitionFields', () => {
     repeatPeriodUnit: 'DAY',
     repeatTimeOfDay: 'AM',
     repeatDueAt: DateTime.fromISO(referenceRepeatDueAt),
+    hidden: false,
   };
   test.concurrent.each([
     {
@@ -61,6 +62,7 @@ describe('parseRepetitionFields', () => {
     repeatPeriodUnit: 'DAY',
     repeatTimeOfDay: 'AM',
     repeatDueAt: DateTime.fromISO(referenceRepeatDueAt),
+    hidden: false,
   };
   const makeUnitCases = (unit: string) => ([{
     repeat: `every ${unit}`,
@@ -132,5 +134,6 @@ test('spaced without period specified', () => {
     repeatPeriod: 24,
     repeatPeriodUnit: 'HOUR',
     repeatTimeOfDay: 'AM',
+    hidden: false,
   });
 });

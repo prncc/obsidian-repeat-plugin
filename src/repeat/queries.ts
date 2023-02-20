@@ -11,7 +11,7 @@ export function getNotesDue(
   const now = DateTime.now();
   return dv?.pages()
     .mutate((page: any) => {
-      const { repeat, due_at } = page.file.frontmatter || {};
+      const { repeat, due_at, hidden } = page.file.frontmatter || {};
       if (!repeat) {
         page.repetition = undefined;
         return page;
@@ -19,6 +19,7 @@ export function getNotesDue(
       page.repetition = parseRepetitionFields(
         repeat,
         due_at,
+        hidden,
         page.file.ctime);
       return page;
     })

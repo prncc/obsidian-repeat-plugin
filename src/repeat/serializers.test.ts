@@ -17,6 +17,7 @@ const makeTestRepetitions = () => {
     repeatPeriodUnit: repeatPeriodUnit,
     repeatTimeOfDay: 'AM',
     repeatDueAt: referenceRepeatDueAt,
+    hidden: false,
   }));
   return [
     ...basicRepetitions,
@@ -40,6 +41,11 @@ const makeTestRepetitions = () => {
       ...repetition,
       repeatTimeOfDay: 'PM',
     })),
+    // Hidden is true.
+    ...basicRepetitions.map((repetition) => ({
+      ...repetition,
+      hidden: true,
+    })),
   ];
 };
 
@@ -49,8 +55,8 @@ describe('serializeRepeat round trip', () => {
   )(
     'retains $repeatStrategy, $repeatPeriod, $repeatPeriodUnit, $repeatTimeOfDay',
     (repetition) => {
-      const { repeat, due_at } = serializeRepetition(repetition as any);
-      const serializedUnserializedRepetition = parseRepetitionFields(repeat, due_at, undefined);
+      const { repeat, due_at, hidden } = serializeRepetition(repetition as any);
+      const serializedUnserializedRepetition = parseRepetitionFields(repeat, due_at, hidden, undefined);
       expect(serializedUnserializedRepetition).toEqual(repetition);
     });
 });

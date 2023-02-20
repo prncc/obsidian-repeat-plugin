@@ -46,5 +46,9 @@ export function serializeRepetition(repetition: Repetition) {
   return {
     repeat: serializeRepeat(repetition),
     due_at: repetition.repeatDueAt.toISO(),
+    // Only serialize the hidden field if it's true.
+    ...(repetition.hidden ? {
+      hidden: 'true',
+    } : {})
   }
 }
