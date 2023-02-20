@@ -41,6 +41,10 @@
   margin-top: 24px;
 }
 
+.repeat-markdown_blurred {
+  filter: blur(5px);
+}
+
 /* Transferred from Obsidian's input[] styles. */
 .repeat-date_picker {
   background: var(--background-modifier-form-field);

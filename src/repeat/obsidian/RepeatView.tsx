@@ -193,13 +193,27 @@ class RepeatView extends ItemView {
       file,
       this.app.vault);
 
+    // Add container for markdown content.
+    const markdownContainer = createEl('div');
+    if ((page?.repetition as any)?.hidden) {
+      markdownContainer.addClass('repeat-markdown_blurred');
+      const onBlurredClick = (event) => {
+        event.preventDefault();
+        markdownContainer.removeClass('repeat-markdown_blurred');
+      }
+      markdownContainer.addEventListener(
+        'click', onBlurredClick, { once: true });
+    }
+
+    this.previewContainer.appendChild(markdownContainer);
+
     // Render the note contents.
     const markdown = await this.app.vault.cachedRead(file);
     const delimitedFrontmatterBounds = determineFrontmatterBounds(markdown, true);
     await renderMarkdown(
       markdown.slice(
         delimitedFrontmatterBounds ? delimitedFrontmatterBounds[1] : 0),
-      this.previewContainer,
+      markdownContainer,
       file.path,
       this.component,
       this.app.vault);
