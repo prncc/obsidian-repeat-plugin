@@ -154,7 +154,7 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
  * @param repetition The note's parsed repetition status.
  * @returns Collection of repeat choices.
  */
-export function getRepeatChoices(repetition: Repetition): RepeatChoice[] {
+export function getRepeatChoices(repetition?: Repetition): RepeatChoice[] {
   if (!repetition) {
     return [];
   }
