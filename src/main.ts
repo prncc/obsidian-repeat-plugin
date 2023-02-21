@@ -2,6 +2,7 @@ import {
   App,
   debounce,
   MarkdownView,
+  parseYaml,
   Plugin,
   PluginManifest,
   PluginSettingTab,
@@ -11,7 +12,7 @@ import {
 import RepeatView, { REPEATING_NOTES_DUE_VIEW } from './repeat/obsidian/RepeatView';
 import RepeatNoteSetupModal from './repeat/obsidian/RepeatNoteSetupModal';
 import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
-import { updateRepetitionMetadata } from './frontmatter';
+import { determineFrontmatterBounds, updateRepetitionMetadata } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
 import { parseRepetitionFromMarkdown } from './repeat/parsers';
@@ -182,10 +183,16 @@ export default class RepeatPlugin extends Plugin {
                 ...repeat,
                 repeatDueAt: undefined,
               } as any);
+              // Parse the 'hidden' field so that it is preserved.
+              const frontmatterBounds = determineFrontmatterBounds(content);
+              const frontmatter = frontmatterBounds?.length ?
+                content.slice(...frontmatterBounds) : '';
+              const { hidden = false } = parseYaml(frontmatter)
               const newContent = updateRepetitionMetadata(content, serializeRepetition({
                 ...repeat,
+                hidden,
                 repeatDueAt,
-              } as Repetition));
+              }));
               this.app.vault.modify(file, newContent);
             }
             return true;
