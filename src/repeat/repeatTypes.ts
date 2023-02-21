@@ -15,6 +15,7 @@ export type Repeat = {
 
 export interface Repetition extends Repeat {
   repeatDueAt: DateTime,
+  hidden: boolean,
 }
 
 export type RepeatChoice = {

@@ -1,3 +1,5 @@
+import { SERIALIZED_FALSE } from "./repeat/serializers";
+
 export type Bounds = [number, number] | null;
 
 
@@ -109,14 +111,14 @@ export function replaceOrInsertField(frontmatter: string, field: string, value: 
 
 
 /**
- * Inserts given fields into content's frontmatter.
+ * Replaces serialized repetition fields in the content's YAML frontmatter.
  * @param content Content whose frontend to update.
- * @param fieldToValue Object mapping field names to values.
+ * @param serializedRepetition Object mapping field names to values.
  * @returns Content with updated frontmatter.
  */
-export function replaceOrInsertFields(
+export function updateRepetitionMetadata(
   content: string,
-  fieldToValue: object,
+  serializedRepetition: object,
 ): string {
   let newContent = content;
   let bounds = determineFrontmatterBounds(newContent);
@@ -133,8 +135,17 @@ export function replaceOrInsertFields(
     }
   }
   let frontmatter = content.slice(...bounds);
-  for (const field in fieldToValue) {
-    frontmatter = replaceOrInsertField(frontmatter, field, fieldToValue[field]);
+  for (const field in serializedRepetition) {
+    if (field === 'hidden') {
+      const hiddenBounds = determineInlineFieldBounds(frontmatter, 'hidden');
+      // If 'hidden' is not already in the note and the new value is 'false',
+      // then don't add it. This keeps the 'hidden' field optional.
+      if (!hiddenBounds?.length
+          && serializedRepetition['hidden'] === SERIALIZED_FALSE) {
+        continue;
+      }
+    }
+    frontmatter = replaceOrInsertField(frontmatter, field, serializedRepetition[field]);
   }
   return [
     newContent.slice(0, bounds[0]),

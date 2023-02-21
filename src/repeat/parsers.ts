@@ -23,6 +23,7 @@ export function makeDefaultRepetition(
     repeatPeriodUnit: 'DAY' as PeriodUnit,
     repeatTimeOfDay: 'AM' as TimeOfDay,
     repeatDueAt: repeatDueAt || DateTime.now().plus({ day: 1 }),
+    hidden: false,
   };
 }
 
@@ -123,14 +124,27 @@ export function parseRepeatDueAt(
   return referenceDateTime;
 }
 
+export function parseYamlBoolean(
+  value: string | undefined,
+): boolean {
+  if (!value) {
+    return false;
+  }
+  // Reference https://yaml.org/type/bool.html
+  const booleanRegex = new RegExp('^(y|yes|true|on)$');
+  return booleanRegex.test(value);
+}
+
 export function parseRepetitionFields(
   repeat: string,
   repeatDueAt: string | undefined,
+  hidden?: string | undefined,
   referenceDateTime?: DateTime | undefined,
 ): Repetition {
   const parsedRepeat = parseRepeat(repeat);
   return {
     ...parsedRepeat,
+    hidden: parseYamlBoolean(hidden),
     repeatDueAt: parseRepeatDueAt(
       repeatDueAt,
       parsedRepeat,
@@ -144,10 +158,20 @@ export function parseRepetitionFromMarkdown(
 ): Repetition | undefined {
   const bounds = determineFrontmatterBounds(markdown);
   if (bounds) {
-    const { repeat, due_at } = parseYaml(markdown.slice(...bounds)) || {};
+    const { repeat, due_at, hidden } = parseYaml(markdown.slice(...bounds)) || {};
     if (repeat) {
-      return parseRepetitionFields(repeat, due_at || undefined);
+      return parseRepetitionFields(repeat, due_at || undefined, hidden);
     }
   }
   return undefined;
+}
+
+export function parseHiddenFieldFromMarkdown(
+  markdown: string
+): boolean {
+  const frontmatterBounds = determineFrontmatterBounds(markdown);
+  const frontmatter = frontmatterBounds?.length ?
+  markdown.slice(...frontmatterBounds) : '';
+  const { hidden: extractedHidden } = parseYaml(frontmatter);
+  return parseYamlBoolean(extractedHidden);
 }
