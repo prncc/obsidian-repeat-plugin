@@ -15,7 +15,7 @@ import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
 import { determineFrontmatterBounds, updateRepetitionMetadata } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
-import { parseRepetitionFromMarkdown } from './repeat/parsers';
+import { parseRepetitionFromMarkdown, parseYamlBoolean } from './repeat/parsers';
 import { serializeRepetition } from './repeat/serializers';
 import { incrementRepeatDueAt } from './repeat/choices';
 import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
@@ -187,7 +187,8 @@ export default class RepeatPlugin extends Plugin {
               const frontmatterBounds = determineFrontmatterBounds(content);
               const frontmatter = frontmatterBounds?.length ?
                 content.slice(...frontmatterBounds) : '';
-              const { hidden = false } = parseYaml(frontmatter)
+              const { hidden: extractedHidden } = parseYaml(frontmatter);
+              const hidden = parseYamlBoolean(extractedHidden);
               const newContent = updateRepetitionMetadata(content, serializeRepetition({
                 ...repeat,
                 hidden,
