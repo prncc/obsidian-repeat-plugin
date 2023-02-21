@@ -2,7 +2,6 @@ import {
   App,
   debounce,
   MarkdownView,
-  parseYaml,
   Plugin,
   PluginManifest,
   PluginSettingTab,
@@ -12,10 +11,10 @@ import {
 import RepeatView, { REPEATING_NOTES_DUE_VIEW } from './repeat/obsidian/RepeatView';
 import RepeatNoteSetupModal from './repeat/obsidian/RepeatNoteSetupModal';
 import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
-import { determineFrontmatterBounds, updateRepetitionMetadata } from './frontmatter';
+import { updateRepetitionMetadata } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
-import { parseHiddenFieldFromMarkdown, parseRepetitionFromMarkdown, parseYamlBoolean } from './repeat/parsers';
+import { parseHiddenFieldFromMarkdown, parseRepetitionFromMarkdown } from './repeat/parsers';
 import { serializeRepetition } from './repeat/serializers';
 import { incrementRepeatDueAt } from './repeat/choices';
 import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
