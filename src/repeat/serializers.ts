@@ -1,5 +1,8 @@
 import { PeriodUnit, Repetition } from './repeatTypes';
 
+const SERIALIZED_TRUE = 'true';
+export const SERIALIZED_FALSE = 'false';
+
 function serializeRepeatPeriodUnit(
   repeatPeriodUnit: PeriodUnit,
   repeatPeriod: number,
@@ -46,6 +49,6 @@ export function serializeRepetition(repetition: Repetition) {
   return {
     repeat: serializeRepeat(repetition),
     due_at: repetition.repeatDueAt.toISO(),
-    hidden: repetition.hidden ? 'true' : 'false',
+    hidden: repetition.hidden ? SERIALIZED_TRUE : SERIALIZED_FALSE,
   }
 }
