@@ -165,3 +165,13 @@ export function parseRepetitionFromMarkdown(
   }
   return undefined;
 }
+
+export function parseHiddenFieldFromMarkdown(
+  markdown: string
+): boolean {
+  const frontmatterBounds = determineFrontmatterBounds(markdown);
+  const frontmatter = frontmatterBounds?.length ?
+  markdown.slice(...frontmatterBounds) : '';
+  const { hidden: extractedHidden } = parseYaml(frontmatter);
+  return parseYamlBoolean(extractedHidden);
+}

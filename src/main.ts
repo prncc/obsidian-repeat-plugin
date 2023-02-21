@@ -15,7 +15,7 @@ import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
 import { determineFrontmatterBounds, updateRepetitionMetadata } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
-import { parseRepetitionFromMarkdown, parseYamlBoolean } from './repeat/parsers';
+import { parseHiddenFieldFromMarkdown, parseRepetitionFromMarkdown, parseYamlBoolean } from './repeat/parsers';
 import { serializeRepetition } from './repeat/serializers';
 import { incrementRepeatDueAt } from './repeat/choices';
 import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
@@ -183,15 +183,9 @@ export default class RepeatPlugin extends Plugin {
                 ...repeat,
                 repeatDueAt: undefined,
               } as any);
-              // Parse the 'hidden' field so that it is preserved.
-              const frontmatterBounds = determineFrontmatterBounds(content);
-              const frontmatter = frontmatterBounds?.length ?
-                content.slice(...frontmatterBounds) : '';
-              const { hidden: extractedHidden } = parseYaml(frontmatter);
-              const hidden = parseYamlBoolean(extractedHidden);
               const newContent = updateRepetitionMetadata(content, serializeRepetition({
                 ...repeat,
-                hidden,
+                hidden: parseHiddenFieldFromMarkdown(content),
                 repeatDueAt,
               }));
               this.app.vault.modify(file, newContent);
