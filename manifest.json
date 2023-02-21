@@ -1,7 +1,7 @@
 {
   "id": "repeat-plugin",
   "name": "Repeat",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "minAppVersion": "1.0.0",
   "description": "Review notes using periodic or spaced repetition.",
   "author": "Andre Perunicic",
