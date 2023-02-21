@@ -33,6 +33,7 @@ class RepeatNoteSetupModal extends Modal {
       repeatPeriodUnit: 'DAY',
       repeatTimeOfDay: 'AM',
       repeatDueAt: undefined,
+      hidden: false,
     };
     // Populate initial repeatDueAt.
     if (!this.result.repeatDueAt) {
@@ -156,6 +157,14 @@ class RepeatNoteSetupModal extends Modal {
         });
       });
     this.dueAtSummaryEl = nextRepeatEl?.descEl;
+
+    new Setting(contentEl)
+      .setName('Hidden')
+      .setDesc('Blur contents until clicked')
+      .addToggle(toggle => toggle.setValue(this.result.hidden)
+        .onChange((value) => {
+          this.result.hidden = value;
+        }));
 
     new Setting(contentEl)
       .addButton((btn) =>
