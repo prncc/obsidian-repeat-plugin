@@ -85,6 +85,18 @@ repeat: spaced every 14 days in the evening
 You can also use the _Repeat this note..._ modal to adjust the repetition time.
 
 
+### The `hidden` Field
+
+If you want your note's content to be blurred during reviews, add the `hidden`
+metadata flag:
+
+```
+hidden: true
+```
+
+When you click the blurred content, it will be revealed. This allows you to
+build limited flashcards with the plugin.
+
 ## Similar Software
 
 * [msipos/mind-palace: Mind palace: mnemonic note taking system.](https://github.com/msipos/mind-palace)
