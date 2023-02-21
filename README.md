@@ -95,7 +95,7 @@ hidden: true
 ```
 
 When you click the blurred content, it will be revealed. This allows you to
-build limited flashcards with the plugin.
+build one-sided flashcards with the plugin.
 
 ## Similar Software
 
