@@ -109,14 +109,14 @@ export function replaceOrInsertField(frontmatter: string, field: string, value: 
 
 
 /**
- * Inserts given fields into content's frontmatter.
+ * Replaces serialized repetition fields in the content's YAML frontmatter.
  * @param content Content whose frontend to update.
- * @param fieldToValue Object mapping field names to values.
+ * @param serializedRepetition Object mapping field names to values.
  * @returns Content with updated frontmatter.
  */
-export function replaceOrInsertFields(
+export function updateRepetitionMetadata(
   content: string,
-  fieldToValue: object,
+  serializedRepetition: object,
 ): string {
   let newContent = content;
   let bounds = determineFrontmatterBounds(newContent);

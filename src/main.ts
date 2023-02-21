@@ -11,7 +11,7 @@ import {
 import RepeatView, { REPEATING_NOTES_DUE_VIEW } from './repeat/obsidian/RepeatView';
 import RepeatNoteSetupModal from './repeat/obsidian/RepeatNoteSetupModal';
 import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
-import { replaceOrInsertFields } from './frontmatter';
+import { updateRepetitionMetadata } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
 import { parseRepetitionFromMarkdown } from './repeat/parsers';
@@ -134,7 +134,7 @@ export default class RepeatPlugin extends Plugin {
           }
           const { editor, file } = markdownView;
           const content = editor.getValue();
-          const newContent = replaceOrInsertFields(
+          const newContent = updateRepetitionMetadata(
             content, serializeRepetition(result));
           this.app.vault.modify(file, newContent);
         };
@@ -182,7 +182,7 @@ export default class RepeatPlugin extends Plugin {
                 ...repeat,
                 repeatDueAt: undefined,
               } as any);
-              const newContent = replaceOrInsertFields(content, serializeRepetition({
+              const newContent = updateRepetitionMetadata(content, serializeRepetition({
                 ...repeat,
                 repeatDueAt,
               } as Repetition));

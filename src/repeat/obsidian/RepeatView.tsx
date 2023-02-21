@@ -7,7 +7,7 @@ import {
 } from 'obsidian';
 import { getAPI, DataviewApi } from 'obsidian-dataview';
 
-import { determineFrontmatterBounds, replaceOrInsertFields } from '../../frontmatter';
+import { determineFrontmatterBounds, updateRepetitionMetadata } from '../../frontmatter';
 import { getRepeatChoices } from '../choices';
 import { RepeatChoice } from '../repeatTypes';
 import { getNextDueNote } from '../queries';
@@ -252,7 +252,7 @@ class RepeatView extends ItemView {
             return;
           }
           const markdown = await this.app.vault.read(file);
-          const newMarkdown = replaceOrInsertFields(
+          const newMarkdown = updateRepetitionMetadata(
             markdown, serializeRepetition(choice.nextRepetition));
           this.app.vault.modify(file, newMarkdown);
           this.setPage(file.path);
