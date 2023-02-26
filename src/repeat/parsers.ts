@@ -171,7 +171,10 @@ export function parseHiddenFieldFromMarkdown(
 ): boolean {
   const frontmatterBounds = determineFrontmatterBounds(markdown);
   const frontmatter = frontmatterBounds?.length ?
-  markdown.slice(...frontmatterBounds) : '';
-  const { hidden: extractedHidden } = parseYaml(frontmatter);
-  return parseYamlBoolean(extractedHidden);
+    markdown.slice(...frontmatterBounds) : '';
+  if (frontmatter) {
+    const { hidden: extractedHidden } = parseYaml(frontmatter);
+    return parseYamlBoolean(extractedHidden);
+  }
+  return false;
 }
