@@ -101,6 +101,10 @@ build one-sided flashcards with the plugin.
 
 * [msipos/mind-palace: Mind palace: mnemonic note taking system.](https://github.com/msipos/mind-palace)
 
+## More Tools
+
+* The `add_repeat_to_notes.py` script from https://github.com/prncc/obsidian-scripts allows you to interactively add the `repeat` field to your existing vault.
+
 ## Development
 
 Pull Requests are welcome. If you intend to make a significant change, please create an issue to discuss it first.
