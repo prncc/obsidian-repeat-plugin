@@ -74,12 +74,19 @@ function parseRepeatTimeOfDay(timeOfDaySuffix: string): TimeOfDay {
 }
 
 export function parseRepeat(repeat: string): Repeat {
-  const processedRepeat = repeat.toLowerCase();
+  let processedRepeat = repeat.toLowerCase();
+  // First handle the 'spaced' prefix.
+  let repeatStrategy = 'PERIODIC';
+  const spacedRegex = /^spaced ?/;
+  if (processedRepeat.match(spacedRegex)) {
+    repeatStrategy = 'SPACED';
+    processedRepeat = processedRepeat.split(spacedRegex)[1];
+  }
+  // Then parse everything else.
   const repetitionRegex = new RegExp(
     '(?<description>' +
       'daily|weekly|monthly|yearly|annually' +
       '|(' +
-        '(?<spaced>spaced ?)?' +
         `(every (${joinedUnits})|every (?<period>\\d+) (${joinedUnits})s?)` +
       ')' +
     ')' +
@@ -88,8 +95,7 @@ export function parseRepeat(repeat: string): Repeat {
   let result;
   if (( result = repetitionRegex.exec(processedRepeat) )) {
     return {
-      repeatStrategy: (result?.groups?.spaced || '').trim() === 'spaced'
-                      ? 'SPACED' : 'PERIODIC',
+      repeatStrategy: repeatStrategy as Strategy,
       repeatPeriod: parseInt(result?.groups?.period || '1'),
       repeatPeriodUnit: parseRepeatPeriodUnit(result?.groups?.description || 'day'),
       repeatTimeOfDay: parseRepeatTimeOfDay(result?.groups?.timeOfDaySuffix || 'am'),

@@ -53,6 +53,43 @@ describe('parseRepetitionFields', () => {
       ...overrides
     });
   });
+
+  test.concurrent.each([
+    {
+      repeat: 'spaced daily',
+    },
+    {
+      repeat: 'spaced weekly',
+      overrides: {
+        repeatPeriodUnit: 'WEEK',
+      },
+    },
+    {
+      repeat: 'spaced monthly',
+      overrides: {
+        repeatPeriodUnit: 'MONTH',
+      },
+    },
+    {
+      repeat: 'spaced yearly',
+      overrides: {
+        repeatPeriodUnit: 'YEAR',
+      },
+    },
+    {
+      repeat: 'spaced annually',
+      overrides: {
+        repeatPeriodUnit: 'YEAR',
+      },
+    },
+  ])('parses $repeat', ({ repeat, overrides = {} }: RepeatTestInputs) => {
+    const repetition = parseRepetitionFields(repeat, referenceRepeatDueAt);
+    expect(repetition).toEqual({
+      ...expectedRepetition,
+      ...overrides,
+      repeatStrategy: 'SPACED',
+    });
+  });
 });
 
 describe('parseRepetitionFields', () => {
