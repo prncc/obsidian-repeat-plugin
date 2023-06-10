@@ -194,7 +194,9 @@ class RepeatView extends ItemView {
       this.app.vault);
 
     // Add container for markdown content.
-    const markdownContainer = createEl('div');
+    const markdownContainer = createEl('div', {
+      cls: 'markdown-embed-content',
+    });
     if ((page?.repetition as any)?.hidden) {
       markdownContainer.addClass('repeat-markdown_blurred');
       const onBlurredClick = (event) => {

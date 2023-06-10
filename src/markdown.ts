@@ -143,22 +143,30 @@ function determineEmbedType(node: Element): EmbedType {
 }
 
 /**
- * Renders markdown into conatinerEl.
+ * Renders markdown into outerContainer.
  */
 export async function renderMarkdown(
   markdown: string,
-  containerEl: HTMLElement,
+  outerContainer: HTMLElement,
   sourcePath: string,
   lifecycleComponent: Component,
   vault: Vault,
 ) {
+  const innerContainer = createEl('div', {
+    cls: ['markdown-preview-view', 'markdown-rendered'],
+  });
+  const contentContainer = createEl('div', {
+    cls: ['markdown-preview-sizer markdown-preview-section'],
+  });
+  outerContainer.appendChild(innerContainer);
+  innerContainer.appendChild(contentContainer);
   await MarkdownPreviewView.renderMarkdown(
     markdown,
-    containerEl,
+    contentContainer,
     sourcePath,
     lifecycleComponent,
   );
-  const nodes = containerEl.querySelectorAll('span.internal-embed');
+  const nodes = contentContainer.querySelectorAll('span.internal-embed');
   nodes.forEach((node) => {
     const embedType = determineEmbedType(node);
     if (embedType === EmbedType.Image) {
@@ -215,7 +223,7 @@ export async function renderMarkdown(
     }
   });
 
-  const links = containerEl.querySelectorAll('a.internal-link');
+  const links = contentContainer.querySelectorAll('a.internal-link');
   links.forEach((node: HTMLLinkElement) => {
     if (!node.getAttribute('href')) {
       return;
