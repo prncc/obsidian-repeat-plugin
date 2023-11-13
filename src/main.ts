@@ -257,5 +257,35 @@ class RepeatPluginSettingTab extends PluginSettingTab {
             this.plugin.settings.ignoreFolderPath = value;
             await this.plugin.saveSettings();
           }));
+
+    new Setting(containerEl)
+        .setName('Morning review time')
+        .setDesc('When morning and long-term notes become due in the morning.')
+        .addText((component) => {
+          component.inputEl.type = 'time';
+          component.inputEl.addClass('repeat-date_picker');
+          component.setValue(this.plugin.settings.morningReviewTime);
+          component.onChange(async (value) => {
+            const usedValue = value >= '12:00' ? '11:59' : value;
+            this.plugin.settings.morningReviewTime = usedValue;
+            component.setValue(usedValue);
+            await this.plugin.saveSettings();
+          });
+        });
+
+      new Setting(containerEl)
+        .setName('Evening review time')
+        .setDesc('When evening notes become due in the afternoon.')
+        .addText((component) => {
+          component.inputEl.type = 'time';
+          component.inputEl.addClass('repeat-date_picker');
+          component.setValue(this.plugin.settings.eveningReviewTime);
+          component.onChange(async (value) => {
+            const usedValue = value < '12:00' ? '12:00' : value;
+            this.plugin.settings.eveningReviewTime = usedValue;
+            component.setValue(usedValue);
+            await this.plugin.saveSettings();
+          });
+        });
   }
 }
