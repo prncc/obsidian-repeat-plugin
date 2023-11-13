@@ -184,3 +184,11 @@ export function parseHiddenFieldFromMarkdown(
   }
   return false;
 }
+
+export function parseTime(twentyFourHourTime: string) {
+  const [hourString, minuteString] = twentyFourHourTime.split(':');
+  return {
+    hour: parseInt(hourString),
+    minute: parseInt(minuteString),
+  };
+}
