@@ -186,7 +186,7 @@ export default class RepeatPlugin extends Plugin {
               const repeatDueAt = incrementRepeatDueAt({
                 ...repeat,
                 repeatDueAt: undefined,
-              } as any);
+              } as any, this.settings);
               const newContent = updateRepetitionMetadata(content, serializeRepetition({
                 ...repeat,
                 hidden: parseHiddenFieldFromMarkdown(content),
@@ -209,7 +209,7 @@ export default class RepeatPlugin extends Plugin {
     this.registerCommands();
     this.registerView(
       REPEATING_NOTES_DUE_VIEW,
-      (leaf) => new RepeatView(leaf, this.settings.ignoreFolderPath),
+      (leaf) => new RepeatView(leaf, this.settings.ignoreFolderPath, this.settings),
       );
     this.addSettingTab(new RepeatPluginSettingTab(this.app, this));
   }

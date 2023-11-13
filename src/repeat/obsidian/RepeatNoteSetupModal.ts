@@ -3,7 +3,7 @@ import { App, Modal, Setting } from 'obsidian';
 import { incrementRepeatDueAt } from '../choices';
 import { Repetition } from '../repeatTypes';
 import { summarizeDueAtWithPrefix } from '../utils';
-import { RepeatPluginSettings } from 'src/settings';
+import { RepeatPluginSettings } from '../../settings';
 
 const formatDateTimeForPicker = (dt: DateTime) => (
   [
@@ -55,7 +55,7 @@ class RepeatNoteSetupModal extends Modal {
       ...this.result,
       // Always recompute relative to now.
       repeatDueAt: undefined,
-    });
+    }, this.settings);
     this.result.summary = summarizeDueAtWithPrefix(this.result.repeatDueAt);
     // Ensure UI consistency.
     if (this.datetimePickerEl) {

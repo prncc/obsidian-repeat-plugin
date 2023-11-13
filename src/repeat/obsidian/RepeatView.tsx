@@ -12,7 +12,8 @@ import { getRepeatChoices } from '../choices';
 import { RepeatChoice } from '../repeatTypes';
 import { getNextDueNote } from '../queries';
 import { serializeRepetition } from '../serializers';
-import { renderMarkdown, renderTitleElement } from 'src/markdown';
+import { renderMarkdown, renderTitleElement } from '../../markdown';
+import { RepeatPluginSettings } from '../../settings';
 
 const MODIFY_DEBOUNCE_MS = 1 * 1000;
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
@@ -28,8 +29,9 @@ class RepeatView extends ItemView {
   messageContainer: HTMLElement;
   previewContainer: HTMLElement;
   root: Element;
+  settings: RepeatPluginSettings;
 
-  constructor(leaf: WorkspaceLeaf, ignoreFolderPath: string) {
+  constructor(leaf: WorkspaceLeaf, ignoreFolderPath: string, settings: RepeatPluginSettings) {
     super(leaf);
     this.addRepeatButton = this.addRepeatButton.bind(this);
     this.disableExternalHandlers = this.disableExternalHandlers.bind(this);
@@ -49,6 +51,7 @@ class RepeatView extends ItemView {
     this.component = new Component();
 
     this.dv = getAPI(this.app);
+    this.settings = settings;
     this.ignoreFolderPath = ignoreFolderPath;
 
     this.root = this.containerEl.children[1];
@@ -169,7 +172,7 @@ class RepeatView extends ItemView {
     }
     const dueFilePath = (page?.file as any).path;
     this.currentDueFilePath = dueFilePath;
-    const choices = getRepeatChoices(page.repetition as any);
+    const choices = getRepeatChoices(page.repetition as any, this.settings);
     const matchingMarkdowns = this.app.vault.getMarkdownFiles()
       .filter((file) => file?.path === dueFilePath);
     if (!matchingMarkdowns) {

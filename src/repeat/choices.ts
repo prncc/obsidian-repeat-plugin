@@ -3,9 +3,8 @@ import { DateTime, Duration } from 'luxon';
 import { summarizeDueAt } from './utils';
 import { Repetition, RepeatChoice } from './repeatTypes';
 import { uniqByField } from '../utils';
-
-export const AM_REVIEW_TIME = 6;
-export const PM_REVIEW_TIME = 18;
+import { RepeatPluginSettings } from '../settings';
+import { parseTime } from './parsers';
 
 export const DISMISS_BUTTON_TEXT = 'dismiss';
 
@@ -15,6 +14,7 @@ export const SKIP_BUTTON_TEXT = `${SKIP_PERIOD_MINUTES} minutes (skip)`;
 /**
  * Determines next repetition date.
  * @param repetition A note Repetition object.
+ * @param settings Plugin settings.
  * @returns When the note is next due.
  */
 export function incrementRepeatDueAt({
@@ -22,7 +22,7 @@ export function incrementRepeatDueAt({
   repeatPeriodUnit,
   repeatPeriod,
   repeatTimeOfDay,
-}: Repetition): DateTime {
+}: Repetition, settings: RepeatPluginSettings): DateTime {
   const now = DateTime.now();
   const dueAt = repeatDueAt ?? now.minus({ second: 1 });
   let repetitions = 1;
@@ -33,11 +33,18 @@ export function incrementRepeatDueAt({
     });
     repetitions = Math.ceil((overdueBy as any) / (repeatPeriodDuration as any));
   }
+  const morningReviewTime = parseTime(settings.morningReviewTime);
+  const eveningReviewTime = parseTime(settings.eveningReviewTime);
   const nextRepeatDueAt = dueAt.plus({
     [repeatPeriodUnit.toLowerCase()]: repetitions * repeatPeriod,
-  }).set({
-    hour: (repeatTimeOfDay === 'AM') ? AM_REVIEW_TIME : PM_REVIEW_TIME,
-    minute: 0,
+  }).set(repeatTimeOfDay === 'AM' ? {
+    hour: morningReviewTime.hour,
+    minute: morningReviewTime.minute,
+    second: 0,
+    millisecond: 0,
+  } : {
+    hour: eveningReviewTime.hour,
+    minute: eveningReviewTime.minute,
     second: 0,
     millisecond: 0,
   });
@@ -60,9 +67,14 @@ const getSkipDateTime = (now: DateTime) => (
  * Gets all repeat button choices for a periodic note.
  * @param repetition The note's parsed repetition status.
  * @param now A reference time (for consistent diffs).
+ * @param settings Plugin settings.
  * @returns Collection of repeat choices.
  */
-function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): RepeatChoice[] {
+function getPeriodicRepeatChoices(
+  repetition: Repetition,
+  now: DateTime,
+  settings: RepeatPluginSettings,
+): RepeatChoice[] {
   const { repeatDueAt } = repetition;
   if ((repeatDueAt > now) || !repeatDueAt) {
     return [{
@@ -70,7 +82,7 @@ function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): Repeat
       nextRepetition: null,
     }];
   }
-  const nextRepeatDueAt = incrementRepeatDueAt({ ...repetition });
+  const nextRepeatDueAt = incrementRepeatDueAt({ ...repetition }, settings);
   return [{
     text: SKIP_BUTTON_TEXT,
     nextRepetition: {
@@ -92,7 +104,11 @@ function getPeriodicRepeatChoices(repetition: Repetition, now: DateTime): Repeat
  * @param now A reference time (for consistent diffs).
  * @returns Collection of repeat choices.
  */
-function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatChoice[] {
+function getSpacedRepeatChoices(
+  repetition: Repetition,
+  now: DateTime,
+  settings: RepeatPluginSettings,
+): RepeatChoice[] {
   const {
     repeatPeriod,
     repeatPeriodUnit,
@@ -105,18 +121,26 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
       nextRepetition: null,
     }];
   }
+  const morningReviewTime = parseTime(settings.morningReviewTime);
+  const eveningReviewTime = parseTime(settings.eveningReviewTime);
   const multiplierChoices = [0.5, 1.0, 1.5, 2.0].map((multiplier) => {
     let nextRepeatDueAt = now.plus({
       [repeatPeriodUnit]: multiplier * repeatPeriod,
     });
     // Spaced notes due in at least a week should respect time of day choice.
     if (nextRepeatDueAt.minus({ days: 7 }) >= now) {
-      nextRepeatDueAt = nextRepeatDueAt.set({
-        hour: (repeatTimeOfDay === 'AM') ? AM_REVIEW_TIME : PM_REVIEW_TIME,
-        minute: 0,
-        second: 0,
-        millisecond: 0,
-      });
+      nextRepeatDueAt = nextRepeatDueAt.set(
+        repeatTimeOfDay === 'AM' ? {
+          hour: morningReviewTime.hour,
+          minute: morningReviewTime.minute,
+          second: 0,
+          millisecond: 0,
+        } : {
+          hour: eveningReviewTime.hour,
+          minute: eveningReviewTime.minute,
+          second: 0,
+          millisecond: 0,
+        });
     }
     // Find the repeat interval summarization.
     // @ts-ignore: .values *does* exist on Duration.
@@ -152,19 +176,23 @@ function getSpacedRepeatChoices(repetition: Repetition, now: DateTime): RepeatCh
 /**
  * Get all repetition choices for a note.
  * @param repetition The note's parsed repetition status.
+ * @param settings Plugin settings.
  * @returns Collection of repeat choices.
  */
-export function getRepeatChoices(repetition?: Repetition): RepeatChoice[] {
+export function getRepeatChoices(
+  repetition: Repetition | undefined | null,
+  settings: RepeatPluginSettings
+): RepeatChoice[] {
   if (!repetition) {
     return [];
   }
   const { repeatStrategy } = repetition;
   const now = DateTime.now();
   if (repeatStrategy === 'PERIODIC') {
-    return getPeriodicRepeatChoices(repetition, now);
+    return getPeriodicRepeatChoices(repetition, now, settings);
   }
   if (repeatStrategy === 'SPACED') {
-    return getSpacedRepeatChoices(repetition, now);
+    return getSpacedRepeatChoices(repetition, now, settings);
   }
   return [{
     text: DISMISS_BUTTON_TEXT,
