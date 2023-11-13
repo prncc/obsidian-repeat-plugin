@@ -102,6 +102,7 @@ function getPeriodicRepeatChoices(
  * Gets all repeat button choices for a spaced note.
  * @param repetition The note's parsed repetition status.
  * @param now A reference time (for consistent diffs).
+ * @param settings Plugin settings.
  * @returns Collection of repeat choices.
  */
 function getSpacedRepeatChoices(
