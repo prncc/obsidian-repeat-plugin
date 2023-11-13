@@ -146,7 +146,12 @@ export default class RepeatPlugin extends Plugin {
               const content = editor.getValue();
               repetition = parseRepetitionFromMarkdown(content);
             }
-            new RepeatNoteSetupModal(this.app, onSubmit, repetition).open();
+            new RepeatNoteSetupModal(
+              this.app,
+              onSubmit,
+              this.settings,
+              repetition,
+            ).open();
           }
           return true;
         }
