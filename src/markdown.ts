@@ -9,9 +9,9 @@ enum EmbedType {
   Unknown = 'Unknown',
 }
 
-// https://help.obsidian.md/Advanced+topics/Accepted+file+formats
+// https://help.obsidian.md/Files+and+folders/Accepted+file+formats
 const embedTypeToAcceptedExtensions = {
-  [EmbedType.Image]: ['png', 'jpg', 'jpeg', 'gif', 'bmp', 'svg'],
+  [EmbedType.Image]: ['png', 'webp', 'jpg', 'jpeg', 'gif', 'bmp', 'svg'],
   [EmbedType.Audio]: ['mp3', 'webm', 'wav', 'm4a', 'ogg', '3gp', 'flac'],
   [EmbedType.Video]: ['mp4', 'webm', 'ogv', 'mov', 'mkv'],
   [EmbedType.PDF]: ['pdf'],
