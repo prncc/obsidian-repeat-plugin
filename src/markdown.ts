@@ -251,7 +251,7 @@ export async function renderTitleElement(
   // to open the note more complicated. So, we use a simple link.
   const embedLink = createEl('a', { cls: 'markdown-embed-link' });
   embedLink.href = getNoteUri(vault, file.path);
-  setIcon(embedLink, 'link', 20);
+  setIcon(embedLink, 'link');
 
   container.appendChild(embedTitle);
   container.appendChild(embedLink);
