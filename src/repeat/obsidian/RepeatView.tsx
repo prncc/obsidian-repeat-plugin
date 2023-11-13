@@ -12,7 +12,8 @@ import { getRepeatChoices } from '../choices';
 import { RepeatChoice } from '../repeatTypes';
 import { getNextDueNote } from '../queries';
 import { serializeRepetition } from '../serializers';
-import { renderMarkdown, renderTitleElement } from 'src/markdown';
+import { renderMarkdown, renderTitleElement } from '../../markdown';
+import { RepeatPluginSettings } from '../../settings';
 
 const MODIFY_DEBOUNCE_MS = 1 * 1000;
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
@@ -23,13 +24,13 @@ class RepeatView extends ItemView {
   currentDueFilePath: string | undefined;
   dv: DataviewApi | undefined;
   icon = 'clock';
-  ignoreFolderPath: string;
   indexPromise: Promise<null> | undefined;
   messageContainer: HTMLElement;
   previewContainer: HTMLElement;
   root: Element;
+  settings: RepeatPluginSettings;
 
-  constructor(leaf: WorkspaceLeaf, ignoreFolderPath: string) {
+  constructor(leaf: WorkspaceLeaf, settings: RepeatPluginSettings) {
     super(leaf);
     this.addRepeatButton = this.addRepeatButton.bind(this);
     this.disableExternalHandlers = this.disableExternalHandlers.bind(this);
@@ -49,7 +50,7 @@ class RepeatView extends ItemView {
     this.component = new Component();
 
     this.dv = getAPI(this.app);
-    this.ignoreFolderPath = ignoreFolderPath;
+    this.settings = settings;
 
     this.root = this.containerEl.children[1];
     this.indexPromise = new Promise((resolve, reject) => {
@@ -153,7 +154,10 @@ class RepeatView extends ItemView {
     // Reset the message container so that loading message is hidden.
     this.setMessage('');
     this.messageContainer.style.display = 'none';
-    const page = getNextDueNote(this.dv, this.ignoreFolderPath, ignoreFilePath);
+    const page = getNextDueNote(
+      this.dv,
+      this.settings.ignoreFolderPath,
+      ignoreFilePath);
     if (!page) {
       this.setMessage('All done for now!');
       this.buttonsContainer.createEl('button', {
@@ -169,7 +173,7 @@ class RepeatView extends ItemView {
     }
     const dueFilePath = (page?.file as any).path;
     this.currentDueFilePath = dueFilePath;
-    const choices = getRepeatChoices(page.repetition as any);
+    const choices = getRepeatChoices(page.repetition as any, this.settings);
     const matchingMarkdowns = this.app.vault.getMarkdownFiles()
       .filter((file) => file?.path === dueFilePath);
     if (!matchingMarkdowns) {
@@ -183,7 +187,7 @@ class RepeatView extends ItemView {
     // Render the repeat control buttons.
     choices.forEach(choice => this.addRepeatButton(choice, file));
 
-    // .markdown-embed adds borders that shouldn't be while loading,
+    // .markdown-embed adds undesirable borders while loading,
     // so we only add the class when the note is about to be rendered.
     this.previewContainer.addClass('markdown-embed');
 

@@ -146,7 +146,12 @@ export default class RepeatPlugin extends Plugin {
               const content = editor.getValue();
               repetition = parseRepetitionFromMarkdown(content);
             }
-            new RepeatNoteSetupModal(this.app, onSubmit, repetition).open();
+            new RepeatNoteSetupModal(
+              this.app,
+              onSubmit,
+              this.settings,
+              repetition,
+            ).open();
           }
           return true;
         }
@@ -181,7 +186,7 @@ export default class RepeatPlugin extends Plugin {
               const repeatDueAt = incrementRepeatDueAt({
                 ...repeat,
                 repeatDueAt: undefined,
-              } as any);
+              } as any, this.settings);
               const newContent = updateRepetitionMetadata(content, serializeRepetition({
                 ...repeat,
                 hidden: parseHiddenFieldFromMarkdown(content),
@@ -204,7 +209,7 @@ export default class RepeatPlugin extends Plugin {
     this.registerCommands();
     this.registerView(
       REPEATING_NOTES_DUE_VIEW,
-      (leaf) => new RepeatView(leaf, this.settings.ignoreFolderPath),
+      (leaf) => new RepeatView(leaf, this.settings),
       );
     this.addSettingTab(new RepeatPluginSettingTab(this.app, this));
   }
@@ -250,12 +255,42 @@ class RepeatPluginSettingTab extends PluginSettingTab {
 
     new Setting(containerEl)
         .setName('Ignore folder path')
-        .setDesc('Notes in this folder and its subfolders will not become due. Useful for templates.')
+        .setDesc('Notes in this folder and its subfolders will not become due. Useful to avoid reviewing templates.')
         .addText((component) => component
           .setValue(this.plugin.settings.ignoreFolderPath)
           .onChange(async (value) => {
             this.plugin.settings.ignoreFolderPath = value;
             await this.plugin.saveSettings();
           }));
+
+    new Setting(containerEl)
+        .setName('Morning review time')
+        .setDesc('When morning and long-term notes become due in the morning.')
+        .addText((component) => {
+          component.inputEl.type = 'time';
+          component.inputEl.addClass('repeat-date_picker');
+          component.setValue(this.plugin.settings.morningReviewTime);
+          component.onChange(async (value) => {
+            const usedValue = value >= '12:00' ? '11:59' : value;
+            this.plugin.settings.morningReviewTime = usedValue;
+            component.setValue(usedValue);
+            await this.plugin.saveSettings();
+          });
+        });
+
+      new Setting(containerEl)
+        .setName('Evening review time')
+        .setDesc('When evening notes become due in the afternoon.')
+        .addText((component) => {
+          component.inputEl.type = 'time';
+          component.inputEl.addClass('repeat-date_picker');
+          component.setValue(this.plugin.settings.eveningReviewTime);
+          component.onChange(async (value) => {
+            const usedValue = value < '12:00' ? '12:00' : value;
+            this.plugin.settings.eveningReviewTime = usedValue;
+            component.setValue(usedValue);
+            await this.plugin.saveSettings();
+          });
+        });
   }
 }

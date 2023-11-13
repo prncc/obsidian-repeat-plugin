@@ -1,8 +1,9 @@
 import { DateTime } from 'luxon';
 import { App, Modal, Setting } from 'obsidian';
-import { AM_REVIEW_TIME, incrementRepeatDueAt, PM_REVIEW_TIME } from '../choices';
+import { incrementRepeatDueAt } from '../choices';
 import { Repetition } from '../repeatTypes';
 import { summarizeDueAtWithPrefix } from '../utils';
+import { RepeatPluginSettings } from '../../settings';
 
 const formatDateTimeForPicker = (dt: DateTime) => (
   [
@@ -17,15 +18,18 @@ class RepeatNoteSetupModal extends Modal {
   datetimePickerEl: HTMLInputElement | undefined;
   dueAtSummaryEl: HTMLElement | undefined;
   onSubmit: (result: any) => void;
+  settings: RepeatPluginSettings;
 
   constructor(
     app: App,
     onSubmit: (result: any) => void,
+    settings: RepeatPluginSettings,
     initialValue?: Repetition,
   ) {
     super(app);
     this.onSubmit = onSubmit;
-    this.updateResult = this.updateResult.bind(this)
+    this.updateResult = this.updateResult.bind(this);
+    this.settings = settings;
 
     this.result = initialValue ? { ...initialValue } : {
       repeatStrategy: 'SPACED',
@@ -51,7 +55,7 @@ class RepeatNoteSetupModal extends Modal {
       ...this.result,
       // Always recompute relative to now.
       repeatDueAt: undefined,
-    });
+    }, this.settings);
     this.result.summary = summarizeDueAtWithPrefix(this.result.repeatDueAt);
     // Ensure UI consistency.
     if (this.datetimePickerEl) {
@@ -115,8 +119,10 @@ class RepeatNoteSetupModal extends Modal {
 
     const timeOfDayEl = new Setting(contentEl)
       .addDropdown((dropdown) => {
-        dropdown.addOption('AM', `at ${AM_REVIEW_TIME} AM in the morning`);
-        dropdown.addOption('PM', `at ${PM_REVIEW_TIME % 12} PM in the evening`);
+        // TODO: Parse review times and use AM/PM.
+        // TODO: Only show this if the repetition period is long enough.
+        dropdown.addOption('AM', `in the morning at ${this.settings.morningReviewTime}`);
+        dropdown.addOption('PM', `in the evening at ${this.settings.eveningReviewTime}`);
         dropdown.setValue(this.result.repeatTimeOfDay);
         dropdown.onChange((value) =>	{
           this.updateResult('repeatTimeOfDay', value);
