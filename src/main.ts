@@ -129,7 +129,7 @@ export default class RepeatPlugin extends Plugin {
       checkCallback: (checking: boolean) => {
         const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
         const onSubmit = (result: Repetition) => {
-          if (!markdownView) {
+          if (!markdownView || !markdownView.file) {
             return;
           }
           const { editor, file } = markdownView;
@@ -173,7 +173,7 @@ export default class RepeatPlugin extends Plugin {
         name: `Repeat this note every ${unit}`,
         checkCallback: (checking: boolean) => {
           const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-          if (markdownView) {
+          if (markdownView && !!markdownView.file) {
             if (!checking) {
               const { editor, file } = markdownView;
               const content = editor.getValue();
