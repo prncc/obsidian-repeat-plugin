@@ -166,8 +166,6 @@ function getSpacedRepeatChoices(
       nextRepetition: {
         ...repetition,
         repeatDueAt: getSkipDateTime(now),
-        repeatPeriod,
-        repeatPeriodUnit: 'HOUR',
       },
     },
     ...multiplierChoices,
