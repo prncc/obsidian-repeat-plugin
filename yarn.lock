@@ -297,13 +297,13 @@
   resolved "https://registry.yarnpkg.com/@bcoe/v8-coverage/-/v8-coverage-0.2.3.tgz#75a2e8b51cb758a7553d6804a5932d7aace75c39"
   integrity sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==
 
-"@codemirror/language@https://github.com/lishid/cm-language":
-  version "6.2.1"
-  resolved "https://github.com/lishid/cm-language#073afd8e6bc4d8e5cf6170a50f9b668a98c39f1c"
+"@codemirror/language@git+https://github.com/lishid/cm-language.git":
+  version "6.10.1"
+  resolved "git+https://github.com/lishid/cm-language.git#2644bfc27afda707a7e1f3aedaf3ca7120f63cd9"
   dependencies:
     "@codemirror/state" "^6.0.0"
-    "@codemirror/view" "^6.0.0"
-    "@lezer/common" "^1.0.0"
+    "@codemirror/view" "^6.23.0"
+    "@lezer/common" "^1.1.0"
     "@lezer/highlight" "^1.0.0"
     "@lezer/lr" "^1.0.0"
     style-mod "^4.0.0"
@@ -313,13 +313,27 @@
   resolved "https://registry.yarnpkg.com/@codemirror/state/-/state-6.1.1.tgz#4f512e5e34ea23a5e10b2c1fe43f6195e90417bb"
   integrity sha512-2s+aXsxmAwnR3Rd+JDHPG/1lw0YsA9PEwl7Re88gHJHGfxyfEzKBmsN4rr53RyPIR4lzbbhJX0DCq0WlqlBIRw==
 
-"@codemirror/view@^6.0.0", "@codemirror/view@^6.0.1":
+"@codemirror/state@^6.4.0":
+  version "6.4.1"
+  resolved "https://registry.yarnpkg.com/@codemirror/state/-/state-6.4.1.tgz#da57143695c056d9a3c38705ed34136e2b68171b"
+  integrity sha512-QkEyUiLhsJoZkbumGZlswmAhA7CBU02Wrz7zvH4SrcifbsqwlXShVXg65f3v/ts57W3dqyamEriMhij1Z3Zz4A==
+
+"@codemirror/view@^6.0.1":
   version "6.2.4"
   resolved "https://registry.yarnpkg.com/@codemirror/view/-/view-6.2.4.tgz#dad3511097764ea3280bae7f63b7c1c09db9c21c"
   integrity sha512-Zc5qDv+CD2ubWs6ShGJL0tf4y2w5vObdg7Eus0ouhg9g5lrvsAnwO9PvavDZdK4bpH6O+cnNDRhFlvDuieXo/g==
   dependencies:
     "@codemirror/state" "^6.0.0"
     style-mod "^4.0.0"
+    w3c-keyname "^2.2.4"
+
+"@codemirror/view@^6.23.0":
+  version "6.28.6"
+  resolved "https://registry.yarnpkg.com/@codemirror/view/-/view-6.28.6.tgz#570de85d1055f7f9946a0082d5f7db9981a3e808"
+  integrity sha512-bhwB1AZ6zU4M3dNKm8Aa2BXwj5mWDqE9IWpqxYKJoLCnx+AcwcMuLO01tLWgc1mx4vT1IVYVqx86YoqUsATrqQ==
+  dependencies:
+    "@codemirror/state" "^6.4.0"
+    style-mod "^4.1.0"
     w3c-keyname "^2.2.4"
 
 "@eslint/eslintrc@^1.3.2":
@@ -614,6 +628,11 @@
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@lezer/common/-/common-1.0.1.tgz#d014fda6d582c24336fadf2715e76f02f73c8908"
   integrity sha512-8TR5++Q/F//tpDsLd5zkrvEX5xxeemafEaek7mUp7Y+bI8cKQXdSqhzTOBaOogETcMOVr0pT3BBPXp13477ciw==
+
+"@lezer/common@^1.1.0":
+  version "1.2.1"
+  resolved "https://registry.yarnpkg.com/@lezer/common/-/common-1.2.1.tgz#198b278b7869668e1bebbe687586e12a42731049"
+  integrity sha512-yemX0ZD2xS/73llMZIK6KplkjIjf2EvAHcinDi/TfJ9hS25G0388+ClHt6/3but0oOxinTcQHJLDXh6w1crzFQ==
 
 "@lezer/highlight@^1.0.0":
   version "1.0.0"
@@ -2383,15 +2402,15 @@ lru-cache@^6.0.0:
   dependencies:
     yallist "^4.0.0"
 
-luxon@^2.4.0:
-  version "2.5.0"
-  resolved "https://registry.yarnpkg.com/luxon/-/luxon-2.5.0.tgz#098090f67d690b247e83c090267a60b1aa8ea96c"
-  integrity sha512-IDkEPB80Rb6gCAU+FEib0t4FeJ4uVOuX1CQ9GsvU3O+JAGIgu0J7sf1OarXKaKDygTZIoJyU6YdZzTFRu+YR0A==
-
 luxon@^3.1.0:
   version "3.1.0"
   resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.1.0.tgz#9ac33d7142b7ea18d4ec8583cdeb0b079abef60d"
   integrity sha512-7w6hmKC0/aoWnEsmPCu5Br54BmbmUp5GfcqBxQngRcXJ+q5fdfjEzn7dxmJh2YdDhgW8PccYtlWKSv4tQkrTQg==
+
+luxon@^3.2.0:
+  version "3.4.4"
+  resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.4.4.tgz#cf20dc27dc532ba41a169c43fdcc0063601577af"
+  integrity sha512-zobTr7akeGHnv7eBOXcRgMeCP6+uyYsczwmeRCauvpvaAltgNyTbLH/+VaEAPUeWBT+1GuNmz4wC/6jtQzbbVA==
 
 make-dir@^3.0.0:
   version "3.1.0"
@@ -2496,26 +2515,26 @@ obsidian-daily-notes-interface@0.8.4:
     obsidian obsidianmd/obsidian-api#master
     tslib "2.1.0"
 
-obsidian-dataview@^0.5.46:
-  version "0.5.46"
-  resolved "https://registry.yarnpkg.com/obsidian-dataview/-/obsidian-dataview-0.5.46.tgz#f90640e812942bf5888e354896151be53cf36d47"
-  integrity sha512-/y5NjL4w1kLdwO515nyzPXmYqYSw9Z6G5uV0YXdBgjE1sKUUeJANOQKAaKmbD010BgHjzkEjfbgJxIr7dbgIGw==
+obsidian-dataview@^0.5.67:
+  version "0.5.67"
+  resolved "https://registry.yarnpkg.com/obsidian-dataview/-/obsidian-dataview-0.5.67.tgz#8d60c290bcef6fd804dce53f601651aef75a7e01"
+  integrity sha512-nLQrjvZ6Ny5s6mCfi+rv0TsdYkKTV4YfDqyLNixxNkyLCqgE9AXKJlJNnkv3Ic1brGOw2m/0SgtdWykKzobwMQ==
   dependencies:
     "@codemirror/language" "https://github.com/lishid/cm-language"
     "@codemirror/state" "^6.0.1"
     "@codemirror/view" "^6.0.1"
     emoji-regex "^10.0.0"
     localforage "^1.10.0"
-    luxon "^2.4.0"
+    luxon "^3.2.0"
     obsidian-calendar-ui "^0.3.12"
     papaparse "^5.3.1"
     parsimmon "^1.18.0"
     preact "^10.6.5"
 
-obsidian@^1.4.11:
-  version "1.4.11"
-  resolved "https://registry.yarnpkg.com/obsidian/-/obsidian-1.4.11.tgz#5cba594c83a74ebad58b630c610265018abdadaa"
-  integrity sha512-BCVYTvaXxElJMl6MMbDdY/CGK+aq18SdtDY/7vH8v6BxCBQ6KF4kKxL0vG9UZ0o5qh139KpUoJHNm+6O5dllKA==
+obsidian@^1.6.6:
+  version "1.6.6"
+  resolved "https://registry.yarnpkg.com/obsidian/-/obsidian-1.6.6.tgz#d45c4021c291765e1b77ed4a1c645e562ff6e77f"
+  integrity sha512-GZHzeOiwmw/wBjB5JwrsxAZBLqxGQmqtEKSvJJvT0LtTcqeOFnV8jv0ZK5kO7hBb44WxJc+LdS7mZgLXbb+qXQ==
   dependencies:
     "@types/codemirror" "5.60.8"
     moment "2.29.4"
@@ -2874,6 +2893,11 @@ style-mod@^4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/style-mod/-/style-mod-4.0.0.tgz#97e7c2d68b592975f2ca7a63d0dd6fcacfe35a01"
   integrity sha512-OPhtyEjyyN9x3nhPsu76f52yUGXiZcgvsrFVtvTkyGRQJ0XK+GPc6ov1z+lRpbeabka+MYEQxOYRnt5nF30aMw==
+
+style-mod@^4.1.0:
+  version "4.1.2"
+  resolved "https://registry.yarnpkg.com/style-mod/-/style-mod-4.1.2.tgz#ca238a1ad4786520f7515a8539d5a63691d7bf67"
+  integrity sha512-wnD1HyVqpJUI2+eKZ+eo1UwghftP6yuFheBqqe+bWCotBjC2K1YnteJILRMs3SM4V/0dLEW1SC27MWP5y+mwmw==
 
 supports-color@^5.3.0:
   version "5.5.0"

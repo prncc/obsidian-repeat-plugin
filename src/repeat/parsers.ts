@@ -109,6 +109,12 @@ export function parseRepeat(repeat: string): Repeat {
   }
 }
 
+export function isRepeatDisabled(repeatFieldValue: string): boolean {
+  // https://yaml.org/type/bool.html + "never"
+  const booleanRegex = new RegExp('^(n|no|false|off|never)$', 'i');
+  return booleanRegex.test(repeatFieldValue);
+}
+
 export function parseRepeatDueAt(
   repeatDueAt: string | undefined,
   repeat: Repeat | undefined,
@@ -165,7 +171,7 @@ export function parseRepetitionFromMarkdown(
   const bounds = determineFrontmatterBounds(markdown);
   if (bounds) {
     const { repeat, due_at, hidden } = parseYaml(markdown.slice(...bounds)) || {};
-    if (repeat) {
+    if (repeat && !isRepeatDisabled(repeat)) {
       return parseRepetitionFields(repeat, due_at || undefined, hidden);
     }
   }

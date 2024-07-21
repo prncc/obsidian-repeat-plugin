@@ -1,87 +1,77 @@
-# Obsidian Repeat Plugin: Enhance Your Note Review Experience
+# Obsidian Repeat Plugin
 
-The Obsidian Repeat Plugin offers a comprehensive solution for efficiently reviewing notes using periodic and spaced repetition. By integrating directly into your Obsidian workspace, this plugin provides a streamlined and effective way to revisit and retain information from your notes over time:
+**Review notes using spaced repetition from right within Obsidian.** Mark a note for repetition with one of the built-in commands, or by adding the `repeat` property to the note. Notes become "due" according to the schedule recorded in the `repeat` field, and show up in a dedicated Repeat view inside Obsidian.
 
-1. **Periodic Repetition**:
-   - Seamlessly review your notes on a recurring basis.
-   - Customize the frequency of reviews to suit your preferences.
-   - Choose from a range of options: daily, weekly, monthly, yearly, or set a specific interval of K days/weeks/months/years.
-   - By default, periodic reviews are scheduled early in the morning, ensuring all notes due on a given date are conveniently reviewed together.
+For example, a note marked with `repeat: every week` will be due every week on the day of its first review. A note marked with `repeat: spaced every month` will first be due in a month, then some time between half a month and two months in the future, depending on what you picked during its first review, and so on. The plugin automatically computes the due date and stores the result in a `due_at` property. That way, all the repetition information is easy to understand and edit.
 
-2. **Spaced Repetition**:
-   - Optimize your learning with a dynamic review schedule.
-   - Modify the frequency of spaced repetition for each note during reviews.
-   - For instance, if the current review frequency is set at every 10 days, you can effortlessly adjust the next review to occur in 5 days (0.5x), 10 days (1x), 15 days (1.5x), or 20 days (2x).
+A few other goodies are available:
 
-Our plugin provides a seamless and versatile note reviewing experience, allowing you to maximize retention and effectively manage your knowledge.
+*   You can choose to make the note's body obscured during reviews (`hidden: true`) to make one-sided flashcards.
+*   Notes due in more than a week become due in the morning (you can configure the time in the plugin's settings), so that you can have a predictable daily review time.
+*   Notes are non-repeating by default, but you can also explicitly mark them with `repeat: never` to disable reviews (useful for programmatic or bulk marking).
 
-## Why Use the Repeat Plugin?
+## Mark a note for repetition
 
-* **Gain Insights Over Time**: Consider the value of gaining insights into your thoughts and ideas from previous years. With the Repeat Plugin, you can review your journal entries or any other notes on a yearly basis, giving you a unique perspective on your personal growth and evolving perspectives.
+You mark a note for repetition by specifying the `repeat` property. The `due_at` field is automatically added after your first review. The `hidden` field is optional, and will obscure the body of your note during reviews (clicking on the note's body will reveal its contents).
 
-* **Stay on Top of Recurring Tasks and Goals**: The plugin also serves as a handy reminder system for recurring tasks. Whether it's reviewing journal articles every Wednesday or going through your task list at specific intervals, the Repeat Plugin can surface these reminders to help you stay on track and make progress.
+![A simple note with a full set of repetition fields](./images/edit-text.png)
 
-* **Get the Most from Your Reading**: Are you an avid reader? By creating a book note when you start a new read and using spaced repetition, you can reinforce your understanding of the book's content by occasionally adding your thoughts and reflections. This way, you'll have a comprehensive summary of your reading experience and a deeper understanding of the material.
+A note can have a periodic or spaced repetition schedule. Notes using **periodic repetition** become due after a fixed amount of time has passed since the last time they were due. Some valid `repeat` values for periodic repetition are of the form:
 
-- **Long-Term Knowledge Retention**: If you're studying complex concepts or want to ensure long-term retention of important information, the Repeat Plugin can assist you. Summarize the key points of a concept you wish to remember and use spaced repetition to reinforce it over time. You can even keep the body of the note you're reviewing hidden until you're ready to check your answer. This technique will help you solidify your understanding and recall the information when you need it most.
+*   `daily`, `weekly`, `monthly`, `yearly`
+*   `every day`, `every week`, `every month`, `every year`
+*   `every K days`, `every K weeks`, `every K months`, `every K years` (where `K` is a number)
 
-## Installation and Integration
+Notes using **spaced repetition** become due after a period that you choose during each review. To use spaced repetition, just add `spaced ` to the start of a note's `repeat` value. So:
 
-Getting started with the Repeat Plugin is a breeze and consists of going to Obsidian's community plugins list (via Settings > Options > Community plugins > Browse) and installing
+*   `spaced daily`, `spaced weekly`, `spaced monthly`, `spaced yearly`
+*   `spaced every day`, `spaced every week`, `spaced every month`, `spaced every year`
+*   `spaced every K days`, `spaced every K weeks`, `spaced every K months`, `spaced every K years` (where `K` is a number)
 
-1. The Dataview Plugin
-2. The Repeat Plugin
+You don't have to edit these values directly: you can also use the **`Repeat: Repeat this note...` command** to mark a note for repetition using a modal.
 
-Once installed, the Repeat Plugin adds a **Repeat view** to your Obsidian workspace. Simply click the "clock" icon in Obsidian's ribbon menu or run the **Review due notes** command to access the Repeat view.
+![The "Repeat: Repeat this note..." command modal](./images/edit-modal.png)
 
-You may also notice a due note counter added to Obsidian's status bar. Initially, you won't have any notes due, so read on to find out how to mark notes for repetition. Once a note becomes due for review, the due note counter in the status bar will update and you will be able to review the note in the newly added Repeat view.
+Notes become due in the morning. You can add ` in the evening` to the end of the repeat value if you want a note to be due in the evening instead, e.g., `repeat: every day in the evening`. By default "morning" means 6 AM and "evening" means 6 PM, but you can change these times in the plugin's settings.
 
-## Tailoring Your Note Reviews
+Notes without the `repeat` property simply don't repeat. You can also explicitly mark a note as non-repeating with `repeat: never` (or `off`, `no`, or `false`), which can be useful if you periodically mark recent notes for repetition.
 
-The Repeat Plugin offers flexible options for choosing which notes to review and customizing their repetition patterns. This section describes how you can make the most of it.
+## Review notes as they become due
 
-### 1. Easily Mark a Note for Repetition
+To review notes, open the Repeat view in Obsidian by clicking the "clock" icon, or using the `Repeat: Review due notes` command. In this example, the `repeat` value is `spaced every 2 days`.
 
-While editing a note, you can use convenient commands to mark it for repetition:
+![A note in review](./images/review-revealed.png)
 
-- **Repeat this note...**: Opens a modal where you can customize the note's repetition settings.
-- **Repeat this note every day/week/month/year**: Quickly set the note to repeat at regular intervals.
+Clicking one of the buttons above the embedded note will update the note's `due_at` and (possibly) `repeat` property values.
 
-![The "Repeat this note..." modal](./images/modal.png)
+### Extreme detail about how due dates are calculated that you don't really need to know
 
-Repetition information is stored in the `repeat`, `due_at`, and `hidden` frontmatter fields of the note. You can also manually create or edit these fields to customize the repetition settings.
+Notes using periodic repetition will be due one period *in the future* relative to their previous due date. For example, if it's July 2024 and a note has `repeat: every year` and `due_at: 1999-01-01`, then after review the note will have `due_at: 2025-01-01T06:00:00`. That way, your periodic due dates remain equally spaced even if you stop reviewing your notes for a while.
 
-### 2. Customizing Repetition Patterns
+Notes using spaced repetition become due in whatever time you click relative to the current time. So, if you clicked `3 days (x1.5)` in the example above, that note would be due in 3 days. At the same time, the `repeat` value would be updated from `spaced every 2 days` to `spaced every 3 days`.
 
-The `repeat` field allows you to define the repetition pattern for your notes. Here are some formatting options:
+Clicking the `5 minutes (skip)` button always just bumps the `due_at` value by 5 minutes (without changing the `repeat` value) so that ignoring a note for the moment doesn't change it's repetition dynamics.
 
-- **Periodic Repetition**: Use values like `daily`, `weekly`, `monthly`, `yearly`, or specify a specific interval like `every K days/weeks/months/years`.
-- **Spaced Repetition**: Use the format `spaced every K hours/days/weeks/months/years` to pick the initial review period. Future review periods will be dynamically set at review time by the plugin.
+The spaced period multiples `(x0.5), (x1), (x1.5), (x2)` never change. Some other spaced repetition apps like in Anki or SuperMemo 2 calculate the repetition multiples dynamically. This gives you more fine-tuned repetition intervals, in some sense, at the expense of a lot more state per note. One of the design goals of Obsidian Repeat Plugin is to store all repetition state in the note's frontmatter properties, and make all of it easily understandable and editable. I think the tradeoff is good: using a fixed exponential-ish scheduling strategy still allows for a lot of flexibility for when you review, while also meeting this design goal.
 
-For example, if you want to review a note every three days, set the `repeat` field to `every 3 days`. The plugin will automatically calculate the next review date based on this pattern and populate the `due_at` field when you first review the note.
+All you really need to make a note repeating is add a valid `repeat` value. If there is no `due_at` value, the plugin will still pick up the note for review and calculate the `due_at` value after the review. So you can quickly mark notes for review using this field withotu worrying about technical details
 
-### 3. Morning or Evening Repetition
+The `hidden` field enables you to use one-sided flash cards. A note marked as `hidden: yes` (or `on`, or `true`) will have its contents obscured until you click in in a review.
 
-By default, periodic notes and spaced notes with intervals of at least a week become due at 6 AM. If you prefer an evening review, you can add `in the evening` to the note's repeat field. For example, changing `repeat: every 2 weeks` to `repeat: every 2 weeks in the evening` will make the note due at 6 **PM** every two weeks.
+![A note in review with its content obscured](./images/review-hidden.png)
 
-You can also adjust the repetition time using the convenient options available in the "Repeat this note..." modal. If you choose a note for evening repetition, your choice will of course be preserved between reviews.
+`repeat` values have to be in a supported form, but still use relatively natural language. This way, it's easy to mark a note for repetition using relatively natural language (`repeat: every 3 days`) instead of dealing with some computer-friendly syntax. With that said, the plugin will always save `due_at` values using `hours` as the repetition unit. For this reason, shortest repetition interval is one hour.
 
-### 4. One-Sided Flashcards
+## How to install Obsidian Repeat Plugin
 
-When you enable the "Hidden" option while adjusting the repetition fields of a note in the "Repeat this note..." modal (manually represented as `hidden: true`), the content of your note will appear blurred in the Repeat view. By clicking on the blurred content, you can reveal the hidden information, allowing you to effectively test your knowledge and strengthen your understanding using one-sided flashcards.
+Go to **Obsidian's community plugins list** (via Settings > Options > Community plugins > Browse) and install:
 
-### 5. Extra Features
+1. Dataview Plugin (used for querying notes)
+2. Repeat Plugin
 
-You have the option to exclude a specific folder from note reviews, which proves especially beneficial if your vault includes templates. Accessing the settings for the Repeat Plugin is easy: simply go to Settings > Community plugins > Repeat.
+## Additional resources
 
-By leveraging the power of Dataview queries, you can delve deeper into the notes you review in your vault. The information regarding how a note is reviewed is stored in a few key fields within the note's frontmatter, so you can write queries against them. To explore the capabilities of Dataview queries and gain further insights, refer to [Dataview's documentation](https://blacksmithgu.github.io/obsidian-dataview/).
-
-## Additional Resources and Development
-
-The Repeat Plugin offers a wide range of possibilities to optimize your note review process. If you're interested in further exploring the plugin's features or contributing to its development, here are some resources to check out:
-
-- **More Tools**: The `add_repeat_to_notes.py` script from [https://github.com/prncc/obsidian-scripts](https://github.com/prncc/obsidian-scripts) allows you to interactively add the `repeat` field to notes in your existing vault. The Repeat Plugin will be able to pick up those notes from there.
-- **Development**: Pull requests are welcome for the Repeat Plugin. If you have a significant change in mind, create an issue to discuss it with the community first. You may also find some issues with the "help wanted" tag in the Issues tab of [the plugin's GitHub repo](https://github.com/prncc/obsidian-repeat-plugin).
-- **Similar Software**: [msipos/mind-palace: Mind palace: mnemonic note taking system.](https://github.com/msipos/mind-palace)
-
-The Obsidian Repeat Plugin empowers you to make the most of your notes and ensure long-term retention of valuable information. With its seamless integration and customizable features, this plugin is a valuable addition to any knowledge worker's toolkit.
+*   **Development**:
+    - Pull requests are welcome. If you have a significant change in mind, create an issue to discuss it with the community first. You may also find some issues with the "help wanted" tag in the Issues tab of [the plugin's GitHub repo](https://github.com/prncc/obsidian-repeat-plugin).
+    - To start a local dev build, run `yarn install` and then `yarn dev`.
+*   **More Tools**: The `add_repeat_to_notes.py` script from [https://github.com/prncc/obsidian-scripts](https://github.com/prncc/obsidian-scripts) allows you to interactively add the `repeat` field to notes in your existing vault. The Repeat Plugin will be able to pick up those notes from there.
