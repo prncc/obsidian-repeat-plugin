@@ -1,7 +1,7 @@
 import { DateTime } from 'luxon';
 import { Literal, DataviewApi, DataArray } from 'obsidian-dataview';
 
-import { parseRepetitionFields } from './parsers';
+import { isRepeatDisabled, parseRepetitionFields } from './parsers';
 
 export function getNotesDue(
   dv: DataviewApi | undefined,
@@ -12,7 +12,7 @@ export function getNotesDue(
   return dv?.pages()
     .mutate((page: any) => {
       const { repeat, due_at, hidden } = page.file.frontmatter || {};
-      if (!repeat) {
+      if (!repeat || isRepeatDisabled(repeat)) {
         page.repetition = undefined;
         return page;
       }
