@@ -96,6 +96,14 @@ test.concurrent.each([
     return;
   }
   expect(choices).toHaveLength(5);
+
+  // Skip button.
+  const firstChoice = choices.shift();
+  expect(firstChoice?.nextRepetition?.repeatPeriodUnit).toBe(
+    repetition.repeatPeriodUnit);
+  expect(firstChoice?.nextRepetition?.repeatPeriod).toBe(
+    repetition.repeatPeriod);
+
   choices.forEach((choice) => {
     expect(choice.nextRepetition).not.toBeNull();
     // @ts-ignore
