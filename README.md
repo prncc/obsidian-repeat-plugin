@@ -1,6 +1,6 @@
 # Obsidian Repeat Plugin
 
-**Review notes using spaced repetition from right within Obsidian.** Mark a note for repetition with one of the built-in commands, or by adding the `repeat` property to the note. Notes become "due" according to the schedule recorded in the `repeat` field, and show up in a dedicated Repeat view inside Obsidian.
+**Review notes using spaced repetition from right within Obsidian.** Mark a note for repetition with one of the built-in commands, or by adding the `repeat` property to the note. Notes become "due" according to the schedule recorded in the `repeat` property, and show up in a dedicated Repeat view inside Obsidian.
 
 For example, a note marked with `repeat: every week` will be due every week on the day of its first review. A note marked with `repeat: spaced every month` will first be due in a month, then some time between half a month and two months in the future, depending on what you picked during its first review, and so on. The plugin automatically computes the due date and stores the result in a `due_at` property. That way, all the repetition information is easy to understand and edit.
 
@@ -12,9 +12,9 @@ A few other goodies are available:
 
 ## Mark a note for repetition
 
-You mark a note for repetition by specifying the `repeat` property. The `due_at` field is automatically added after your first review. The `hidden` field is optional, and will obscure the body of your note during reviews (clicking on the note's body will reveal its contents).
+You mark a note for repetition by specifying the `repeat` property. The `due_at` property is automatically added after your first review. The `hidden` property is optional, and will obscure the body of your note during reviews (clicking on the note's body will reveal its contents).
 
-![A simple note with a full set of repetition fields](./images/edit-text.png)
+![A simple note with a full set of repetition properties](./images/edit-text.png)
 
 A note can have a periodic or spaced repetition schedule. Notes using **periodic repetition** become due after a fixed amount of time has passed since the last time they were due. Some valid `repeat` values for periodic repetition are of the form:
 
@@ -54,9 +54,9 @@ Clicking the `5 minutes (skip)` button always just bumps the `due_at` value by 5
 
 The spaced period multiples `(x0.5), (x1), (x1.5), (x2)` never change. Some other spaced repetition apps like in Anki or SuperMemo 2 calculate the repetition multiples dynamically. This gives you more fine-tuned repetition intervals, in some sense, at the expense of a lot more state per note. One of the design goals of Obsidian Repeat Plugin is to store all repetition state in the note's frontmatter properties, and make all of it easily understandable and editable. I think the tradeoff is good: using a fixed exponential-ish scheduling strategy still allows for a lot of flexibility for when you review, while also meeting this design goal.
 
-All you really need to make a note repeating is add a valid `repeat` value. If there is no `due_at` value, the plugin will still pick up the note for review and calculate the `due_at` value after the review. So you can quickly mark notes for review using this field withotu worrying about technical details
+All you really need to make a note repeating is add a valid `repeat` value. If there is no `due_at` value, the plugin will still pick up the note for review and calculate the `due_at` value after the review. So you can quickly mark notes for review using this property without worrying about technical details
 
-The `hidden` field enables you to use one-sided flash cards. A note marked as `hidden: yes` (or `on`, or `true`) will have its contents obscured until you click in in a review.
+The `hidden` property enables you to use one-sided flash cards. A note marked as `hidden: yes` (or `on`, or `true`) will have its contents obscured until you click in in a review.
 
 ![A note in review with its content obscured](./images/review-hidden.png)
 
