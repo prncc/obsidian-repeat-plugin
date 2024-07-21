@@ -217,6 +217,7 @@ class RepeatView extends ItemView {
     const markdown = await this.app.vault.cachedRead(file);
     const delimitedFrontmatterBounds = determineFrontmatterBounds(markdown, true);
     await renderMarkdown(
+      this.app,
       markdown.slice(
         delimitedFrontmatterBounds ? delimitedFrontmatterBounds[1] : 0),
       markdownContainer,

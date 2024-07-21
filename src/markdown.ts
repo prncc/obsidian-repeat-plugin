@@ -1,4 +1,4 @@
-import { Component, MarkdownPreviewView, Vault, setIcon, TFile, Platform } from 'obsidian';
+import { Component, Vault, setIcon, TFile, Platform, App, MarkdownRenderer } from 'obsidian';
 
 enum EmbedType {
   Image = 'Image',
@@ -146,6 +146,7 @@ function determineEmbedType(node: Element): EmbedType {
  * Renders markdown into outerContainer.
  */
 export async function renderMarkdown(
+  app: App,
   markdown: string,
   outerContainer: HTMLElement,
   sourcePath: string,
@@ -160,7 +161,8 @@ export async function renderMarkdown(
   });
   outerContainer.appendChild(innerContainer);
   innerContainer.appendChild(contentContainer);
-  await MarkdownPreviewView.renderMarkdown(
+  await MarkdownRenderer.render(
+    app,
     markdown,
     contentContainer,
     sourcePath,
