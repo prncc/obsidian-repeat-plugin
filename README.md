@@ -62,6 +62,8 @@ The `hidden` property enables you to use one-sided flash cards. A note marked as
 
 `repeat` values have to be in a supported form, but still use relatively natural language. This way, it's easy to mark a note for repetition using relatively natural language (`repeat: every 3 days`) instead of dealing with some computer-friendly syntax. With that said, the plugin will always save `due_at` values using `hours` as the repetition unit. For this reason, shortest repetition interval is one hour.
 
+Finally, the plugin changes the frontmatter properties it uses in-place, so your other properties are never changed.
+
 ### Custom Repeat view styling
 
 The plugin uses Obsidian's native embedding styles to display notes during reviews. So, you can customize those styles and the customizations will be reflected in the plugin. The plugin wraps the embeds in a `<div class="repeat-embedded_note">` element, so that you can customize *only* the plugin's styles.
