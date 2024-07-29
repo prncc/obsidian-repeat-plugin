@@ -251,8 +251,15 @@ export async function renderTitleElement(
 
   // This element is a div in Obsidian's own embed, but that makes clicking
   // to open the note more complicated. So, we use a simple link.
-  const embedLink = createEl('a', { cls: 'markdown-embed-link' });
-  embedLink.href = getNoteUri(vault, file.path);
+  const embedLink = createEl('a', {
+    cls: 'markdown-embed-link',
+    attr: {
+      'data-href': file.basename,
+      'href': getNoteUri(vault, file.path),
+      'target': '_blank',
+      'rel': 'noopener',
+    }
+  });
   setIcon(embedLink, 'link');
 
   container.appendChild(embedTitle);
