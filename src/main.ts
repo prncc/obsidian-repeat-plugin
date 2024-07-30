@@ -200,6 +200,28 @@ export default class RepeatPlugin extends Plugin {
         }
       });
     });
+
+    this.addCommand({
+      id: 'repeat-never',
+      name: 'Never repeat this note',
+      checkCallback: (checking: boolean) => {
+        const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+        if (markdownView && !!markdownView.file) {
+          if (!checking) {
+            const { editor, file } = markdownView;
+            const content = editor.getValue();
+            const newContent = updateRepetitionMetadata(content, {
+              repeat: 'never',
+              due_at: undefined,
+              hidden: undefined,
+            });
+            this.app.vault.modify(file, newContent);
+          }
+          return true;
+        }
+        return false;
+      }
+    });
   }
 
   async onload() {
