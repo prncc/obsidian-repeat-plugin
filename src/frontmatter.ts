@@ -111,6 +111,29 @@ export function replaceOrInsertField(frontmatter: string, field: string, value: 
 
 
 /**
+ * Remove field and trailing newline from frontmatter.
+ *
+ * @param frontmatter YAML frontmatter (starting newline: no; ending newline: yes).
+ * @param field The name of the field to replace or insert.
+ * @returns New YAML frontmatter without the removed field, if present.
+ */
+export function removeField(frontmatter: string, field: string): string {
+  const fieldBounds = determineInlineFieldBounds(frontmatter, field);
+  if (!fieldBounds?.length) {
+    return frontmatter;
+  }
+  const [start, end] = fieldBounds;
+  const isFollowedByNewline = (
+    (end < frontmatter.length)
+    && (frontmatter[end] === '\n'));
+  return [
+    frontmatter.slice(0, start),
+    frontmatter.slice(end + (isFollowedByNewline ? 1 : 0)),
+  ].join('');
+}
+
+
+/**
  * Replaces serialized repetition fields in the content's YAML frontmatter.
  * @param content Content whose frontend to update.
  * @param serializedRepetition Object mapping field names to values.
@@ -145,7 +168,11 @@ export function updateRepetitionMetadata(
         continue;
       }
     }
-    frontmatter = replaceOrInsertField(frontmatter, field, serializedRepetition[field]);
+    if (serializedRepetition[field] === undefined) {
+      frontmatter = removeField(frontmatter, field);
+    } else {
+      frontmatter = replaceOrInsertField(frontmatter, field, serializedRepetition[field]);
+    }
   }
   return [
     newContent.slice(0, bounds[0]),
