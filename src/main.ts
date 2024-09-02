@@ -14,8 +14,8 @@ import { RepeatPluginSettings, DEFAULT_SETTINGS } from './settings';
 import { updateRepetitionMetadata } from './frontmatter';
 import { getAPI } from 'obsidian-dataview';
 import { getNotesDue } from './repeat/queries';
-import { parseHiddenFieldFromMarkdown, parseRepetitionFromMarkdown } from './repeat/parsers';
-import { serializeRepetition } from './repeat/serializers';
+import { parseHiddenFieldFromMarkdown, parseRepeat, parseRepetitionFromMarkdown } from './repeat/parsers';
+import { serializeRepeat, serializeRepetition } from './repeat/serializers';
 import { incrementRepeatDueAt } from './repeat/choices';
 import { PeriodUnit, Repetition, Strategy, TimeOfDay } from './repeat/repeatTypes';
 
@@ -314,5 +314,20 @@ class RepeatPluginSettingTab extends PluginSettingTab {
             await this.plugin.saveSettings();
           });
         });
+
+      new Setting(containerEl)
+        .setName('Default modal repeat value')
+        .setDesc('Initial value for "Repeat this note..." command\'s modal')
+        .addText((component) => {
+          console.log(this.plugin.settings.defaultRepeat);
+          return component
+            .setValue(serializeRepeat(this.plugin.settings.defaultRepeat))
+            .onChange(async (value) => {
+              const newRepeat = parseRepeat(value);
+              this.plugin.settings.defaultRepeat = newRepeat;
+              await this.plugin.saveSettings();
+            });
+        });
+
   }
 }
