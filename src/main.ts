@@ -316,8 +316,8 @@ class RepeatPluginSettingTab extends PluginSettingTab {
         });
 
       new Setting(containerEl)
-        .setName('Default modal repeat value')
-        .setDesc('Initial value for "Repeat this note..." command\'s modal')
+        .setName('Default `repeat` property')
+        .setDesc('Used to populate "Repeat this note..." command\'s modal. Ignored if the supplied value is not parsable.')
         .addText((component) => {
           console.log(this.plugin.settings.defaultRepeat);
           return component
