@@ -10,6 +10,7 @@ import {
   Strategy,
   TimeOfDay,
 } from './repeatTypes';
+import { DEFAULT_SETTINGS } from 'src/settings';
 
 const joinedUnits = 'hour|day|week|month|year';
 
@@ -82,17 +83,21 @@ export function parseRepeat(repeat: string): Repeat {
   if (( result = repetitionRegex.exec(processedRepeat) )) {
     return {
       repeatStrategy: repeatStrategy as Strategy,
-      repeatPeriod: parseInt(result?.groups?.period || '1'),
-      repeatPeriodUnit: parseRepeatPeriodUnit(result?.groups?.description || 'day'),
-      repeatTimeOfDay: parseRepeatTimeOfDay(result?.groups?.timeOfDaySuffix || 'am'),
+      repeatPeriod: parseInt(
+        result?.groups?.period
+        || String(DEFAULT_SETTINGS.defaultRepeat.repeatPeriod)
+      ),
+      repeatPeriodUnit: parseRepeatPeriodUnit(
+        result?.groups?.description
+        || DEFAULT_SETTINGS.defaultRepeat.repeatPeriodUnit
+      ),
+      repeatTimeOfDay: parseRepeatTimeOfDay(
+        result?.groups?.timeOfDaySuffix
+        || DEFAULT_SETTINGS.defaultRepeat.repeatTimeOfDay
+      ),
     }
   }
-  return {
-    repeatStrategy: 'SPACED',
-    repeatPeriod: 24,
-    repeatPeriodUnit: 'HOUR',
-    repeatTimeOfDay: 'AM',
-  }
+  return DEFAULT_SETTINGS.defaultRepeat;
 }
 
 export function isRepeatDisabled(repeatFieldValue: string): boolean {
