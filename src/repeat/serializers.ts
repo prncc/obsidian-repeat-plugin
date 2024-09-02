@@ -1,4 +1,4 @@
-import { PeriodUnit, Repetition } from './repeatTypes';
+import { PeriodUnit, Repeat, Repetition } from './repeatTypes';
 
 const SERIALIZED_TRUE = 'true';
 export const SERIALIZED_FALSE = 'false';
@@ -11,13 +11,12 @@ function serializeRepeatPeriodUnit(
   return `${repeatPeriodUnit.toLowerCase()}${suffix}`;
 }
 
-function serializeRepeat({
+export function serializeRepeat({
   repeatStrategy,
   repeatPeriod,
   repeatPeriodUnit,
   repeatTimeOfDay
-
-}: Repetition): string {
+}: Repeat | Repetition): string {
   if (repeatStrategy === 'PERIODIC'
       && repeatPeriod === 1
       && repeatPeriodUnit !== 'HOUR'

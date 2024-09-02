@@ -32,10 +32,7 @@ class RepeatNoteSetupModal extends Modal {
     this.settings = settings;
 
     this.result = initialValue ? { ...initialValue } : {
-      repeatStrategy: 'SPACED',
-      repeatPeriod: 1,
-      repeatPeriodUnit: 'DAY',
-      repeatTimeOfDay: 'AM',
+      ...settings.defaultRepeat,
       repeatDueAt: undefined,
       hidden: false,
     };
