@@ -17,7 +17,7 @@ export const DEFAULT_SETTINGS: RepeatPluginSettings = {
   eveningReviewTime: '18:00',
   defaultRepeat: {
     repeatStrategy: 'SPACED',
-    repeatPeriod: 2,
+    repeatPeriod: 1,
     repeatPeriodUnit: 'DAY',
     repeatTimeOfDay: 'AM',
   },
