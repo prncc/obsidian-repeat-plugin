@@ -6,6 +6,7 @@ export type PeriodUnit = 'HOUR' | 'DAY' | 'WEEK' | 'MONTH' | 'YEAR';
 
 export type TimeOfDay = 'AM' | 'PM';
 
+// A parsed `repeat` property value.
 export type Repeat = {
   repeatStrategy: Strategy,
   repeatPeriod: number,
@@ -13,11 +14,13 @@ export type Repeat = {
   repeatTimeOfDay: TimeOfDay,
 }
 
+// A complete set of parsed repetition properties.
 export interface Repetition extends Repeat {
   repeatDueAt: DateTime,
   hidden: boolean,
 }
 
+// A next-repeat choice shown in the review interface.
 export type RepeatChoice = {
   text: string,
   nextRepetition: Repetition | null,
