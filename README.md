@@ -32,9 +32,9 @@ You don't have to edit these values directly: you can also use the **`Repeat: Re
 
 ![The "Repeat: Repeat this note..." command modal](./images/edit-modal.png)
 
-Notes become due in the morning. You can add ` in the evening` to the end of the repeat value if you want a note to be due in the evening instead, e.g., `repeat: every day in the evening`. By default "morning" means 6 AM and "evening" means 6 PM, but you can change these times in the plugin's settings.
+Notes become due in the morning. You can add ` in the evening` to the end of the repeat value if you want a note to be due in the evening instead, e.g., `repeat: every day in the evening`. By default "morning" means 6 AM and "evening" means 6 PM, but you can change these times and the default repetition interval in the plugin's settings.
 
-Notes without the `repeat` property simply don't repeat. You can also explicitly mark a note as non-repeating with `repeat: never` (or `off`, `no`, or `false`), which can be useful if you periodically mark recent notes for repetition.
+Notes *without* the `repeat` property simply don't repeat. You can also explicitly mark a note as non-repeating with `repeat: never` (or `off`, `no`, or `false`), which can be useful if you periodically mark recent notes for repetition.
 
 ## Review notes as they become due
 
