@@ -13,20 +13,6 @@ import {
 
 const joinedUnits = 'hour|day|week|month|year';
 
-export function makeDefaultRepetition(
-  repeatStrategy: string,
-  repeatDueAt?: DateTime,
-): Repetition {
-  return {
-    repeatStrategy: repeatStrategy as Strategy,
-    repeatPeriod: 1,
-    repeatPeriodUnit: 'DAY' as PeriodUnit,
-    repeatTimeOfDay: 'AM' as TimeOfDay,
-    repeatDueAt: repeatDueAt || DateTime.now().plus({ day: 1 }),
-    hidden: false,
-  };
-}
-
 function parseRepeatPeriodUnit(unitDescription: string): PeriodUnit {
   const processedUnitDescription = unitDescription.trim();
   switch (processedUnitDescription) {
