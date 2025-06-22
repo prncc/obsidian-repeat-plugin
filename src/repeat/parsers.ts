@@ -10,7 +10,7 @@ import {
   Strategy,
   TimeOfDay,
 } from './repeatTypes';
-import { DEFAULT_SETTINGS } from 'src/settings';
+import { DEFAULT_SETTINGS } from '../settings';
 
 const joinedUnits = 'hour|day|week|month|year';
 
@@ -138,6 +138,25 @@ export function parseYamlBoolean(
   return booleanRegex.test(value);
 }
 
+export function formRepetition(
+  parsedRepeat: Repeat,
+  repeatDueAt: string | undefined,
+  hidden?: string | undefined,
+  referenceDateTime?: DateTime | undefined,
+  virtual?: boolean | undefined,
+): Repetition {
+  return {
+    ...parsedRepeat,
+    hidden: parseYamlBoolean(hidden),
+    virtual: virtual || false,
+    repeatDueAt: parseRepeatDueAt(
+      repeatDueAt,
+      parsedRepeat,
+      referenceDateTime || DateTime.now(),
+    ),
+  }
+}
+
 export function parseRepetitionFields(
   repeat: string,
   repeatDueAt: string | undefined,
@@ -145,15 +164,7 @@ export function parseRepetitionFields(
   referenceDateTime?: DateTime | undefined,
 ): Repetition {
   const parsedRepeat = parseRepeat(repeat);
-  return {
-    ...parsedRepeat,
-    hidden: parseYamlBoolean(hidden),
-    repeatDueAt: parseRepeatDueAt(
-      repeatDueAt,
-      parsedRepeat,
-      referenceDateTime || DateTime.now(),
-    ),
-  }
+  return formRepetition(parsedRepeat, repeatDueAt, hidden, referenceDateTime);
 }
 
 export function parseRepetitionFromMarkdown(

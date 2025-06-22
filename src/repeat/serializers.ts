@@ -44,10 +44,24 @@ export function serializeRepeat({
   ].join(' ');
 }
 
-export function serializeRepetition(repetition: Repetition) {
-  return {
-    repeat: serializeRepeat(repetition),
-    due_at: repetition.repeatDueAt.toISO(),
-    hidden: repetition.hidden ? SERIALIZED_TRUE : SERIALIZED_FALSE,
+export function serializeRepetition(repetition: Repetition | 'DISMISS' | 'NEVER') {
+  if (repetition === 'NEVER') {
+    return {
+      repeat: 'never',
+      due_at: undefined,
+      hidden: undefined,
+    }
+  } else if (repetition === 'DISMISS') {
+    return {
+      repeat: undefined,
+      due_at: undefined,
+      hidden: undefined,
+    }
+  } else {
+    return {
+      repeat: serializeRepeat(repetition),
+      due_at: repetition.repeatDueAt.toISO(),
+      hidden: repetition.hidden ? SERIALIZED_TRUE : SERIALIZED_FALSE,
+    }
   }
 }

@@ -77,7 +77,11 @@ export default class RepeatPlugin extends Plugin {
         this.statusBarItem = this.addStatusBarItem();
       }
       const dueNoteCount = getNotesDue(
-        getAPI(this.app), this.settings.ignoreFolderPath)?.length;
+        getAPI(this.app),
+        this.settings.ignoreFolderPath,
+        undefined,
+        this.settings.enqueueNonRepeatingNotes,
+        this.settings.defaultRepeat)?.length;
       if (dueNoteCount != undefined && this.statusBarItem) {
         this.statusBarItem.setText(
           `${dueNoteCount} repeat notes due`);
@@ -191,6 +195,7 @@ export default class RepeatPlugin extends Plugin {
                 ...repeat,
                 hidden: parseHiddenFieldFromMarkdown(content),
                 repeatDueAt,
+                virtual: false,
               }));
               this.app.vault.modify(file, newContent);
             }
@@ -199,6 +204,28 @@ export default class RepeatPlugin extends Plugin {
           return false;
         }
       });
+    });
+
+    this.addCommand({
+      id: 'repeat-never',
+      name: 'Never repeat this note',
+      checkCallback: (checking: boolean) => {
+        const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
+        if (markdownView && !!markdownView.file) {
+          if (!checking) {
+            const { editor, file } = markdownView;
+            const content = editor.getValue();
+            const newContent = updateRepetitionMetadata(content, {
+              repeat: 'never',
+              due_at: undefined,
+              hidden: undefined,
+            });
+            this.app.vault.modify(file, newContent);
+          }
+          return true;
+        }
+        return false;
+      }
     });
 
     this.addCommand({
@@ -319,7 +346,6 @@ class RepeatPluginSettingTab extends PluginSettingTab {
         .setName('Default `repeat` property')
         .setDesc('Used to populate "Repeat this note..." command\'s modal. Ignored if the supplied value is not parsable.')
         .addText((component) => {
-          console.log(this.plugin.settings.defaultRepeat);
           return component
             .setValue(serializeRepeat(this.plugin.settings.defaultRepeat))
             .onChange(async (value) => {
@@ -328,6 +354,16 @@ class RepeatPluginSettingTab extends PluginSettingTab {
               await this.plugin.saveSettings();
             });
         });
+
+      new Setting(containerEl)
+        .setName('Enqueue non-repeating notes')
+        .setDesc('Add notes without a repeat field to the end of the queue. Useful to quickly make new notes repeating during reviews.')
+        .addToggle(component => component
+          .setValue(this.plugin.settings.enqueueNonRepeatingNotes)
+          .onChange(async (value) => {
+            this.plugin.settings.enqueueNonRepeatingNotes = value;
+            await this.plugin.saveSettings();
+          }));
 
   }
 }

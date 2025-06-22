@@ -157,7 +157,9 @@ class RepeatView extends ItemView {
     const page = getNextDueNote(
       this.dv,
       this.settings.ignoreFolderPath,
-      ignoreFilePath);
+      ignoreFilePath,
+      this.settings.enqueueNonRepeatingNotes,
+      this.settings.defaultRepeat);
     if (!page) {
       this.setMessage('All done for now!');
       this.buttonsContainer.createEl('button', {
@@ -253,11 +255,6 @@ class RepeatView extends ItemView {
       (buttonElement) => {
         buttonElement.onclick = async () => {
           this.resetView();
-          if (!choice.nextRepetition) {
-            // TODO: Handle case of null nextRepetition properly.
-            this.setPage();
-            return;
-          }
           const markdown = await this.app.vault.read(file);
           const newMarkdown = updateRepetitionMetadata(
             markdown, serializeRepetition(choice.nextRepetition));

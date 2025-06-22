@@ -6,7 +6,8 @@ import { uniqByField } from '../utils';
 import { RepeatPluginSettings } from '../settings';
 import { parseTime } from './parsers';
 
-export const DISMISS_BUTTON_TEXT = 'dismiss';
+export const DISMISS_BUTTON_TEXT = 'Dismiss';
+export const NEVER_BUTTON_TEXT = 'Never';
 
 export const SKIP_PERIOD_MINUTES = 5;
 export const SKIP_BUTTON_TEXT = `${SKIP_PERIOD_MINUTES} minutes (skip)`;
@@ -79,11 +80,11 @@ function getPeriodicRepeatChoices(
   if ((repeatDueAt > now) || !repeatDueAt) {
     return [{
       text: DISMISS_BUTTON_TEXT,
-      nextRepetition: null,
+      nextRepetition: 'DISMISS',
     }];
   }
   const nextRepeatDueAt = incrementRepeatDueAt({ ...repetition }, settings);
-  return [{
+  const choices: RepeatChoice[] = [{
     text: SKIP_BUTTON_TEXT,
     nextRepetition: {
       ...repetition,
@@ -96,6 +97,15 @@ function getPeriodicRepeatChoices(
       repeatDueAt: nextRepeatDueAt,
     },
   }];
+
+  if (settings.enqueueNonRepeatingNotes) {
+    choices.push({
+      text: NEVER_BUTTON_TEXT,
+      nextRepetition: 'NEVER',
+    });
+  }
+
+  return choices;
 }
 
 /**
@@ -119,12 +129,12 @@ function getSpacedRepeatChoices(
   if ((repeatDueAt > now) || !repeatDueAt) {
     return [{
       text: DISMISS_BUTTON_TEXT,
-      nextRepetition: null,
+      nextRepetition: 'DISMISS',
     }];
   }
   const morningReviewTime = parseTime(settings.morningReviewTime);
   const eveningReviewTime = parseTime(settings.eveningReviewTime);
-  const multiplierChoices = [0.5, 1.0, 1.5, 2.0].map((multiplier) => {
+  const multiplierChoices: RepeatChoice[] = [0.5, 1.0, 1.5, 2.0].map((multiplier) => {
     let nextRepeatDueAt = now.plus({
       [repeatPeriodUnit]: multiplier * repeatPeriod,
     });
@@ -160,7 +170,7 @@ function getSpacedRepeatChoices(
       }
     };
   });
-  return uniqByField([
+  const choices: RepeatChoice[] = [
     {
       text: SKIP_BUTTON_TEXT,
       nextRepetition: {
@@ -169,7 +179,14 @@ function getSpacedRepeatChoices(
       },
     },
     ...multiplierChoices,
-  ], 'text');
+  ];
+  if (settings.enqueueNonRepeatingNotes) {
+    choices.push({
+      text: NEVER_BUTTON_TEXT,
+      nextRepetition: 'NEVER',
+    });
+  }
+  return uniqByField(choices, 'text');
 }
 
 /**
@@ -195,6 +212,6 @@ export function getRepeatChoices(
   }
   return [{
     text: DISMISS_BUTTON_TEXT,
-    nextRepetition: null,
+    nextRepetition: 'DISMISS',
   }];
 }
