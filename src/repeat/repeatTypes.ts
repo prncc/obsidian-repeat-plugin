@@ -18,6 +18,7 @@ export type Repeat = {
 export interface Repetition extends Repeat {
   repeatDueAt: DateTime,
   hidden: boolean,
+  virtual: boolean,
 }
 
 // A next-repeat choice shown in the review interface.

@@ -157,7 +157,9 @@ class RepeatView extends ItemView {
     const page = getNextDueNote(
       this.dv,
       this.settings.ignoreFolderPath,
-      ignoreFilePath);
+      ignoreFilePath,
+      this.settings.enqueueNonRepeatingNotes,
+      this.settings.defaultRepeat);
     if (!page) {
       this.setMessage('All done for now!');
       this.buttonsContainer.createEl('button', {
