@@ -69,7 +69,6 @@ export function getNextDueNote(
   defaultRepeat?: any,
 ): Record<string, Literal> | undefined {
   const page = getNotesDue(dv, ignoreFolderPath, ignoreFilePath, enqueueNonRepeatingNotes, defaultRepeat)?.first();
-  console.log(page);
   if (!page) { return; }
   return page;
 }

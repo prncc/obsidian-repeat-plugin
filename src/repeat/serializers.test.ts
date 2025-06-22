@@ -18,6 +18,7 @@ const makeTestRepetitions = () => {
     repeatTimeOfDay: 'AM',
     repeatDueAt: referenceRepeatDueAt,
     hidden: false,
+    virtual: false,
   }));
   return [
     ...basicRepetitions,
@@ -56,7 +57,7 @@ describe('serializeRepeat round trip', () => {
     'retains $repeatStrategy, $repeatPeriod, $repeatPeriodUnit, $repeatTimeOfDay',
     (repetition) => {
       const { repeat, due_at, hidden } = serializeRepetition(repetition as any);
-      const serializedUnserializedRepetition = parseRepetitionFields(repeat, due_at, hidden, undefined);
+      const serializedUnserializedRepetition = parseRepetitionFields(String(repeat), String(due_at ?? ""), String(hidden), undefined);
       expect(serializedUnserializedRepetition).toEqual(repetition);
     });
 });

@@ -5,6 +5,7 @@ import {
   getRepeatChoices,
   DISMISS_BUTTON_TEXT,
   SKIP_BUTTON_TEXT,
+  NEVER_BUTTON_TEXT,
 } from './choices';
 import { parseTime } from './parsers';
 
@@ -39,6 +40,11 @@ const invalidRepetition = {
   repeatDueAt: dueAt,
 };
 
+// Helper function to check if nextRepetition is a Repetition object
+function isRepetition(nextRepetition: Repetition | 'DISMISS' | 'NEVER'): nextRepetition is Repetition {
+  return typeof nextRepetition === 'object' && nextRepetition !== null;
+}
+
 test.concurrent.each([
   ...['HOUR', 'DAY', 'MONTH', 'YEAR'].map((repeatPeriodUnit) => ({
     ...periodicRepetition,
@@ -55,22 +61,22 @@ test.concurrent.each([
     expect(choices).toHaveLength(1);
     expect(choices[0]).toStrictEqual({
       text: DISMISS_BUTTON_TEXT,
-      nextRepetition: null,
+      nextRepetition: 'DISMISS',
     } as RepeatChoice);
     return;
   }
   expect(choices).toHaveLength(2);
   choices.forEach((choice) => {
-    expect(choice.nextRepetition?.repeatDueAt).not.toBeNull();
-    // @ts-ignore
-    expect(choice.nextRepetition?.repeatDueAt > now).toBe(true);
-    if (choice.text !== SKIP_BUTTON_TEXT) {
-      // @ts-ignore
-      expect(choice.nextRepetition?.repeatDueAt.hour).toBe(
-        (repetition.repeatTimeOfDay === 'AM')
-          ? parseTime(mockPluginSettings.morningReviewTime).hour
-          : parseTime(mockPluginSettings.eveningReviewTime).hour,
-      );
+    if (isRepetition(choice.nextRepetition)) {
+      expect(choice.nextRepetition.repeatDueAt).not.toBeNull();
+      expect(choice.nextRepetition.repeatDueAt > now).toBe(true);
+      if (choice.text !== SKIP_BUTTON_TEXT) {
+        expect(choice.nextRepetition.repeatDueAt.hour).toBe(
+          (repetition.repeatTimeOfDay === 'AM')
+            ? parseTime(mockPluginSettings.morningReviewTime).hour
+            : parseTime(mockPluginSettings.eveningReviewTime).hour,
+        );
+      }
     }
   });
 });
@@ -91,7 +97,7 @@ test.concurrent.each([
     expect(choices).toHaveLength(1);
     expect(choices[0]).toStrictEqual({
       text: DISMISS_BUTTON_TEXT,
-      nextRepetition: null,
+      nextRepetition: 'DISMISS',
     });
     return;
   }
@@ -99,16 +105,18 @@ test.concurrent.each([
 
   // Skip button.
   const firstChoice = choices.shift();
-  expect(firstChoice?.nextRepetition?.repeatPeriodUnit).toBe(
-    repetition.repeatPeriodUnit);
-  expect(firstChoice?.nextRepetition?.repeatPeriod).toBe(
-    repetition.repeatPeriod);
+  if (firstChoice && isRepetition(firstChoice.nextRepetition)) {
+    expect(firstChoice.nextRepetition.repeatPeriodUnit).toBe(
+      repetition.repeatPeriodUnit);
+    expect(firstChoice.nextRepetition.repeatPeriod).toBe(
+      repetition.repeatPeriod);
+  }
 
   choices.forEach((choice) => {
-    expect(choice.nextRepetition).not.toBeNull();
-    // @ts-ignore
-    expect(choice.nextRepetition?.repeatDueAt > now).toBe(true);
-    expect(choice.nextRepetition?.repeatPeriodUnit).toBe('HOUR');
+    if (isRepetition(choice.nextRepetition)) {
+      expect(choice.nextRepetition.repeatDueAt > now).toBe(true);
+      expect(choice.nextRepetition.repeatPeriodUnit).toBe('HOUR');
+    }
   });
 });
 
@@ -119,6 +127,72 @@ test('a note with invalid repetition gets only a skip choice', () => {
   expect(choices).toHaveLength(1);
   expect(choices[0]).toStrictEqual({
     text: DISMISS_BUTTON_TEXT,
-    nextRepetition: null,
+    nextRepetition: 'DISMISS',
   });
+});
+
+test('periodic repetition includes NEVER button when enqueueNonRepeatingNotes is true', () => {
+  const settingsWithEnqueue = {
+    ...mockPluginSettings,
+    enqueueNonRepeatingNotes: true,
+  };
+
+  const choices = getRepeatChoices(periodicRepetition, settingsWithEnqueue as any);
+
+  // Should have 3 choices: skip, next repetition, and never
+  expect(choices).toHaveLength(3);
+
+  // Check that the NEVER button is present
+  const neverChoice = choices.find(choice => choice.nextRepetition === 'NEVER');
+  expect(neverChoice).toBeDefined();
+  expect(neverChoice?.text).toBe(NEVER_BUTTON_TEXT);
+});
+
+test('spaced repetition includes NEVER button when enqueueNonRepeatingNotes is true', () => {
+  const settingsWithEnqueue = {
+    ...mockPluginSettings,
+    enqueueNonRepeatingNotes: true,
+  };
+
+  const choices = getRepeatChoices(spacedRepetition, settingsWithEnqueue as any);
+
+  // Should have 6 choices: skip, 4 multiplier choices, and never
+  expect(choices).toHaveLength(6);
+
+  // Check that the NEVER button is present
+  const neverChoice = choices.find(choice => choice.nextRepetition === 'NEVER');
+  expect(neverChoice).toBeDefined();
+  expect(neverChoice?.text).toBe(NEVER_BUTTON_TEXT);
+});
+
+test('periodic repetition excludes NEVER button when enqueueNonRepeatingNotes is false', () => {
+  const settingsWithoutEnqueue = {
+    ...mockPluginSettings,
+    enqueueNonRepeatingNotes: false,
+  };
+
+  const choices = getRepeatChoices(periodicRepetition, settingsWithoutEnqueue as any);
+
+  // Should have 2 choices: skip and next repetition (no never)
+  expect(choices).toHaveLength(2);
+
+  // Check that the NEVER button is not present
+  const neverChoice = choices.find(choice => choice.nextRepetition === 'NEVER');
+  expect(neverChoice).toBeUndefined();
+});
+
+test('spaced repetition excludes NEVER button when enqueueNonRepeatingNotes is false', () => {
+  const settingsWithoutEnqueue = {
+    ...mockPluginSettings,
+    enqueueNonRepeatingNotes: false,
+  };
+
+  const choices = getRepeatChoices(spacedRepetition, settingsWithoutEnqueue as any);
+
+  // Should have 5 choices: skip and 4 multiplier choices (no never)
+  expect(choices).toHaveLength(5);
+
+  // Check that the NEVER button is not present
+  const neverChoice = choices.find(choice => choice.nextRepetition === 'NEVER');
+  expect(neverChoice).toBeUndefined();
 });

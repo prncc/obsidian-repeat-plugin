@@ -255,11 +255,6 @@ class RepeatView extends ItemView {
       (buttonElement) => {
         buttonElement.onclick = async () => {
           this.resetView();
-          if (!choice.nextRepetition) {
-            // TODO: Handle case of null nextRepetition properly.
-            this.setPage();
-            return;
-          }
           const markdown = await this.app.vault.read(file);
           const newMarkdown = updateRepetitionMetadata(
             markdown, serializeRepetition(choice.nextRepetition));

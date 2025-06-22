@@ -195,6 +195,7 @@ export default class RepeatPlugin extends Plugin {
                 ...repeat,
                 hidden: parseHiddenFieldFromMarkdown(content),
                 repeatDueAt,
+                virtual: false,
               }));
               this.app.vault.modify(file, newContent);
             }
