@@ -8,7 +8,6 @@ export interface RepeatPluginSettings {
   eveningReviewTime: string;
   defaultRepeat: Repeat;
   enqueueNonRepeatingNotes: boolean;
-  defaultRepeat: Repeat;
 }
 
 export const DEFAULT_SETTINGS: RepeatPluginSettings = {
@@ -24,10 +23,4 @@ export const DEFAULT_SETTINGS: RepeatPluginSettings = {
     repeatTimeOfDay: 'AM',
   },
   enqueueNonRepeatingNotes: false,
-  defaultRepeat: {
-    repeatStrategy: 'SPACED',
-    repeatPeriod: 1,
-    repeatPeriodUnit: 'DAY',
-    repeatTimeOfDay: 'AM',
-  },
 };

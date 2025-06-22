@@ -10,7 +10,7 @@ import {
   Strategy,
   TimeOfDay,
 } from './repeatTypes';
-import { DEFAULT_SETTINGS } from 'src/settings';
+import { DEFAULT_SETTINGS } from '../settings';
 
 const joinedUnits = 'hour|day|week|month|year';
 
