@@ -98,7 +98,7 @@ function getPeriodicRepeatChoices(
     },
   }];
 
-  if (settings.enqueueNonRepeatingNotes) {
+  if (settings.enqueueNonRepeatingNotes && repetition.virtual) {
     choices.push({
       text: NEVER_BUTTON_TEXT,
       nextRepetition: 'NEVER',
@@ -180,7 +180,7 @@ function getSpacedRepeatChoices(
     },
     ...multiplierChoices,
   ];
-  if (settings.enqueueNonRepeatingNotes) {
+  if (settings.enqueueNonRepeatingNotes && repetition.virtual) {
     choices.push({
       text: NEVER_BUTTON_TEXT,
       nextRepetition: 'NEVER',

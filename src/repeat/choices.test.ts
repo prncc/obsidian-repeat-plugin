@@ -26,6 +26,8 @@ const periodicRepetition = {
   repeatPeriodUnit: 'DAY',
   repeatTimeOfDay: 'AM',
   repeatDueAt: dueAt,
+  hidden: false,
+  virtual: false,
 } as Repetition;
 
 const spacedRepetition = {
@@ -33,11 +35,25 @@ const spacedRepetition = {
   repeatPeriod: 1,
   repeatPeriodUnit: 'HOUR',
   repeatDueAt: dueAt,
+  hidden: false,
+  virtual: false,
+} as Repetition;
+
+const virtualPeriodicRepetition = {
+  ...periodicRepetition,
+  virtual: true,
+} as Repetition;
+
+const virtualSpacedRepetition = {
+  ...spacedRepetition,
+  virtual: true,
 } as Repetition;
 
 const invalidRepetition = {
   repeatStrategy: 'NONE',
   repeatDueAt: dueAt,
+  hidden: false,
+  virtual: false,
 };
 
 // Helper function to check if nextRepetition is a Repetition object
@@ -131,13 +147,13 @@ test('a note with invalid repetition gets only a skip choice', () => {
   });
 });
 
-test('periodic repetition includes NEVER button when enqueueNonRepeatingNotes is true', () => {
+test('periodic repetition includes NEVER button when enqueueNonRepeatingNotes is true and virtual is true', () => {
   const settingsWithEnqueue = {
     ...mockPluginSettings,
     enqueueNonRepeatingNotes: true,
   };
 
-  const choices = getRepeatChoices(periodicRepetition, settingsWithEnqueue as any);
+  const choices = getRepeatChoices(virtualPeriodicRepetition, settingsWithEnqueue as any);
 
   // Should have 3 choices: skip, next repetition, and never
   expect(choices).toHaveLength(3);
@@ -148,13 +164,13 @@ test('periodic repetition includes NEVER button when enqueueNonRepeatingNotes is
   expect(neverChoice?.text).toBe(NEVER_BUTTON_TEXT);
 });
 
-test('spaced repetition includes NEVER button when enqueueNonRepeatingNotes is true', () => {
+test('spaced repetition includes NEVER button when enqueueNonRepeatingNotes is true and virtual is true', () => {
   const settingsWithEnqueue = {
     ...mockPluginSettings,
     enqueueNonRepeatingNotes: true,
   };
 
-  const choices = getRepeatChoices(spacedRepetition, settingsWithEnqueue as any);
+  const choices = getRepeatChoices(virtualSpacedRepetition, settingsWithEnqueue as any);
 
   // Should have 6 choices: skip, 4 multiplier choices, and never
   expect(choices).toHaveLength(6);
@@ -171,7 +187,7 @@ test('periodic repetition excludes NEVER button when enqueueNonRepeatingNotes is
     enqueueNonRepeatingNotes: false,
   };
 
-  const choices = getRepeatChoices(periodicRepetition, settingsWithoutEnqueue as any);
+  const choices = getRepeatChoices(virtualPeriodicRepetition, settingsWithoutEnqueue as any);
 
   // Should have 2 choices: skip and next repetition (no never)
   expect(choices).toHaveLength(2);
@@ -187,7 +203,39 @@ test('spaced repetition excludes NEVER button when enqueueNonRepeatingNotes is f
     enqueueNonRepeatingNotes: false,
   };
 
-  const choices = getRepeatChoices(spacedRepetition, settingsWithoutEnqueue as any);
+  const choices = getRepeatChoices(virtualSpacedRepetition, settingsWithoutEnqueue as any);
+
+  // Should have 5 choices: skip and 4 multiplier choices (no never)
+  expect(choices).toHaveLength(5);
+
+  // Check that the NEVER button is not present
+  const neverChoice = choices.find(choice => choice.nextRepetition === 'NEVER');
+  expect(neverChoice).toBeUndefined();
+});
+
+test('periodic repetition excludes NEVER button when virtual is false even if enqueueNonRepeatingNotes is true', () => {
+  const settingsWithEnqueue = {
+    ...mockPluginSettings,
+    enqueueNonRepeatingNotes: true,
+  };
+
+  const choices = getRepeatChoices(periodicRepetition, settingsWithEnqueue as any);
+
+  // Should have 2 choices: skip and next repetition (no never)
+  expect(choices).toHaveLength(2);
+
+  // Check that the NEVER button is not present
+  const neverChoice = choices.find(choice => choice.nextRepetition === 'NEVER');
+  expect(neverChoice).toBeUndefined();
+});
+
+test('spaced repetition excludes NEVER button when virtual is false even if enqueueNonRepeatingNotes is true', () => {
+  const settingsWithEnqueue = {
+    ...mockPluginSettings,
+    enqueueNonRepeatingNotes: true,
+  };
+
+  const choices = getRepeatChoices(spacedRepetition, settingsWithEnqueue as any);
 
   // Should have 5 choices: skip and 4 multiplier choices (no never)
   expect(choices).toHaveLength(5);
