@@ -21,6 +21,7 @@ A note can have a periodic or spaced repetition schedule. Notes using **periodic
 *   `daily`, `weekly`, `monthly`, `yearly`
 *   `every day`, `every week`, `every month`, `every year`
 *   `every K days`, `every K weeks`, `every K months`, `every K years` (where `K` is a number)
+*   `every tuesday`, `every monday, friday`, `every tue, wed, thu`, `every sat and sun` (specific days of the week)
 
 Notes using **spaced repetition** become due after a period that you choose during each review. To use spaced repetition, just add `spaced ` to the start of a note's `repeat` value. So:
 

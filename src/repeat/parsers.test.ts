@@ -177,3 +177,56 @@ test('spaced without period specified', () => {
     virtual: false,
   });
 });
+
+describe('parseRepetitionFields - weekday parsing', () => {
+  const expectedBaseRepetition = {
+    repeatStrategy: 'PERIODIC',
+    repeatPeriod: 1,
+    repeatPeriodUnit: 'WEEKDAYS',
+    repeatTimeOfDay: 'AM',
+    repeatDueAt: DateTime.fromISO(referenceRepeatDueAt),
+    hidden: false,
+    virtual: false,
+  };
+
+  test.concurrent.each([
+    {
+      repeat: 'every tuesday',
+      expectedWeekdays: ['tuesday'],
+    },
+    {
+      repeat: 'every tue',
+      expectedWeekdays: ['tuesday'],
+    },
+    {
+      repeat: 'every monday, wednesday',
+      expectedWeekdays: ['monday', 'wednesday'],
+    },
+    {
+      repeat: 'every mon, wed, fri',
+      expectedWeekdays: ['monday', 'wednesday', 'friday'],
+    },
+    {
+      repeat: 'every Tuesday, Wed and Thu',
+      expectedWeekdays: ['tuesday', 'wednesday', 'thursday'],
+    },
+    {
+      repeat: 'every tuesday in the evening',
+      expectedWeekdays: ['tuesday'],
+      expectedTimeOfDay: 'PM',
+    },
+    {
+      repeat: 'spaced every tuesday',
+      expectedWeekdays: ['tuesday'],
+      expectedStrategy: 'SPACED',
+    },
+  ])('parses $repeat', ({ repeat, expectedWeekdays, expectedTimeOfDay, expectedStrategy }) => {
+    const repetition = parseRepetitionFields(repeat, referenceRepeatDueAt);
+    expect(repetition).toEqual({
+      ...expectedBaseRepetition,
+      repeatWeekdays: expectedWeekdays,
+      ...(expectedTimeOfDay && { repeatTimeOfDay: expectedTimeOfDay }),
+      ...(expectedStrategy && { repeatStrategy: expectedStrategy }),
+    });
+  });
+});

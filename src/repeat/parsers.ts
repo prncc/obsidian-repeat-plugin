@@ -9,10 +9,45 @@ import {
   Repetition,
   Strategy,
   TimeOfDay,
+  Weekday,
 } from './repeatTypes';
 import { DEFAULT_SETTINGS } from '../settings';
 
 const joinedUnits = 'hour|day|week|month|year';
+
+const weekdayNames: Record<string, Weekday> = {
+  'monday': 'monday',
+  'mon': 'monday',
+  'tuesday': 'tuesday',
+  'tue': 'tuesday',
+  'tues': 'tuesday',
+  'wednesday': 'wednesday',
+  'wed': 'wednesday',
+  'thursday': 'thursday',
+  'thu': 'thursday',
+  'thur': 'thursday',
+  'thurs': 'thursday',
+  'friday': 'friday',
+  'fri': 'friday',
+  'saturday': 'saturday',
+  'sat': 'saturday',
+  'sunday': 'sunday',
+  'sun': 'sunday',
+};
+
+function parseWeekdays(weekdayString: string): Weekday[] {
+  const weekdays: Weekday[] = [];
+  const parts = weekdayString.toLowerCase().split(/,\s*|\s+and\s+|\s*&\s*/);
+
+  for (const part of parts) {
+    const trimmed = part.trim();
+    if (weekdayNames[trimmed]) {
+      weekdays.push(weekdayNames[trimmed]);
+    }
+  }
+
+  return weekdays.length > 0 ? weekdays : [];
+}
 
 function parseRepeatPeriodUnit(unitDescription: string): PeriodUnit {
   const processedUnitDescription = unitDescription.trim();
@@ -69,7 +104,28 @@ export function parseRepeat(repeat: string): Repeat {
     repeatStrategy = 'SPACED';
     processedRepeat = processedRepeat.split(spacedRegex)[1];
   }
-  // Then parse everything else.
+
+  // Check for weekday patterns first
+  // @ts-ignore: we're in obsidian, so this capture group being named is always fine.
+  const weekdayRegex = /^every\s+(.+?)(?<timeOfDaySuffix>\s+in\s+the\s+(morning|evening)|\s+(am|pm))?$/;
+  let result = weekdayRegex.exec(processedRepeat);
+  if (result) {
+    const weekdayString = result[1];
+    const weekdays = parseWeekdays(weekdayString);
+    if (weekdays.length > 0) {
+      return {
+        repeatStrategy: repeatStrategy as Strategy,
+        repeatPeriod: 1,
+        repeatPeriodUnit: 'WEEKDAYS',
+        repeatTimeOfDay: parseRepeatTimeOfDay(
+          result?.groups?.timeOfDaySuffix || DEFAULT_SETTINGS.defaultRepeat.repeatTimeOfDay
+        ),
+        repeatWeekdays: weekdays,
+      };
+    }
+  }
+
+  // Then parse traditional time-based patterns
   const repetitionRegex = new RegExp(
     '(?<description>' +
       'daily|weekly|monthly|yearly|annually' +
@@ -79,8 +135,8 @@ export function parseRepeat(repeat: string): Repeat {
     ')' +
     '(?<timeOfDaySuffix>.*)'
   );
-  let result;
-  if (( result = repetitionRegex.exec(processedRepeat) )) {
+  result = repetitionRegex.exec(processedRepeat);
+  if (result) {
     return {
       repeatStrategy: repeatStrategy as Strategy,
       repeatPeriod: parseInt(
@@ -120,8 +176,34 @@ export function parseRepeatDueAt(
   }
   // We can't parse the timestamp, or it isn't set.
   if (repeat) {
+    // Handle weekday-based repetitions specially
+    if (repeat.repeatPeriodUnit === 'WEEKDAYS' && repeat.repeatWeekdays) {
+      const weekdayNumbers: Record<string, number> = {
+        'monday': 1,
+        'tuesday': 2,
+        'wednesday': 3,
+        'thursday': 4,
+        'friday': 5,
+        'saturday': 6,
+        'sunday': 7,
+      };
+
+      const targetWeekdays = repeat.repeatWeekdays.map(day => weekdayNumbers[day]).sort();
+
+      // Find next occurrence of any of the target weekdays
+      for (let daysAhead = 1; daysAhead <= 7; daysAhead++) {
+        const candidateDate = referenceDateTime.plus({ days: daysAhead });
+        if (targetWeekdays.includes(candidateDate.weekday)) {
+          return candidateDate;
+        }
+      }
+
+      // Fallback - should never happen
+      return referenceDateTime.plus({ days: 1 });
+    }
+
     return referenceDateTime.plus({
-      [repeat.repeatPeriodUnit]: repeat.repeatPeriod,
+      [repeat.repeatPeriodUnit.toLowerCase()]: repeat.repeatPeriod,
     });
   }
   return referenceDateTime;

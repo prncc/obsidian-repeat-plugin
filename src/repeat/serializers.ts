@@ -15,8 +15,21 @@ export function serializeRepeat({
   repeatStrategy,
   repeatPeriod,
   repeatPeriodUnit,
-  repeatTimeOfDay
+  repeatTimeOfDay,
+  repeatWeekdays
 }: Repeat | Repetition): string {
+  // Handle weekday-based repetitions
+  if (repeatPeriodUnit === 'WEEKDAYS' && repeatWeekdays && repeatWeekdays.length > 0) {
+    const weekdayString = repeatWeekdays.join(', ');
+    return [
+      ...(repeatStrategy === 'PERIODIC' ? [] : ['spaced']),
+      'every',
+      weekdayString,
+      ...(repeatTimeOfDay === 'AM' ? [] : ['in the evening']),
+    ].join(' ');
+  }
+
+  // Handle traditional short forms
   if (repeatStrategy === 'PERIODIC'
       && repeatPeriod === 1
       && repeatPeriodUnit !== 'HOUR'
@@ -35,6 +48,8 @@ export function serializeRepeat({
         break;
     }
   }
+
+  // Handle traditional time-based repetitions
   return [
     ...(repeatStrategy === 'PERIODIC' ? [] : ['spaced']),
     'every',

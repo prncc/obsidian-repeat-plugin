@@ -61,3 +61,46 @@ describe('serializeRepeat round trip', () => {
       expect(serializedUnserializedRepetition).toEqual(repetition);
     });
 });
+
+describe('serializeRepeat weekday round trip', () => {
+  const weekdayRepetitions = [
+    {
+      repeatStrategy: 'PERIODIC',
+      repeatPeriod: 1,
+      repeatPeriodUnit: 'WEEKDAYS',
+      repeatTimeOfDay: 'AM',
+      repeatWeekdays: ['tuesday'],
+      repeatDueAt: referenceRepeatDueAt,
+      hidden: false,
+      virtual: false,
+    },
+    {
+      repeatStrategy: 'PERIODIC',
+      repeatPeriod: 1,
+      repeatPeriodUnit: 'WEEKDAYS',
+      repeatTimeOfDay: 'PM',
+      repeatWeekdays: ['monday', 'friday'],
+      repeatDueAt: referenceRepeatDueAt,
+      hidden: false,
+      virtual: false,
+    },
+    {
+      repeatStrategy: 'SPACED',
+      repeatPeriod: 1,
+      repeatPeriodUnit: 'WEEKDAYS',
+      repeatTimeOfDay: 'AM',
+      repeatWeekdays: ['wednesday', 'thursday'],
+      repeatDueAt: referenceRepeatDueAt,
+      hidden: true,
+      virtual: false,
+    },
+  ];
+
+  test.concurrent.each(weekdayRepetitions)(
+    'retains weekday repetition $repeatWeekdays with $repeatTimeOfDay and $repeatStrategy',
+    (repetition) => {
+      const { repeat, due_at, hidden } = serializeRepetition(repetition as any);
+      const serializedUnserializedRepetition = parseRepetitionFields(String(repeat), String(due_at ?? ""), String(hidden), undefined);
+      expect(serializedUnserializedRepetition).toEqual(repetition);
+    });
+});
