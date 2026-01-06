@@ -44,6 +44,7 @@ class RepeatView extends ItemView {
   filterCountEl: HTMLElement;
   filterErrorEl: HTMLElement;
   availableTags: TagStats[];
+  displayedTagCount: number;
   saveSettings: () => Promise<void>;
   handleQueryChange: ReturnType<typeof debounce>;
   filterExpanded: boolean;
@@ -75,6 +76,7 @@ class RepeatView extends ItemView {
     this.handleSaveFilter = this.handleSaveFilter.bind(this);
     this.handleLoadSavedFilter = this.handleLoadSavedFilter.bind(this);
     this.handleDeleteSavedFilter = this.handleDeleteSavedFilter.bind(this);
+    this.handleShowMoreTags = this.handleShowMoreTags.bind(this);
     this.toggleFilterDrawer = this.toggleFilterDrawer.bind(this);
     this.filterExpanded = false;
 
@@ -84,6 +86,7 @@ class RepeatView extends ItemView {
     this.settings = settings;
     this.saveSettings = saveSettings;
     this.availableTags = [];
+    this.displayedTagCount = 6;
 
     this.root = this.containerEl.children[1];
     this.indexPromise = new Promise((resolve, reject) => {
@@ -323,7 +326,7 @@ class RepeatView extends ItemView {
       cls: 'repeat-filter-query-input',
       attr: {
         type: 'text',
-        placeholder: 'Filter: #tag, "Folder", or Dataview expression...',
+        placeholder: 'Filter: #tag or Dataview expression...',
         value: this.settings.filterQuery || '',
       }
     });
@@ -381,6 +384,33 @@ class RepeatView extends ItemView {
     this.filterContainer.toggleClass('repeat-filter-expanded', this.filterExpanded);
   }
 
+  renderTagShortcuts() {
+    this.tagShortcutsContainer.empty();
+    const tagsToShow = this.availableTags.slice(0, this.displayedTagCount);
+    const hiddenCount = this.availableTags.length - this.displayedTagCount;
+
+    tagsToShow.forEach(({ tag, count }) => {
+      const tagBtn = this.tagShortcutsContainer.createEl('button', {
+        cls: 'repeat-filter-tag',
+        text: `${tag} (${count})`,
+      });
+      tagBtn.addEventListener('click', () => this.handleTagClick(tag));
+    });
+
+    if (hiddenCount > 0) {
+      const moreLink = this.tagShortcutsContainer.createEl('button', {
+        cls: 'repeat-filter-tag-more',
+        text: `+${hiddenCount} more`,
+      });
+      moreLink.addEventListener('click', this.handleShowMoreTags);
+    }
+  }
+
+  handleShowMoreTags() {
+    this.displayedTagCount += 6;
+    this.renderTagShortcuts();
+  }
+
   refreshFilterUI() {
     // Get all tags from due notes (without filtering)
     this.availableTags = getTagsFromDueNotes(
@@ -391,15 +421,10 @@ class RepeatView extends ItemView {
       this.settings.defaultRepeat
     ) || [];
 
-    // Update tag shortcuts
-    this.tagShortcutsContainer.empty();
-    this.availableTags.forEach(({ tag, count }) => {
-      const tagBtn = this.tagShortcutsContainer.createEl('button', {
-        cls: 'repeat-filter-tag',
-        text: `${tag} (${count})`,
-      });
-      tagBtn.addEventListener('click', () => this.handleTagClick(tag));
-    });
+    // Reset displayed count when refreshing (e.g., after reviewing a note)
+    this.displayedTagCount = 6;
+
+    this.renderTagShortcuts();
 
     // Update saved filters dropdown
     this.savedFilterDropdown.empty();
@@ -457,7 +482,16 @@ class RepeatView extends ItemView {
           filterQuery
         )?.length || 0;
 
-        this.filterCountEl.textContent = `Filter: ${filteredCount} of ${totalCount} due`;
+        // Check if this matches a named filter
+        const matchingFilter = this.settings.savedFilters.find(
+          f => f.query === filterQuery
+        );
+
+        if (matchingFilter) {
+          this.filterCountEl.textContent = `${matchingFilter.name}: ${filteredCount} matching, ${totalCount} total`;
+        } else {
+          this.filterCountEl.textContent = `${filteredCount} matching, ${totalCount} total`;
+        }
         this.filterErrorEl.style.display = 'none';
       } catch (e) {
         this.filterCountEl.textContent = `${totalCount} notes due`;

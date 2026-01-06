@@ -172,6 +172,25 @@
   border-color: var(--interactive-accent);
 }
 
+.repeat-filter-tag-more {
+  display: inline-flex;
+  align-items: center;
+  background: transparent;
+  border: 1px dashed var(--background-modifier-border);
+  color: var(--text-muted);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-style: italic;
+  cursor: pointer;
+}
+
+.repeat-filter-tag-more:hover {
+  background: var(--background-secondary);
+  color: var(--text-normal);
+  border-color: var(--text-muted);
+}
+
 /* Dropdowns */
 .repeat-filter-dropdown {
   flex: 1;
