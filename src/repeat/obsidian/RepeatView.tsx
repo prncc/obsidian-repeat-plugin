@@ -2,6 +2,7 @@ import {
   Component,
   debounce,
   ItemView,
+  setIcon,
   WorkspaceLeaf,
   TFile,
 } from 'obsidian';
@@ -10,12 +11,14 @@ import { getAPI, DataviewApi } from 'obsidian-dataview';
 import { determineFrontmatterBounds, updateRepetitionMetadata } from '../../frontmatter';
 import { getRepeatChoices } from '../choices';
 import { RepeatChoice } from '../repeatTypes';
-import { getNextDueNote } from '../queries';
+import { getNextDueNote, getNotesDue, getTagsFromDueNotes, TagStats } from '../queries';
 import { serializeRepetition } from '../serializers';
 import { renderMarkdown, renderTitleElement } from '../../markdown';
 import { RepeatPluginSettings } from '../../settings';
+import TextInputModal from './TextInputModal';
 
 const MODIFY_DEBOUNCE_MS = 1 * 1000;
+const QUERY_DEBOUNCE_MS = 500;
 export const REPEATING_NOTES_DUE_VIEW = 'repeating-notes-due-view';
 
 class RepeatView extends ItemView {
@@ -30,7 +33,22 @@ class RepeatView extends ItemView {
   root: Element;
   settings: RepeatPluginSettings;
 
-  constructor(leaf: WorkspaceLeaf, settings: RepeatPluginSettings) {
+  // Filter UI elements
+  filterContainer: HTMLElement;
+  filterHeader: HTMLElement;
+  filterContent: HTMLElement;
+  filterToggleIcon: HTMLElement;
+  queryInput: HTMLInputElement;
+  tagShortcutsContainer: HTMLElement;
+  savedFilterDropdown: HTMLSelectElement;
+  filterCountEl: HTMLElement;
+  filterErrorEl: HTMLElement;
+  availableTags: TagStats[];
+  saveSettings: () => Promise<void>;
+  handleQueryChange: ReturnType<typeof debounce>;
+  filterExpanded: boolean;
+
+  constructor(leaf: WorkspaceLeaf, settings: RepeatPluginSettings, saveSettings: () => Promise<void>) {
     super(leaf);
     this.addRepeatButton = this.addRepeatButton.bind(this);
     this.disableExternalHandlers = this.disableExternalHandlers.bind(this);
@@ -47,10 +65,25 @@ class RepeatView extends ItemView {
     this.setPage = this.setPage.bind(this);
     this.resetView = this.resetView.bind(this);
 
+    // Filter-related bindings
+    this.createFilterUI = this.createFilterUI.bind(this);
+    this.refreshFilterUI = this.refreshFilterUI.bind(this);
+    this.doHandleQueryChange = this.doHandleQueryChange.bind(this);
+    this.handleQueryChange = debounce(this.doHandleQueryChange, QUERY_DEBOUNCE_MS);
+    this.handleTagClick = this.handleTagClick.bind(this);
+    this.handleClearQuery = this.handleClearQuery.bind(this);
+    this.handleSaveFilter = this.handleSaveFilter.bind(this);
+    this.handleLoadSavedFilter = this.handleLoadSavedFilter.bind(this);
+    this.handleDeleteSavedFilter = this.handleDeleteSavedFilter.bind(this);
+    this.toggleFilterDrawer = this.toggleFilterDrawer.bind(this);
+    this.filterExpanded = false;
+
     this.component = new Component();
 
     this.dv = getAPI(this.app);
     this.settings = settings;
+    this.saveSettings = saveSettings;
+    this.availableTags = [];
 
     this.root = this.containerEl.children[1];
     this.indexPromise = new Promise((resolve, reject) => {
@@ -154,14 +187,32 @@ class RepeatView extends ItemView {
     // Reset the message container so that loading message is hidden.
     this.setMessage('');
     this.messageContainer.style.display = 'none';
+
+    // Refresh the filter UI with current tags
+    this.refreshFilterUI();
+
     const page = getNextDueNote(
       this.dv,
       this.settings.ignoreFolderPath,
       ignoreFilePath,
       this.settings.enqueueNonRepeatingNotes,
-      this.settings.defaultRepeat);
+      this.settings.defaultRepeat,
+      this.settings.filterQuery || undefined);
     if (!page) {
-      this.setMessage('All done for now!');
+      // Check if there are notes due but filtered out
+      const totalDue = getNotesDue(
+        this.dv,
+        this.settings.ignoreFolderPath,
+        ignoreFilePath,
+        this.settings.enqueueNonRepeatingNotes,
+        this.settings.defaultRepeat
+      )?.length || 0;
+
+      if (totalDue > 0 && this.settings.filterQuery) {
+        this.setMessage(`No notes matching filter. ${totalDue} other notes are due.`);
+      } else {
+        this.setMessage('All done for now!');
+      }
       this.buttonsContainer.createEl('button', {
         text: 'Refresh',
       },
@@ -230,14 +281,311 @@ class RepeatView extends ItemView {
 
   resetView() {
     this.messageContainer && this.messageContainer.remove();
+    this.filterContainer && this.filterContainer.remove();
     this.buttonsContainer && this.buttonsContainer.remove();
     this.previewContainer && this.previewContainer.remove();
     this.messageContainer = this.root.createEl('div', { cls: 'repeat-message' });
     // Hide until there's a message to manage spacing.
     this.messageContainer.style.display = 'none';
+    this.createFilterUI();
     this.buttonsContainer = this.root.createEl('div', { cls: 'repeat-buttons' });
     this.previewContainer = this.root.createEl('div', { cls: 'repeat-embedded_note' });
     this.currentDueFilePath = undefined;
+  }
+
+  createFilterUI() {
+    this.filterContainer = this.root.createEl('div', { cls: 'repeat-filter' });
+
+    // Drawer header (always visible)
+    this.filterHeader = this.filterContainer.createEl('div', { cls: 'repeat-filter-header' });
+    this.filterHeader.addEventListener('click', this.toggleFilterDrawer);
+
+    this.filterToggleIcon = this.filterHeader.createEl('span', {
+      cls: 'repeat-filter-toggle-icon',
+    });
+    setIcon(this.filterToggleIcon, 'chevron-right');
+
+    // Filter count display (in header, always visible)
+    this.filterCountEl = this.filterHeader.createEl('span', {
+      cls: 'repeat-filter-count'
+    });
+
+    // Collapsible content
+    this.filterContent = this.filterContainer.createEl('div', {
+      cls: 'repeat-filter-content'
+    });
+    this.filterContent.style.display = 'none';
+
+    // Row 1: Query input + Clear button
+    const queryRow = this.filterContent.createEl('div', { cls: 'repeat-filter-row' });
+
+    this.queryInput = queryRow.createEl('input', {
+      cls: 'repeat-filter-query-input',
+      attr: {
+        type: 'text',
+        placeholder: 'Filter: #tag, "Folder", or Dataview expression...',
+        value: this.settings.filterQuery || '',
+      }
+    });
+    this.queryInput.value = this.settings.filterQuery || '';
+    this.queryInput.addEventListener('input', () => this.handleQueryChange());
+    this.queryInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        this.handleQueryChange();
+        this.handleQueryChange.cancel?.();
+      }
+    });
+
+    const clearBtn = queryRow.createEl('button', {
+      cls: 'repeat-filter-btn',
+      text: 'Clear',
+    });
+    clearBtn.addEventListener('click', this.handleClearQuery);
+
+    // Row 2: Tag shortcuts
+    this.tagShortcutsContainer = this.filterContent.createEl('div', {
+      cls: 'repeat-filter-tags'
+    });
+
+    // Row 3: Saved filters dropdown + Save/Delete buttons
+    const savedFilterRow = this.filterContent.createEl('div', { cls: 'repeat-filter-row' });
+
+    this.savedFilterDropdown = savedFilterRow.createEl('select', {
+      cls: 'repeat-filter-dropdown'
+    });
+    this.savedFilterDropdown.addEventListener('change', this.handleLoadSavedFilter);
+
+    const saveBtn = savedFilterRow.createEl('button', {
+      cls: 'repeat-filter-btn',
+      text: 'Save',
+    });
+    saveBtn.addEventListener('click', this.handleSaveFilter);
+
+    const deleteBtn = savedFilterRow.createEl('button', {
+      cls: 'repeat-filter-btn repeat-filter-btn-danger',
+      text: 'Delete',
+    });
+    deleteBtn.addEventListener('click', this.handleDeleteSavedFilter);
+
+    // Error display (hidden by default)
+    this.filterErrorEl = this.filterContent.createEl('div', {
+      cls: 'repeat-filter-error'
+    });
+    this.filterErrorEl.style.display = 'none';
+  }
+
+  toggleFilterDrawer() {
+    this.filterExpanded = !this.filterExpanded;
+    this.filterContent.style.display = this.filterExpanded ? 'block' : 'none';
+    setIcon(this.filterToggleIcon, this.filterExpanded ? 'chevron-down' : 'chevron-right');
+    this.filterContainer.toggleClass('repeat-filter-expanded', this.filterExpanded);
+  }
+
+  refreshFilterUI() {
+    // Get all tags from due notes (without filtering)
+    this.availableTags = getTagsFromDueNotes(
+      this.dv,
+      this.settings.ignoreFolderPath,
+      undefined,
+      this.settings.enqueueNonRepeatingNotes,
+      this.settings.defaultRepeat
+    ) || [];
+
+    // Update tag shortcuts
+    this.tagShortcutsContainer.empty();
+    this.availableTags.forEach(({ tag, count }) => {
+      const tagBtn = this.tagShortcutsContainer.createEl('button', {
+        cls: 'repeat-filter-tag',
+        text: `${tag} (${count})`,
+      });
+      tagBtn.addEventListener('click', () => this.handleTagClick(tag));
+    });
+
+    // Update saved filters dropdown
+    this.savedFilterDropdown.empty();
+    const defaultOption = this.savedFilterDropdown.createEl('option', {
+      text: 'Load saved filter...',
+      attr: { value: '' }
+    });
+    defaultOption.disabled = true;
+
+    // Find if current query matches a saved filter
+    const matchingFilterIndex = this.settings.savedFilters.findIndex(
+      f => f.query === this.settings.filterQuery
+    );
+
+    // Select the placeholder only if no filter matches
+    if (matchingFilterIndex === -1) {
+      defaultOption.selected = true;
+    }
+
+    this.settings.savedFilters.forEach((filter, index) => {
+      const option = this.savedFilterDropdown.createEl('option', {
+        text: filter.name,
+        attr: { value: index.toString() }
+      });
+      if (index === matchingFilterIndex) {
+        option.selected = true;
+      }
+    });
+
+    // Update filter count
+    this.updateFilterCount();
+  }
+
+  updateFilterCount() {
+    const filterQuery = this.settings.filterQuery;
+
+    // Get total due notes (unfiltered)
+    const totalCount = getNotesDue(
+      this.dv,
+      this.settings.ignoreFolderPath,
+      undefined,
+      this.settings.enqueueNonRepeatingNotes,
+      this.settings.defaultRepeat
+    )?.length || 0;
+
+    if (filterQuery) {
+      // Get filtered count
+      try {
+        const filteredCount = getNotesDue(
+          this.dv,
+          this.settings.ignoreFolderPath,
+          undefined,
+          this.settings.enqueueNonRepeatingNotes,
+          this.settings.defaultRepeat,
+          filterQuery
+        )?.length || 0;
+
+        this.filterCountEl.textContent = `Filter: ${filteredCount} of ${totalCount} due`;
+        this.filterErrorEl.style.display = 'none';
+      } catch (e) {
+        this.filterCountEl.textContent = `${totalCount} notes due`;
+        this.filterErrorEl.textContent = `Invalid filter: ${e.message || 'Check your query syntax'}`;
+        this.filterErrorEl.style.display = 'block';
+      }
+    } else {
+      this.filterCountEl.textContent = `${totalCount} notes due`;
+      this.filterErrorEl.style.display = 'none';
+    }
+  }
+
+  doHandleQueryChange() {
+    const newQuery = this.queryInput.value.trim();
+    if (newQuery !== this.settings.filterQuery) {
+      this.settings.filterQuery = newQuery;
+      this.saveSettings();
+      this.updateFilterCount();
+      // Re-render the current page with new filter
+      this.buttonsContainer.empty();
+      this.previewContainer.empty();
+      this.previewContainer.removeClass('markdown-embed');
+      this.setPage();
+    }
+  }
+
+  handleTagClick(tag: string) {
+    const currentQuery = this.queryInput.value.trim();
+    if (currentQuery) {
+      // Append with OR
+      this.queryInput.value = `${currentQuery} OR ${tag}`;
+    } else {
+      this.queryInput.value = tag;
+    }
+    this.handleQueryChange();
+  }
+
+  async handleClearQuery() {
+    this.queryInput.value = '';
+    this.settings.filterQuery = '';
+    await this.saveSettings();
+    this.updateFilterCount();
+    // Re-render
+    this.buttonsContainer.empty();
+    this.previewContainer.empty();
+    this.previewContainer.removeClass('markdown-embed');
+    this.setPage();
+  }
+
+  async handleSaveFilter() {
+    const currentQuery = this.settings.filterQuery;
+    if (!currentQuery) {
+      return; // Nothing to save
+    }
+
+    const modal = new TextInputModal(
+      this.app,
+      'Save Filter',
+      'Filter name',
+      '',
+      async (name) => {
+        if (!name) return;
+
+        // Check for duplicate names and update or add
+        const existingIndex = this.settings.savedFilters.findIndex(f => f.name === name);
+        if (existingIndex >= 0) {
+          this.settings.savedFilters[existingIndex].query = currentQuery;
+        } else {
+          this.settings.savedFilters.push({ name, query: currentQuery });
+        }
+
+        await this.saveSettings();
+        this.refreshFilterUI();
+      }
+    );
+    modal.open();
+  }
+
+  async handleLoadSavedFilter(event: Event) {
+    const select = event.target as HTMLSelectElement;
+    const filterIndex = parseInt(select.value);
+
+    if (isNaN(filterIndex)) return;
+
+    const filter = this.settings.savedFilters[filterIndex];
+    if (filter) {
+      this.queryInput.value = filter.query;
+      this.settings.filterQuery = filter.query;
+      await this.saveSettings();
+      this.updateFilterCount();
+      // Re-render
+      this.buttonsContainer.empty();
+      this.previewContainer.empty();
+      this.previewContainer.removeClass('markdown-embed');
+      this.setPage();
+    }
+  }
+
+  async handleDeleteSavedFilter() {
+    const select = this.savedFilterDropdown;
+    const filterIndex = parseInt(select.value);
+
+    if (isNaN(filterIndex)) return;
+
+    const filter = this.settings.savedFilters[filterIndex];
+    if (filter) {
+      // Clear query if it matches the deleted filter
+      const shouldClearQuery = this.settings.filterQuery === filter.query;
+
+      this.settings.savedFilters.splice(filterIndex, 1);
+
+      if (shouldClearQuery) {
+        this.settings.filterQuery = '';
+        this.queryInput.value = '';
+      }
+
+      await this.saveSettings();
+
+      if (shouldClearQuery) {
+        // Re-render with cleared filter
+        this.buttonsContainer.empty();
+        this.previewContainer.empty();
+        this.previewContainer.removeClass('markdown-embed');
+        this.setPage();
+      } else {
+        this.refreshFilterUI();
+      }
+    }
   }
 
   setMessage(message: string) {

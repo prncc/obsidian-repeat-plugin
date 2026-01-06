@@ -1,5 +1,10 @@
 import { Repeat } from "./repeat/repeatTypes";
 
+export interface SavedFilter {
+  name: string;
+  query: string;  // Dataview FROM expression, e.g. "#math" or "#math AND \"Courses\""
+}
+
 export interface RepeatPluginSettings {
   showDueCountInStatusBar: boolean;
   showRibbonIcon: boolean;
@@ -8,6 +13,8 @@ export interface RepeatPluginSettings {
   eveningReviewTime: string;
   defaultRepeat: Repeat;
   enqueueNonRepeatingNotes: boolean;
+  filterQuery: string;              // Current Dataview FROM expression
+  savedFilters: SavedFilter[];      // Named filter presets
 }
 
 export const DEFAULT_SETTINGS: RepeatPluginSettings = {
@@ -23,4 +30,6 @@ export const DEFAULT_SETTINGS: RepeatPluginSettings = {
     repeatTimeOfDay: 'AM',
   },
   enqueueNonRepeatingNotes: false,
+  filterQuery: '',
+  savedFilters: [],
 };
