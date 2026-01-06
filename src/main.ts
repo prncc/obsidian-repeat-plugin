@@ -60,6 +60,7 @@ export default class RepeatPlugin extends Plugin {
       this.statusBarItem = undefined;
     }
     if (this.settings.showDueCountInStatusBar) {
+      this.makeStatusBarItem();
       this.updateNotesDueCount();
     }
     if (!this.settings.showRibbonIcon && this.ribbonIcon) {
@@ -71,18 +72,26 @@ export default class RepeatPlugin extends Plugin {
     }
   }
 
+  makeStatusBarItem() {
+    if (this.settings.showDueCountInStatusBar && !this.statusBarItem) {
+      this.statusBarItem = this.addStatusBarItem();
+      this.statusBarItem.addClass('mod-clickable');
+      this.statusBarItem.setText('Repeat');
+      this.statusBarItem.addEventListener('click', () => {
+        this.activateRepeatNotesDueView();
+      });
+    }
+  }
+
   updateNotesDueCount() {
-    if (this.settings.showDueCountInStatusBar) {
-      if (!this.statusBarItem) {
-        this.statusBarItem = this.addStatusBarItem();
-      }
+    if (this.settings.showDueCountInStatusBar && this.statusBarItem) {
       const dueNoteCount = getNotesDue(
         getAPI(this.app),
         this.settings.ignoreFolderPath,
         undefined,
         this.settings.enqueueNonRepeatingNotes,
         this.settings.defaultRepeat)?.length;
-      if (dueNoteCount != undefined && this.statusBarItem) {
+      if (dueNoteCount != undefined) {
         this.statusBarItem.setText(
           `${dueNoteCount} repeat notes due`);
       }
@@ -90,25 +99,37 @@ export default class RepeatPlugin extends Plugin {
   }
 
   manageStatusBarItem() {
-    // Update due note count when the DataView index populates.
-    this.registerEvent(
-      this.app.metadataCache.on(
-        // @ts-ignore: event is added by DataView.
-        'dataview:index-ready',
-        () => {
-          this.updateNotesDueCount();
-          // Update due note count whenever metadata changes.
-          setTimeout(() => {
-            this.registerEvent(
-              this.app.metadataCache.on(
-                // @ts-ignore: event is added by DataView.
-                'dataview:metadata-change',
-                this.updateNotesDueCount
-              )
-            );
-          }, COUNT_DEBOUNCE_MS);
-        })
-    );
+    // Create status bar item immediately so it's visible right away.
+    this.makeStatusBarItem();
+
+    const dv = getAPI(this.app);
+    const onIndexReady = () => {
+      this.updateNotesDueCount();
+      // Update due note count whenever metadata changes.
+      setTimeout(() => {
+        this.registerEvent(
+          this.app.metadataCache.on(
+            // @ts-ignore: event is added by DataView.
+            'dataview:metadata-change',
+            this.updateNotesDueCount
+          )
+        );
+      }, COUNT_DEBOUNCE_MS);
+    };
+
+    // If Dataview index is already ready, update immediately.
+    // Otherwise, wait for the index-ready event.
+    if (dv?.index.initialized) {
+      onIndexReady();
+    } else {
+      this.registerEvent(
+        this.app.metadataCache.on(
+          // @ts-ignore: event is added by DataView.
+          'dataview:index-ready',
+          onIndexReady)
+      );
+    }
+
     // Periodically update due note count as notes become due.
     const FIVE_MINUTES_IN_MS = 5 * 60 * 1000;
     this.registerInterval(
