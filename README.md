@@ -45,6 +45,19 @@ To review notes, open the Repeat view in Obsidian by clicking the "clock" icon, 
 
 Clicking one of the buttons above the embedded note will update the note's `due_at` and (possibly) `repeat` property values.
 
+### Filtering notes during review
+
+You can filter which due notes appear during review using the filter drawer at the top of the Repeat view. Click on the note count to expand the filter options.
+
+**Quick tag filtering:** Click any tag shortcut to add it to your filter. Tags are shown with counts (e.g., `#math (3)`) indicating how many due notes have that tag. If you have many tags, click "+N more" to reveal additional tags.
+
+**Custom filters:** Type any Dataview source expression in the filter input. For example:
+- `#math` — only notes with the #math tag
+- `#math OR #physics` — notes with either tag
+- `#study AND #urgent` — notes with both tags
+
+**Saved filters:** Save frequently-used filters by clicking "Save" and giving them a name. Load saved filters from the dropdown, or delete them when no longer needed. Saved filters persist across sessions.
+
 ### Extreme detail about how due dates are calculated that you don't really need to know
 
 Notes using periodic repetition will be due one period *in the future* relative to their previous due date. For example, if it's July 2024 and a note has `repeat: every year` and `due_at: 1999-01-01`, then after review the note will have `due_at: 2025-01-01T06:00:00`. That way, your periodic due dates remain equally spaced even if you stop reviewing your notes for a while.
